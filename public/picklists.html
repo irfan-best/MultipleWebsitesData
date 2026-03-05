@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Continent-Country Dropdown</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+    select {
+      width: 200px;
+      padding: 5px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <label for="continentSelect">Select Continent:</label>
+  <select id="continentSelect">
+    <option value="">-- Select Continent --</option>
+  </select>
+
+  <label for="countrySelect">Select Country:</label>
+  <select id="countrySelect" disabled>
+    <option value="">-- Select Country --</option>
+  </select>
+
+  <script>
+    // Map of continents to countries
+    const continentCountryMap = new Map([
+      ['Asia', ['India', 'China', 'Japan', 'Thailand']],
+      ['Europe', ['Germany', 'France', 'Spain', 'Italy']],
+      ['Africa', ['Nigeria', 'Egypt', 'South Africa']],
+      ['North America', ['USA', 'Canada', 'Mexico']],
+      ['South America', ['Brazil', 'Argentina', 'Chile']],
+      ['Australia', ['Australia']],
+      ['Antarctica', []]  // No countries
+    ]);
+
+    const continentSelect = document.getElementById('continentSelect');
+    const countrySelect = document.getElementById('countrySelect');
+
+    // Populate continents
+    for (const continent of continentCountryMap.keys()) {
+      const option = document.createElement('option');
+      option.value = continent;
+      option.textContent = continent;
+      continentSelect.appendChild(option);
+    }
+
+    // Event listener to update countries based on continent
+    continentSelect.addEventListener('change', function () {
+      const selectedContinent = this.value;
+      const countries = continentCountryMap.get(selectedContinent) || [];
+
+      // Clear and disable country dropdown if no continent is selected
+      countrySelect.innerHTML = '<option value="">-- Select Country --</option>';
+      countrySelect.disabled = countries.length === 0;
+
+      // Populate countries if available
+      countries.forEach(country => {
+        const option = document.createElement('option');
+        option.value = country;
+        option.textContent = country;
+        countrySelect.appendChild(option);
+      });
+
+      if (countries.length > 0) {
+        countrySelect.disabled = false;
+      }
+    });
+  </script>
+
+</body>
+</html>
