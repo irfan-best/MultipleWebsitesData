@@ -1,0 +1,1 @@
+var consoleLevel = 0; // 0: no logs, 1: important logs, 2: all logs

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shortcut Keys</title>
+    <style>
+        body{
+            margin: 0;
+        }
+        .table-container {
+            display: flex;
+        }
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            margin: 10px 10px;
+            font-family: Arial, sans-serif;
+            
+        }
+        th, td {
+            border: 1px solid #666;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #eee;
+        }
+        caption {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .info{
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+            background-color: lightcyan;
+        }
+        tr td:first-child, tr:first-child th {
+            text-align: center;
+        }
+        .special {
+            padding-left:133px;
+            text-align: left !important;
+            line-height: 26px;
+            user-select: none;  
+        }
+
+        tr td:first-child {
+            width: 88px;
+        }
+
+        tr td:last-child {
+            /* width: 100%; */
+        }
+
+        td{
+            height: 10px;
+        }
+
+        table{
+            
+        }
+
+        tr td:last-child{
+             user-select: none;  
+        }
+
+
+        .hidden-text::before{
+            content: attr(data-text);
+        }
+
+        .small-line{
+            margin:0;
+            padding:0;
+            padding-top:2px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="table-container">
+        <table cellspacing="0" cellpadding="0">
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Function</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Ctrl + Enter</td>
+                    <td class="hidden-text" data-text="Byoru Tier 1 -> becomes -> Byour Tier 1 - Avg"></td>
+                </tr>
+                <tr>
+                    <td>Ctrl + Enter</td>
+                    <td class="hidden-text" data-text="Byoru Tier 1 - Avg -> becomes -> Byour Tier 1"></td>
+                </tr>
+                <tr></tr>
+
+                <tr>
+                    <td colspan="2" class="info hidden-text" data-text="To change No.of images per row."></td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td class="hidden-text" data-text="No.of Image per row will become 1"></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td class="hidden-text" data-text="No.of Image per row will become 2"></td>
+                </tr>
+                <tr>
+                    <td>0</td>
+                    <td class="hidden-text" data-text="No.of Image per row will become 10"></td>
+                </tr>
+                <tr></tr>
+
+                <tr>
+                    <td colspan="2" class="info hidden-text" data-text="Copy Keys"></td>
+                </tr>
+                <tr>
+                    <td>y</td>
+                    <td class="hidden-text" data-text="Copies Current Page/header Name"></td>
+                </tr>
+                <tr>
+                    <td>l</td>
+                    <td class="hidden-text" data-text="Copy List"></td>
+                </tr>
+                <tr>
+                    <td>p</td>
+                    <td class="hidden-text" data-text="Copy Path"></td>
+                </tr>
+                <tr>
+                    <td>u</td>
+                    <td class="hidden-text" data-text="Copy URL Path"></td>
+                </tr>
+                <tr></tr>
+
+                <tr>
+                    <td colspan="2" class="info hidden-text" data-text="To Navigate in Page"></td>
+                </tr>
+                <tr>
+                    <td>w</td>
+                    <td class="hidden-text" data-text="Go to Top of the Page"></td>
+                </tr>
+                <tr>
+                    <td>Down Arrow</td>
+                    <td class="hidden-text" data-text="Go to next row"></td>
+                </tr>
+                <tr>
+                    <td>Top Arrow</td>
+                    <td class="hidden-text" data-text="Go to Previous row"></td>
+                </tr>
+                <tr>
+                    <td>;</td>
+                    <td class="hidden-text" data-text="Toogle img scroll by focus element (or) Img scroll by 100"></td>
+                </tr>
+                <tr>
+                    <td>-</td>
+                    <td class="hidden-text" data-text="Decreases imgs width % by 1"></td>
+                </tr>
+                <tr>
+                    <td>=</td>
+                    <td class="hidden-text" data-text="Increases imgs width % by 1"></td>
+                </tr>
+                <tr>
+                    <td>/ (or) z</td>
+                    <td class="hidden-text" data-text="Images is scrolled to top (or) Bottom"></td>
+                </tr>
+                <tr></tr>
+
+                <tr>
+                    <td>d</td>
+                    <td class="hidden-text" data-text="To Toggle Delete Buttons"></td>
+                </tr>
+                <tr>
+                    <td>x</td>
+                    <td class="hidden-text" data-text="To Enter FileNameChangeMode, all key enters are bypassed"></td>
+                </tr>
+                <tr>
+                    <td>y</td>
+                    <td class="hidden-text" data-text="Toogles to include image extension or not"></td>
+                </tr>
+                <tr>
+                    <td>s</td>
+                    <td class="hidden-text" data-text="Toggle to include Anime in copy text or not"></td>
+                </tr>
+                <tr>
+                    <td>TAB</td>
+                    <td class="hidden-text" data-text="Toggle Multiple Selection Mode"></td>
+                </tr>
+                
+            </tbody>
+        </table>
+
+        <table cellspacing="0" cellpadding="0">
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Function</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="2" class="info hidden-text" data-text="Page Navigation"></td>
+                </tr>
+                <tr>
+                    <td>`</td>
+                    <td class="hidden-text" data-text="Opens Page in LocalHost Mode"></td>
+                </tr>
+                <tr>
+                    <td>q</td>
+                    <td class="hidden-text" data-text="Navigates to Home Page"></td>
+                </tr>
+                <tr>
+                    <td>Right Arrow</td>
+                    <td class="hidden-text" data-text="Go to next tab (but only goto Home Tab)"></td>
+                </tr>
+                <tr>
+                    <td>Left Arrow</td>
+                    <td class="hidden-text" data-text="Go to Previous tab (but only goto Home Tab)"></td>
+                </tr>
+                <tr style="background-color: yellow;">
+                    <td>--</td>
+                    <td>--</td>
+                </tr>
+               
+
+                <tr>
+                    <td colspan="2" class="info hidden-text" data-text="Image Order Changing Keys"></td>
+                </tr>
+                <tr>
+                    <td>r</td>
+                    <td class="hidden-text" data-text="Makes Images Order to Random"></td>
+                </tr>
+                <tr>
+                    <td>R</td>
+                    <td class="hidden-text" data-text="Makes Images Order to Sorted"></td>
+                </tr>
+                <tr>
+                    <td>t</td>
+                    <td class="hidden-text" data-text="Makes Images Order to descending"></td>
+                </tr>
+                <tr style="background-color: yellow;">
+                    <td>--</td>
+                    <td>--</td>
+                </tr>
+
+                
+                <tr>
+                    <td colspan="2" class="info hidden-text" data-text="Image Data Keys"></td>
+                </tr>
+                <tr>
+                    <td>a</td>
+                    <td class="hidden-text" data-text="Toogles the Image Names"></td>
+                </tr>
+                <tr>
+                    <td>A</td>
+                    <td class="hidden-text" data-text="Toogles the folder name of Images"></td>
+                </tr>
+                <tr style="background-color: yellow;">
+                    <td>--</td>
+                    <td>--</td>
+                </tr>
+
+                <tr>
+                    <td colspan="2" class="info hidden-text" data-text="Header Format Keys"></td>
+                </tr>
+                <tr>
+                    <td>h</td>
+                    <td class="hidden-text" data-text="Toogles Fixed Header"></td>
+                </tr>
+                <tr>
+                    <td>b</td>
+                    <td class="hidden-text" data-text="Adds or Removes Header"></td>
+                </tr>
+                <tr style="background-color: yellow;">
+                    <td>--</td>
+                    <td>--</td>
+                </tr>
+                
+                <tr rowspan="3">
+                    <td colspan="2" class="info special">
+                        <p class="hidden-text small-line" data-text="Clicking Shift will make search bar empty."></p> 
+                        <p class="hidden-text small-line" data-text="When we are in Input Mode, whenever we enter a letter,"></p>
+                        <p class="hidden-text small-line" data-text="First image name is copied to clipboard."></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Space Bar</td>
+                    <td class="hidden-text" data-text="Search Bar Comes, Enters Input Mode"></td>
+                </tr>
+                <tr>
+                    <td>Escape</td>
+                    <td class="hidden-text" data-text="To close the Search bar and Exit Input Mode"></td>
+                </tr>
+                
+
+                <tr rowspan="5">
+                    <td colspan="2" class="info special">
+                        <p class="hidden-text small-line" data-text="When M-Mode is enabled, no shortcuts work."></p>
+                        <p class="hidden-text small-line" data-text="On entering a letter, if any header name starts with that letter,"></p>
+                        <p class="hidden-text small-line" data-text="you will get navigated to that header."></p>
+                        <p class="hidden-text small-line" data-text="If current Header is Home, and you click on h,"></p>
+                        <p class="hidden-text small-line" data-text="then you will get navigated to next header that starts with h."></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>m</td>
+                    <td class="hidden-text" data-text="Ons M-Mode"></td>
+                </tr>
+                <tr>
+                    <td>M</td>
+                    <td class="hidden-text" data-text="Offs M-Mode"></td>
+                </tr>
+                <tr style="background-color: yellow;">
+                    <td>--</td>
+                    <td>--</td>
+                </tr>
+
+                <tr>
+                    <td>f</td>
+                    <td class="hidden-text" data-text="Toggles Full Screen"></td>
+                </tr>
+
+                <tr>
+                    <td>i</td>
+                    <td class="hidden-text" data-text="Toggles Image Hidden or not"></td>
+                </tr>
+
+                
+            </tbody>
+        </table>
+    </div>
+
+
+</body>
+</html>

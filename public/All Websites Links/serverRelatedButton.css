@@ -1,0 +1,88 @@
+.img-box{
+    position: relative;
+}
+
+.delete-button{
+    background-color: red;
+    color: white;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    border-radius: 50%;
+    border: 0px;
+    width: 27px;
+    padding: 4px;
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.img-name-input-box{
+    color: white;
+    display: block;
+    width: 100%;
+    text-align: center;
+    border: solid 1px;
+}
+
+.img-item{
+    /* justify-content: center; */
+}
+
+.submit-button{
+    color: aqua;
+    width: 100%;
+    padding: 10px;
+    border-color: aqua;
+    margin-top: 6px;
+    border-radius: 42px;
+    cursor: pointer;
+}
+
+.selected-img{
+    box-sizing: border-box;
+    border-color: aqua;
+    border: 10px solid aqua;
+}
+
+/* styles for picklists */
+
+.picklist-container{
+    position: fixed;
+    top: 10px;
+    visibility: hidden; /* visible */
+}
+
+.remove-button{
+    color: red;
+    float: right;
+    margin-right: 9px;
+    cursor: pointer;
+}
+
+label {
+      display: block;
+      margin-top: 15px;
+      color: white;
+}
+select {
+    width: 310px;
+    padding: 5px;
+    font-size: 16px;
+    color: white;
+}
+
+.submit-button-for-website-selection{
+    margin: 11px 0;
+}
+
+
+input.new-folder {
+    color: white;
+    border: 1px white solid;
+    padding: 5px;
+    width: 96%;
+}
+
+.new-folder-label, .new-folder{
+    display: none;
+}

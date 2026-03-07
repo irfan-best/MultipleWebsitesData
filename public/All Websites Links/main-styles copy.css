@@ -1,0 +1,62 @@
+body{
+  margin: 0;
+  padding: 0
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: #111;
+}
+
+/* Img Container */
+.imgs-container{
+    border: 1px solid black;
+    padding:10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.img-item{
+  margin: 10px;
+  border: 1px solid black;
+  /* width: 472px; this is for old laptop */
+  width: 432px; /* for new laptop  */
+  width: 23.4%;
+  /* min-height: 298px; */
+
+  border-radius: 20px;
+  /* height: 298px; */
+}
+
+img{
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  max-width: 100%;
+}
+
+.img-name{
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: monospace;
+}
