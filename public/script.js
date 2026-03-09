@@ -87,6 +87,26 @@ window.addEventListener('keydown', async function(event) {
         }
     }
 
+    else if (event.key === 'A'){
+
+        for(var i=anchors.length-1;i>=0;i--){
+            anchors[i].classList.add('started-coloring');
+        }
+        console.log('lasUrlArry:',LAST_URL_Array);
+        for(var i=LAST_URL_Array.length-1;i>0;i--){
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            sendData(LAST_URL_Array[i]);
+            console.log('Sent data for:', LAST_URL_Array[i]);
+            anchors[i].classList.remove('started-coloring');
+            anchors[i].classList.add('done-coloring');
+        }
+
+        console.log('All data sent successfully.');
+        for(var i=anchors.length-1;i>=0;i--){
+            anchors[i].classList.remove('done-coloring');
+        }
+    }
+
     else if (event.key === 'm') {
         console.log('m key pressed');
         mode = !mode; // Toggle mode

@@ -16,6 +16,11 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+function space_to_Percentile20(text){
+    var updatedText = text.replaceAll(' ','%20');
+    return updatedText;
+}
+
 var BASE_URL = 'E:/All in One/Websites/Get Files for All Folders/public/All Websites Links/';
 // E:\All in One\Websites\Get Files for All Folders\public\All Websites Links
 const app = express();
@@ -73,12 +78,6 @@ function isNumber(str) {
     return !isNaN(str) && str.trim() !== '';
 }
 
-function removeStartingNumber(str1){
-    const list1 = str1.split(" ");
-    if(isNumber(list1[0])) return str1.substring(2);
-    return str1;
-}
-
 // var folderNames = ['1 fav', '1.1 tier2', '2 watched', '4 dropped', '5 started'];
 
 app.post('/submit', async (req, res) => {
@@ -126,84 +125,91 @@ app.post('/submit', async (req, res) => {
 function getIndexFileContent(folderNames) {
     var linksText = ""; var scriptsText = ""; var linksText1 = "";
     for(var i=0;i<folderNames.length;i++){
-        linksText   += `                <li><a onclick="changeList('${removeStartingNumber(folderNames[i]).replaceAll(/'/g, "\\'")}')" href="#${removeStartingNumber(folderNames[i])}">${folderNames[i]}(<span id="data-${removeStartingNumber(folderNames[i])}"></span>)</a></li>\n`;
-        linksText1  += `                <li><a onclick="changeList('${removeStartingNumber(folderNames[i]).replaceAll(/'/g, "\\'")}')" href="#${removeStartingNumber(folderNames[i])}">${folderNames[i]}(<span id="data1-${removeStartingNumber(folderNames[i])}"></span>)</a></li>\n`;
-        scriptsText += `            <script src="List Data/${folderNames[i]}.js"></script>\n`;
+        linksText   += `            <li><a onclick="changeList('${folderNames[i].replaceAll(/'/g, "\\'")}')" href="#${space_to_Percentile20(folderNames[i])}">${folderNames[i]}(<span id="data-${space_to_Percentile20(folderNames[i])}"></span>)</a></li>\n`;
+        linksText1  += `            <li><a onclick="changeList('${folderNames[i].replaceAll(/'/g, "\\'")}')" href="#${space_to_Percentile20(folderNames[i])}">${folderNames[i]}(<span id="data1-${space_to_Percentile20(folderNames[i])}"></span>)</a></li>\n`;
+        scriptsText += `        <script src="List Data/${folderNames[i]}.js"></script>\n`;
     }
 
-    var fileContent = `
-    <!DOCTYPE html>
-    <html>
-        
-        <head>
-            <link rel="stylesheet" href="../../main-styles.css">
-            <link rel="stylesheet" href="../../serverRelatedButton.css">
-        </head>
+    var fileContent = `<!DOCTYPE html>
+<html>
+    
+    <head>
+        <link rel="stylesheet" href="../../main-styles.css">
+        <link rel="stylesheet" href="../../serverRelatedButton.css">
+    </head>
 
-        <body>
+    <body>
 
-            <ul class='black-header'>
-                <li><a onclick="changeList('home')" href="#home">Home(<span id="data0"></span>)</a></li>
+        <ul class='black-header'>
+            <li><a onclick="changeList('home')" href="#home">Home(<span id="data0"></span>)</a></li>
 `
     +
     linksText
     +
-`            </ul>
+`       </ul>
 `
     +
             `
-            <ul class='black-header1'>
-                <li><a onclick="changeList('home')" href="#home">Home(<span id="data1"></span>)</a></li>`
+        <ul class='black-header1'>
+            <li><a onclick="changeList('home')" href="#home">Home(<span id="data1"></span>)</a></li>
+`
             +linksText1 
     +
-`            </ul>
+`       </ul>
+            
+        <div class="copy-container">
+            <button id="no-folders" class='copy-button'>No.of Folders</button>
+            <button id="show-website-name" class='copy-button'>Website Name</button>
+            <img src="../../M Swith On.png"  class='m-switch-button' id="m-switch-on" style='display:none'/>
+            <img src="../../M Swith Off.png" class='m-switch-button' id="m-switch-off"  />
+        </div>
 
-            <div id="checkboxes-container">
-            </div>
+        <div class="imgs-container" id="imgs-container">
+        </div>
 
-            <div class="imgs-container" id="imgs-container">
-            </div>
+        <div class="picklist-container">
+            <div class="remove-button">X</div>
+            <label for="categorySelect">Select Website Category:</label>
+            <select id="categorySelect">
+                <option value="">-- Select Website Category --</option>
+            </select>
 
-            <div class="picklist-container">
-                <div class="remove-button">X</div>
-                <label for="categorySelect">Select Website Category:</label>
-                <select id="categorySelect">
-                    <option value="">-- Select Website Category --</option>
-                </select>
+            <label for="websiteSelect">Select Website:</label>
+            <select id="websiteSelect" disabled>
+                <option value="">-- Select Website --</option>
+            </select>
 
-                <label for="websiteSelect">Select Website:</label>
-                <select id="websiteSelect" disabled>
-                    <option value="">-- Select Website --</option>
-                </select>
+            <label for="folderSelect">Select Folder:</label>
+            <select id="folderSelect" disabled>
+                <option value="">-- Select Folder --</option>
+            </select>
 
-                <label for="folderSelect">Select Folder:</label>
-                <select id="folderSelect" disabled>
-                    <option value="">-- Select Folder --</option>
-                </select>
+            <label for="newFolder" class="new-folder-label">New Folder Name:</label>
+            <input class="new-folder" type="text">
 
-                <label for="newFolder" class="new-folder-label">New Folder Name:</label>
-                <input class="new-folder" type="text">
+            <button class="submit-button submit-button-for-website-selection">Submit</button>
+        </div>
 
-                <button class="submit-button submit-button-for-website-selection">Submit</button>
-            </div>
+        <input type="text" class="search-box" />
 
-            <!-- dir /B -->
-            <!-- use this command to get all file names in a folder -->
-            <script src="List Data/0 Files.js"></script>
+        <script src="List Data/0 Files.js"></script>
 `
     +
     scriptsText
     +`
-            <script src="../../imagesfunc.js"></script>
-            <script src="../../increase.js"></script>
-            <script src="../../serverRelatedButtons.js"></script>
-            <script src="../../serverCaller.js"></script>
-            <script src="../../listSites.js"></script>
-            <script src="../../open file name matching folder.js"></script>
-        </body>
+        <script src="../../boolean and conditional variables.js"></script>
+        <script src="../../c set and toogle methods.js"></script>
+        <script src="../../general methods.js"></script>
+        <script src="../../imagesfunc.js"></script>
+        <script src="../../increase.js"></script>
+        <script src="../../keyEnteredFunctions.js"></script>
+        <script src="../../serverRelatedButtons.js"></script>
+        <script src="../../serverCaller.js"></script>
+        <script src="../../listSites.js"></script>
+        <script src="../../open file name matching folder.js"></script>
+    </body>
 
-    </html>
-    `
+</html>`
 
     return fileContent;
 }

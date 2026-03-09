@@ -126,7 +126,7 @@ window.addEventListener('keydown', function(event) {
         }
     }
 
-    else if(event.key === 'x' && !inputMode ){
+    else if(event.key === 'x' && !searchMode ){
         // console.log('x key pressed');
         var imgNameInputBox = this.document.querySelectorAll('.img-name-input-box');
         for(var i=0;i<imgNameInputBox.length; i++){
@@ -146,7 +146,7 @@ window.addEventListener('keydown', function(event) {
         }
     }
 
-    if(includeFileExtensions || multipleElementsSelectionMode || fileNameChangeMode || inputMode){
+    if(includeFileExtensions || multipleElementsSelectionMode || fileNameChangeMode || searchMode){
         return;
     }
 
@@ -195,7 +195,7 @@ for(var i=0;i<imgItems.length;i++){
     imgNameInputBox.style.display = 'none';
 
     var submitButton = document.createElement('button');
-    submitButton.innerHTML = 'Submit';
+    submitButton.innerHTML = 'Update FileName';
     submitButton.setAttribute('class','submit-button');
     submitButton.style.display = 'none';
     imgItems[i].appendChild(submitButton);
@@ -274,7 +274,7 @@ moveButton.onclick = function(){
         currentWebSite = currentWebSite.substring(0,currentWebSite.length - 6);
         console.log('currentWebSite after modification 1:',currentWebSite);
     }
-    else if((currentWebSite.includes('Alina Becker') || currentWebSite.includes('byoru') || 
+    else if((currentWebSite.includes('Alina Becker') || currentWebSite.includes('Byoru') || 
     currentWebSite.includes('todopokie') || currentWebSite.includes('lady melamori') || 
     currentWebSite.includes('victoria')) && currentWebSite.includes('Tier')){
         // add " - Avg" to the end of the website name

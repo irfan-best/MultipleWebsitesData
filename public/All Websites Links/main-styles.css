@@ -73,7 +73,7 @@ img{
 
 .img-name{
     color: white;
-    display: none;
+    /* display: none; */
     text-align: center;
     font-size: 15px;
     font-weight: bold;
@@ -184,4 +184,42 @@ input:checked + .slider:before {
 
 .check-box-div input{
   margin-left: 8px;
+}
+
+.m-switch-button{
+  height: 29px;
+  padding-top: 6px;
+}
+
+#show-website-name, #no-folders{
+  color: cyan;
+  padding-left: 10px;
+  padding-right: 10px;
+  font-weight: bold;
+  border-width: 4px;
+  border-color: #a6e1fa;
+}
+
+#no-folders{
+  width: 100px;
+}
+
+.search-box{
+  position: fixed; 
+  border: 6px solid rgb(10, 178, 235); 
+  height: 30px; 
+  top: 50px; 
+  color: rgb(13, 219, 31); 
+  font-size: 20px; 
+  font-weight: bold; 
+  right: 10px;
+  display: none;
+}
+
+/* for video files */
+.yellow-text{ 
+  color: black;
+  font-weight: bold;
+  text-decoration: underline;
+  background-color: cyan;
 }

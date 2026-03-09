@@ -1,539 +1,132 @@
-var widthPercent = {1:100,2:50,3:33.33,4:25,5:20,6:16.66,7:14.28,8:12.5,9:11.11,10:10};
-var count = 4;
-
-var blackHeader1 = document.getElementsByClassName('black-header1')[0];
-blackHeader1.style.display = 'none';
-
-var focusElement = 0;
-
-var isFullScreen = false;
-var mode = false;
-
-var scrollIntoViewValue = true;
-
-var inputMode = false;
-var historyMode = false;
-
-var fileNameChangeMode = false;
-var count2Or1Toogle = false;
-
-var smoothMoment = false;
-
-function getElementNumberThatHasBeenClicked(element){
-    var imgItems = document.getElementsByClassName('img-item');
-    for(var j=0;j<imgItems.length;j++){
-        var tempElement = imgItems[j].getElementsByTagName('img')[0];
-        // console.log('imgItems[j]:',tempElement);
-        if(tempElement === element){
-            return j;
-        }
-    }
-    return -1;
-}
-
-var historyData = [];
-// console.log('window.location.href:',window.location.href);
-historyData.push(window.location.href.split('#')[1]);
-
-var rowLevel = 0;
-var rowHeights = [];
-
-// calculateRowHeights();
-
-// used key, h,j,J,t,T,r,R,s,S,a,A
-// 1,2,3,4,5,6,7,8,9,0
-
-var headToogle = true;
-
-var elementToScroll;
-
-setClickonImageBox();
-// this function is used to set the click event on each image box, 
-// click event is to store focusElement open clicking on image box
-function setClickonImageBox(){
-    var imgBoxs = document.getElementsByClassName('img-box');
-    for(var ii=0;ii<imgBoxs.length;ii++){
-        imgBoxs[ii].addEventListener("click", function(event) {
-            elementToScroll = event.target;
-            focusElement = getElementNumberThatHasBeenClicked(event.target);
-            // console.log('focusElement:',focusElement);
-        });
-    }
-}  
-
-setAData(); 
-setNumData();
-calculateRowHeights();
-setWidth();
-navigateToTop();
+calculateRowMaxImageHeights();
 highLightTheCorrectHeader(); 
-makeVideosTextCloredYellow();
-functionForCount2();
-
-function setAData(){
-    // console.log('setAData called');
-    var imageNames = document.getElementsByClassName('img-name');
-    var aData = localStorage.getItem("aData");
-    if(aData === "true"){
-        for(var i=0;i<imageNames.length;i++){
-            imageNames[i].style.display = 'inline';
-        }
-    }
-    else{
-        for(var i=0;i<imageNames.length;i++){
-            imageNames[i].style.display = 'none';
-        }
-    }
-}
-
-function setNumData(){
-    // console.log('setNumData called');
-    count = Number(localStorage.getItem("numData"));
-    // console.log('count:',count);
-    if(count === 0) count = 4;
-    // console.log('count after check:',count);
-}
-
-function calculateRowHeights(){
-    rowLevel = 0;
-    rowHeights = [];
-
-    var imgItems = document.getElementsByClassName('img-item');
-    for(var i=0;i<imgItems.length;){
-        var currentMaxHeightofRow = 0;
-        for(var j=i;j<i+count && j<imgItems.length;j++){
-            // console.log('height value:',imgItems[j].heightValue);
-            currentMaxHeightofRow = Math.max(currentMaxHeightofRow,imgItems[j].clientHeight);
-        }
-        i += count;
-        rowHeights.push(currentMaxHeightofRow);
-    }
-}
-
-function setWidth(){
-    // console.log('setWidth called');
-    const imageItems = document.querySelectorAll(".img-item");
-
-    imageItems.forEach(function(imageItem) {
-        imageItem.style.width = widthPercent[count] + "%";  
-    });
-
-    // console.log('setWidth called, count:',count);
-    // console.log('setWidth called, width:',widthPercent[count] + "%");
-
-    if(imageItems.length == 0) 
-        return; // no images in a folder case
-}
-
-function navigateToImgNumber(index,keyPressed){
-    if(smoothMoment){
-        if(keyPressed === 'ArrowDown'){
-            window.scrollBy(0,100);
-        } 
-        else if(keyPressed === 'ArrowUp'){
-            window.scrollBy(0,-100);
-        }
-        return;
-    }
-
-
-    var imgItems = document.getElementsByClassName('img-item');
-    if(imgItems.length === 0) return; // no images in a folder case
-
-    if(scrollIntoViewValue === true){
-        var element = imgItems[index];
-        element.scrollIntoView(true);
-    }
-    else{
-        var element = imgItems[index];
-        var imgFromElement = element.getElementsByTagName('img')[0];
-        imgFromElement.scrollIntoView(false);
-    }
-    // else{
-    //     var forLoopStartIndex = focusElement - (focusElement % count);
-    //     // console.log('forLoopStartIndex:',forLoopStartIndex);
-    //     var maxHeightElementIndex = forLoopStartIndex;
-    //     var maxHeightElementHeight = imgItems[forLoopStartIndex].clientHeight;
-    //     for(var i=forLoopStartIndex;i<forLoopStartIndex+count && i<imgItems.length;i++){
-    //         if(imgItems[i].clientHeight > maxHeightElementHeight){
-    //             maxHeightElementIndex = i;
-    //             maxHeightElementHeight = imgItems[i].clientHeight;
-    //         }
-    //     }
-
-    //     var element = imgItems[maxHeightElementIndex];
-    //     element.scrollIntoView({ behavior: 'smooth'});
-    // }
-}
-
-// this is for highlighting the current page header with green color
-function highLightTheCorrectHeader(data){
-    var anchorElements = document.querySelectorAll("a");
-    if(data === undefined)
-        var currentPage = window.location.href.substring(window.location.href.indexOf('#')+1);
-    else
-        var currentPage = data;
-
-    if(currentPage.includes('.html')){
-        currentPage = 'home';
-    }
-
-    for(var i=0;i<anchorElements.length;i++){
-        temp = anchorElements[i].href.split('#')[1];
-        if(temp === currentPage){
-            // anchorElements[i].style.color = "red";
-            anchorElements[i].style.fontWeight = "bold";
-            anchorElements[i].style.color = "#0add96";
-            
-        }
-        else{
-            anchorElements[i].style.fontWeight = "normal";
-            anchorElements[i].style.color = "white";
-        }
-    }
-}
-
-function navigateToTop(){
-    document.body.scrollIntoView(true);
-}
-
-function navigateToBottom(){
-    document.body.scrollIntoView(false);
-}
-
-function removeSearchBox(){
-    var searchBox = document.querySelector('.search-box');
-    if(searchBox){
-        searchBox.remove();
-        inputMode = false;
-    }
-}
-
-function makeVideosTextCloredYellow(){
-    // console.log('makeVideosTextCloredYellow called');
-    var images = document.querySelectorAll('img');
-    images.forEach(function(image) {
-        if(image.src.endsWith('.mp4') || image.src.endsWith('.webm') || image.src.endsWith('.avi') || image.src.endsWith('.mkv')){
-            var imgName = image.parentElement.parentElement.querySelector('.img-name');
-            // console.log('imgName:', imgName);
-            if(imgName){
-                imgName.style.color = 'black';
-                imgName.style.fontWeight = 'bold';
-                imgName.style.textDecoration = 'underline';
-                imgName.style.backgroundColor = 'cyan';
-            }
-        }
-    });
-}
-
-var imgWidthForCount2Mode = 90;
-function changeWidth(enterredKey){
-    console.log('changeWidth called:', enterredKey);
-    if(enterredKey === '=')
-        imgWidthForCount2Mode += 1;
-    else
-        imgWidthForCount2Mode -= 1;
-
-     var imgs = document.querySelectorAll('img');
-    for(var i=0;i<imgs.length;i++){
-        imgs[i].style.width = imgWidthForCount2Mode + '%';
-        imgs[i].style.height = 'auto';
-    }
-
-    navigateToImgNumber(focusElement);
-}
-
-function functionForCount2(enterredKey){
-    if(enterredKey === '2' || enterredKey === '1'){
-        // if(count === 2 || count === 1) count2Or1Toogle = !count2Or1Toogle;
-    }
-    console.log('functionForCount2 called', count, count2Or1Toogle);
-    
-    if(count === 2 || count === 1){
-        // console.log('count is 2');
-        var imgs = document.querySelectorAll('img');
-        for(var i=0;i<imgs.length;i++){
-            // if(count2Or1Toogle){
-            //     imgs[i].style.maxHeight = '897px';
-            //     imgs[i].style.maxWidth = 'auto';
-            // }
-            // else{
-            //     imgs[i].style.maxWidth = '100%';
-            //     imgs[i].style.maxHeight = 'auto';
-            // }
-
-            // if(count === 1 && !count2Or1Toogle){
-            //     imgs[i].style.maxHeight = 'auto';
-            //     imgs[i].style.maxWidth = '97%';
-            // }
-        }
-        
-    }
-    else{
-        // console.log('count is not 2');
-        var imgs = document.querySelectorAll('img');
-        for(var i=0;i<imgs.length;i++){
-            imgs[i].style.maxHeight = '100%';
-        }
-    }
-}
-
-document.querySelectorAll("a").forEach(function(anchor) {
-    anchor.addEventListener("click", function(event) {
-        // console.log('anchor clicked:',event.target.href);
-        setAData();
-        setNumData();
-        calculateRowHeights();
-        setWidth();
-
-        highLightTheCorrectHeader(event.target.href.split('#')[1]);
-        setClickonImageBox();
-        removeSearchBox();
-        makeVideosTextCloredYellow();
-        console.log('anchor version');
-        functionForCount2();
-
-        if(!isFullScreen){
-            console.log('isFullScreen is false, navigating to top');
-            navigateToTop();
-        }
-        else{
-            console.log('isFullScreen is true, navigating to img number 0');
-            navigateToImgNumber(1,event.key);
-            setTimeout(function() {
-                // Code to be executed after 2 seconds
-                console.log("This message appears after 2 seconds.");
-                navigateToImgNumber(0,event.key);
-            }, 50);
-        }
-        var currentPage = event.target.href.split('#')[1];
-        historyData.push(currentPage);
-        // console.log('historyData:', historyData);
-
-        addDeleteButtons(); // from serverRelatedButtons.js
-        multipleElementsSelectionMode = false // from serverRelatedButtons.js
-
-        setFolderName(); // from serverRelatedButtons.js
-    });
-});
-
-// document.querySelectorAll(".img-name").forEach(function(imgName) {
-//     imgName.addEventListener("click", function(event) {
-//         console.log('')
-//     });
-// }
-
 
 document.addEventListener("keydown", function(event) {
-    // console.log('entered Key:',event.key);
-    // console.log('event.ctrlKey:',event.ctrlKey);
+    if(consoleLevel === 2){
+        console.log('entered Key:',event.key);
+    }
 
-    // console.log('filechangeMode in increase:',fileNameChangeMode);
-
-    // ctrl + enter
     if(event.key === 'Enter' && event.ctrlKey){
-        var starsList = ['Alina Becker','Byoru','Lady Melamori','Zhu Ke Er'];
-        var websiteName = getWebsiteNameFromUrl();
-        var categoryName = getCategoryNameFromUrl();
-        console.log('websiteName ctrl enter:',websiteName);
-        console.log('categoryName ctrl enter:',categoryName);
-        if(starsList.includes(categoryName)){
-            // main link -> file:///E:/All%20in%20One/Websites/Get%20Files%20for%20All%20Folders/public/All%20Websites%20Links/Alina%20Becker/Alina%20Becker%20Tier%201/Images/0%20Pale%20Black
-            // avg link  -> file:///E:/All%20in%20One/Websites/Get%20Files%20for%20All%20Folders/public/All%20Websites%20Links/Alina%20Becker/Alina%20Becker%20Tier%201%20-%20Avg/Images/0%20Pale%20Black
-            // if main link, open avg link in new tab, if avg link, open main link in new tab
-            var url = window.location.href;
-            // replace last but one part of URL
-            var splitData = url.split("/");
-            var lastButOnePart = splitData[splitData.length - 2];
-            console.log('lastButOnePart ctrl enter:',lastButOnePart);
-            if(lastButOnePart.includes('Avg')){
-                splitData[splitData.length - 2] = lastButOnePart.replace('%20-%20Avg','');
-            }
-            else{
-                splitData[splitData.length - 2] = lastButOnePart + '%20-%20Avg';
-            }
-            var newUrl = splitData.join("/");
-            console.log('newUrl ctrl enter:',newUrl);
-            window.open(newUrl, '_blank');
-        }
+        ctrlEnter();
         return;
     }
 
-    if(event.key === 'l' && multipleElementsSelectionMode){
-        var selectedImgs = document.getElementsByClassName('selected-img');
-        var copyString = '';
-        for(var i=0;i<selectedImgs.length;i++){
-            var imgName = selectedImgs[i].getElementsByClassName('img-name')[0].innerText;
-            copyString += imgName + '\n';
-        }
-        navigator.clipboard.writeText(copyString);        
+    if(event.key === 'k' && event.ctrlKey){
+        openShortcutsFile();
         return;
     }
 
+    // we are always not running up/Down arrows default functions
+    if(upDownKeys.includes(event.key)){
+        event.preventDefault();
+    }
+
+    // dont run custom logic for these combos - since default browser behavior is what i'm expecting to use.
+    // ctrl + r -> page reload
+    // ctrl + f -> search in page
+    // ctrl + a -> select all (can be useful when doing select all in input boxes)
+    // ctrl + l -> i will highlight current url and we can copy or replace current url
+    if(event.ctrlKey && (event.key.toLowerCase() === 'r' || event.key.toLowerCase() === 'f' || event.key.toLowerCase() === 'a' || event.key.toLowerCase() === 'l')){
+        if(consoleLevel === 1)
+            console.log('Ctrl + R or F or A or L pressed, not running custom functionality');
+        return;
+    }
+    
     if(fileNameChangeMode){
-        return;
+        if(!navigationKeys.includes(event.key)){
+            // we should still allow custom ArrowUp and ArrowDown functions
+        }
+        else{
+            // not allow other operations
+            // we should not allow even custom ArrowRight and ArrowLeft - since while rename files, it should not goto otherpage.
+            return;
+        }
     }
 
     if(multipleElementsSelectionMode){
-        return;
-    }
-
-    if(event.ctrlKey && (event.key === 'r' || event.key === 'R' || event.key === 'f' || event.key === 'F' || event.key === 'a' || event.key === 'A')){
-        // console.log('Ctrl + R or F or A pressed, ignoring');
-        return;
-    }
-
-    if(event.key === 'K'){
-        // console.log('K key pressed, redirecting to Shortcuts.html');
-        var anchorElement = document.createElement("a");
-        anchorElement.href = "../../Shortcut Keys.html";
-        anchorElement.target = "_blank"; // Open in a new tab
-        anchorElement.click();
-        return;
-    }
-
-    if(inputMode === false && (event.key === '-' || event.key === '=')){
-        changeWidth(event.key);
-        return;
-    }
-
-    if(event.key === 'H'){
-        historyMode = !historyMode;
-        return;
-    }
-
-    if(historyMode && event.key === 'ArrowLeft'){
-        if(historyData.length > 1){
-            historyData.pop(); // remove the current page
-            var previousPage = historyData[historyData.length - 1];
-            // console.log('previousPage:', previousPage);
-            // highLightTheCorrectHeader(previousPage);
-            var anchorElements = document.querySelectorAll("a");
-            for(var i=0;i<anchorElements.length;i++){
-                if(anchorElements[i].href.split('#')[1] === previousPage){
-                    anchorElements[i].click();
-                    break;
-                }
+        if(event.key === 'l'){
+            navigator.clipboard.writeText(getAllSelectedImgNames());   
+            return;     
+        }
+        else if(event.key === 'm'){
+            if(consoleLevel === 1){
+                console.log('multipleElementsSelectionMode - m key entered');
             }
-        }
-        historyData.pop();
-        return;   
-    }
-    
-    if(inputMode){
-        var searchBox = document.querySelector('.search-box');
-        var noOfImgs = 0; var imgNameToCopy = '';
-        if(event.key === "Backspace"){
-            searchBox.value = searchBox.value.slice(0, -1);
-        }
-        else if(event.key === 'c' && event.ctrlKey){
+            getButton_BasedOn_InnerHTML('Move Button')?.click();
             return;
         }
-        else if(event.key === "Shift"){
-            searchBox.value = '';
+        else if(event.key === ' '){
+            console.log('multipleElementsSelectionMode - Space key entered');
+            getButton_BasedOn_InnerHTML('Submit').click();
         }
-        else if(event.key === 'backspace' && event.ctrlKey){
-            searchBox.value = '';
-        }
-        else if(event.key === 'Shift' || event.key === 'Control' || event.key === 'Alt' || event.key === 'Meta' || event.key === 'CapsLock' || event.key === 'Tab' || event.key === 'Enter' || event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight'){
-            return;
-        }
-        else if(event.key == 'Escape'){
-            inputMode = false;
-            searchBox.style.display = 'none';
-            return;
-        }
-        else{
-            searchBox.value += event.key;
-        }
-
-        var itemItems = document.getElementsByClassName('img-item');
-        for(var i=0;i<itemItems.length;i++){
-            var imgName = itemItems[i].getElementsByClassName('img-name')[0];
-            if(imgName.innerText.toLowerCase().includes(searchBox.value.toLowerCase())){
-                itemItems[i].style.display = 'block';
-                noOfImgs++;
-                if(noOfImgs === 1){
-                    imgNameToCopy = imgName.innerText;
-                }
-            }
-            else{
-                itemItems[i].style.display = 'none';
-            }
-        }
-
-        if(searchBox.value === ''){
-            return;
-        }
-
-
-        navigator.clipboard.writeText(imgNameToCopy + (!includeAnimeOrNot ? "" : " Anime"));
-        return;}
-
-    var modeInput = document.querySelector(".mode-input");
-    if (event.key === "m") {
-        if(!mode){
-            mode = true;
-            modeInput.checked = true;
+        else if(!directionalKeys.includes(event.key) && event.key != 'z' && event.key != '/' && event.key != 'w' && event.key != '1' && event.key != '2' && event.key != '3'){
             return;
         }
     }
 
-    if (event.key === "M" && mode){
-        mode = false;
-        modeInput.checked = false;
+    if(searchMode){
+        // search-box has input event listner in imagefunc.js file check it
+        searchOperation(event.key,event.ctrlKey);
         return;
     }
 
-    if (mode){
-        const aElement = document.querySelectorAll("a");
-        var url = window.location.href;
-
-        var searchStartIndex = 1;
-
-        if(url.endsWith('.html')){ // when url is dfsdfsdf.html - without #home
-            searchStartIndex = 0;
-        }
-        else{
-            var currentPage = url.substring(url.indexOf('#')+1);
-
-            for(var i=0;i<aElement.length;i++){
-                if(aElement[i].href === url){
-                    searchStartIndex = i + 1;
-                    break;
-                }
-            }
-        }
-
-        var numberOfIterations = aElement.length;
-        while(numberOfIterations--){
-            if(searchStartIndex >= aElement.length) searchStartIndex = 0;
-            var startingLetterofAnchor = aElement[searchStartIndex].href.split('#')[1][0];
-            if(startingLetterofAnchor.toLowerCase() === event.key.toLowerCase()){
-                focusElement = 0;
-                aElement[searchStartIndex].click();
-                break;
-            }
-            searchStartIndex++;
-        }
-        
+    // when left side blackbox is enabled then also this logic should not run update it. 
+    if(!searchMode && !fileNameChangeMode && (event.key === '-' || event.key === '=')){
+        changeWidth_For_Minus_Equal_Keys(event.key);
+        navigateToFocusElement();
         return;
     }
 
-    // console.log('this is running even then');
+    if (M_Mode){
+        M_Mode_Operation(event.key);
+        return;
+    }
+    // this should happen only when no other modes are true except fullscreen mode.
+    if (event.key === "m" && !M_Mode) {
+        toogle_M_Mode();
+        return;
+    }
+
+    if (event.key === "M" && M_Mode){
+        toogle_M_Mode();
+        return;
+    }
+
     window.addEventListener("keydown", function(e) {
         // Check if the pressed key is the Down Arrow key
         if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === " ") {
-            if(!fileNameChangeMode && !multipleElementsSelectionMode){
+            if(!fileNameChangeMode && !searchMode){
                 e.preventDefault(); // Prevent the default scrolling behavior
                 // console.log('stopped default behavior');
             }
         }
     });
 
+    console.log('isFullScreen',isFullScreen);
+
+    if(isFullScreen && (no_Of_Imgs_Per_Row === 2 || no_Of_Imgs_Per_Row === 3) && (event.key === "1" || event.key === "2" || event.key === "3") ){
+        console.log('eneterd our block')
+        var enteredKeyNumber = Number(event.key);
+        if(enteredKeyNumber <= no_Of_Imgs_Per_Row){ 
+            console.log('full screen better mode');
+            console.log('enteredKeyNumber',enteredKeyNumber);
+            console.log('no_Of_Imgs_Per_Row',no_Of_Imgs_Per_Row);
+            var selectionImgNumber = (focusElement - (focusElement % no_Of_Imgs_Per_Row)) + enteredKeyNumber - 1;
+            var imgItems = document.getElementsByClassName("img-item");
+            console.log('imgItems:',imgItems);
+            console.log('selectionImgNumber',selectionImgNumber);
+            imgItems[selectionImgNumber].click();
+            return;
+        }
+    }
+
+    if(event.key === 'e'){
+        toogleImgExtensions();
+    }
 
     var blackHeader = document.getElementsByClassName('black-header')[0];
     var blackHeader1 = document.getElementsByClassName('black-header1')[0];
+
     if (event.key === "h"){
         if(headToogle === 'off'){
             return;
@@ -551,7 +144,7 @@ document.addEventListener("keydown", function(event) {
         return;
     } 
 
-    if(event.key === "b"){
+    if(event.key === "b"){ // this is also logic for header
         var copyContainer = document.querySelector(".copy-container");
         if(blackHeader.style.display === 'none' && blackHeader1.style.display === 'none'){
             blackHeader.style.display = "block";
@@ -571,46 +164,29 @@ document.addEventListener("keydown", function(event) {
     }
 
     if(event.key === "a"){  
-        var imageNames = document.getElementsByClassName('img-name');
-
-        if (window.getComputedStyle(imageNames[0]).display !== 'none'){
-            
-            localStorage.setItem("aData", "false");
-            for(var i=0;i<imageNames.length;i++){
-                imageNames[i].style.display = 'none';
-            }
-        }
-        else{
-            localStorage.setItem("aData", "true");
-            for(var i=0;i<imageNames.length;i++){
-                imageNames[i].style.display = 'inline';
-            }
-        }
+        toogleImgNames();
+        return;
     }
     
     if(event.key === "A"){  
-        var imageFolders = document.getElementsByClassName('img-folder-name');
-
-        if (window.getComputedStyle(imageFolders[0]).display !== 'none'){
-            
-            for(var i=0;i<imageFolders.length;i++){
-                imageFolders[i].style.display = 'none';
-            }
-        }
-        else{
-            for(var i=0;i<imageFolders.length;i++){
-                imageFolders[i].style.display = 'block';
-            }
-        }
+        toogleFolderNames();
+        return;
     }
 
     if(event.key === '`'){
         var windowHref = window.location.href;
         console.log('windowHref:',windowHref);
-        if(!windowHref.includes('http://localhost:3001/')){
-            console.log('opening url:','http://localhost:3001/' + windowHref.split('file:///E:/All%20in%20One/Websites/Get%20Files%20for%20All%20Folders/public/')[1]);
-            window.open('http://localhost:3001/' + windowHref.split('file:///E:/All%20in%20One/Websites/Get%20Files%20for%20All%20Folders/public/')[1],'_self');
+        if(!windowHref.includes(localHostURL)){ 
+            windowHref = windowHref.replace(space_to_Percentile20(nrmlURL), localHostURL);
+            console.log('opening url:',windowHref);
+            window.open(windowHref,'_self');
         }
+        else{
+            windowHref = windowHref.replace(localHostURL, space_to_Percentile20(nrmlURL)); 
+            console.log('opening url:',windowHref);
+            navigator.clipboard.writeText(windowHref);
+        }
+        return;
     }
 
     if(event.key ===';'){
@@ -618,8 +194,8 @@ document.addEventListener("keydown", function(event) {
     }
 
     if(event.key === '/' || event.key === 'z'){
-        scrollIntoViewValue = !scrollIntoViewValue;
-        console.log('slash or z key pressed, toggling scrollIntoViewValue:',scrollIntoViewValue);
+        scroll_To_Top_OR_Bottom_Of_Img = !scroll_To_Top_OR_Bottom_Of_Img;
+        console.log('slash or z key pressed, toggling scroll_To_Top_OR_Bottom_Of_Img:',scroll_To_Top_OR_Bottom_Of_Img);
         navigateToImgNumber(focusElement,event.key);
         return;
     }
@@ -627,24 +203,49 @@ document.addEventListener("keydown", function(event) {
     if (event.key === "ArrowDown" || event.key === "ArrowUp"){
         var imgItems = document.getElementsByClassName('img-item');
         if (event.key === 'ArrowDown'){
-            focusElement = (focusElement + count)
-            modValue = focusElement % count;
+            focusElement = (focusElement + no_Of_Imgs_Per_Row)
+            modValue = focusElement % no_Of_Imgs_Per_Row;
             focusElement = focusElement - modValue; 
             
             if(focusElement >= imgItems.length){
                 focusElement = imgItems.length - 1;
             }
+
+            // if focusElement = 0, no_Of_Imgs_Per_Row = 3, if img with biggest height among the 3 img on first row
+            // then make focusElement as biggest img
+            // also if there are only total 4 imgs, the on 2nd row only until 4th img we can check
+            // so focusElement = (4-1) = index 3
+            if(scroll_To_Top_OR_Bottom_Of_Img === false){
+                var rowStartIndex = focusElement - (focusElement % no_Of_Imgs_Per_Row);
+                var rowEndIndex = Math.min(rowStartIndex + no_Of_Imgs_Per_Row, imgItems.length);
+                var maxHeight = 0;
+                var tallestImgIndex = rowStartIndex;
+                
+                for(var k = rowStartIndex; k < rowEndIndex; k++){
+                    if(imgItems[k].clientHeight > maxHeight){
+                        maxHeight = imgItems[k].clientHeight;
+                        tallestImgIndex = k;
+                    }
+                }
+                focusElement = tallestImgIndex;
+            }
+
             navigateToImgNumber(focusElement,event.key);
-            // if((imgItems.length-1)/count > rowLevel) rowLevel++;
+            // if((imgItems.length-1)/no_Of_Imgs_Per_Row > rowLevel) rowLevel++;
         }
         else{
-            focusElement = (focusElement - count)
-            modValue = focusElement % count;
+            focusElement = (focusElement - no_Of_Imgs_Per_Row)
+            modValue = focusElement % no_Of_Imgs_Per_Row;
             focusElement = focusElement - modValue; 
             if(focusElement < 0){
                 focusElement = 0;
             }
+
+            // if focusElement = 3(img of 2nd row), no_Of_Imgs_Per_Row = 3, if img with biggest height among the  0 to 2 imgs on first row
+            // then make focusElement as biggest img of previous row i.e 1
+           
             navigateToImgNumber(focusElement,event.key);
+            balanceRowLevel();
 
         }
 
@@ -656,7 +257,7 @@ document.addEventListener("keydown", function(event) {
         // console.log('blackHeader1.clientHeight:',blackHeader1.clientHeight);
         // window.scrollTo(0, blackHeader.clientHeight + blackHeader1.clientHeight + sumOfRowHeights);
 
-        // if(count === 2){
+        // if(no_Of_Imgs_Per_Row === 2){
         //     if()
         // }
         return;
@@ -677,14 +278,7 @@ document.addEventListener("keydown", function(event) {
     }
 
     if (event.key === 'f'){
-        if(isFullScreen){
-            isFullScreen = false;
-            document.exitFullscreen();
-        }
-        else{
-            isFullScreen = true;
-            document.documentElement.requestFullscreen();
-        }
+        toogleFullScreen();
         return;
     }
     
@@ -749,14 +343,12 @@ document.addEventListener("keydown", function(event) {
             homeListGenerator(sortingOrder);
         else{
             currentPage = currentPage.replaceAll('%20'," ");
-            var index = getIndex(currentPage);
+            var index = getFolderIndex(currentPage);
             imgListGenerator(fileNames[index],mainList[index],sortingOrder);
         }
 
-        setAData();
-        setNumData();
-        calculateRowHeights();
-        setWidth();
+        rowLevel = 0;
+        calculateRowMaxImageHeights();
     }
 
     if(event.key === 'i'){
@@ -792,40 +384,24 @@ document.addEventListener("keydown", function(event) {
     }
 
     if(event.key === ' '){
-        var searchBox = document.querySelector('.search-box');
-        if(searchBox){
-            searchBox.style.display = 'block';
-            inputMode = true;
-            return;
-        }
-        var searchBox = document.createElement('input');
-        searchBox.type = 'text';
-        searchBox.style.position = 'fixed';
-        searchBox.style.border = "6px solid #0ab2eb";
-        searchBox.style.height = '30px';
-        searchBox.style.top = '50px';
-        searchBox.style.color = '#0ddb1f';
-        searchBox.style.fontSize = '20px';
-        searchBox.style.fontWeight = 'bold';
-        searchBox.style.right = '10px';
-        searchBox.className = 'search-box';
-        document.body.appendChild(searchBox);
-
-        inputMode = true;
+       console.log('space key pressed, toggling search mode enter bro'); 
+       enableSearchMode();
+       event.preventDefault();
+       return;
     }
 
     if(event.key === 'p'){
-        var copyText = getPathData();
-        if(copyText.includes('http://localhost:3001/')){
-            // console.log('if inlucde http://localhost:3001/');
-            copyText = copyText.replace('http://localhost:3001/','file:///E:/All%20in%20One/Websites/Get%20Files%20for%20All%20Folders/public/');
-        }
+        var copyText = getPathToOpenInFileExplorer();
+        // if(copyText.includes('http://localhost:3001/')){
+        //     // console.log('if inlucde http://localhost:3001/');
+        //     copyText = copyText.replace('http://localhost:3001/','file:///E:/All%20in%20One/Websites/Get%20Files%20for%20All%20Folders/public/');
+        // }
         navigator.clipboard.writeText(copyText);
         return;
     }
 
-    if(event.key === 'l'){
-        navigator.clipboard.writeText(getData());
+    if(event.key === 'l' && !event.ctrlKey){
+        navigator.clipboard.writeText(getAllVisibleImgNames());
         return;
     }
 
@@ -845,10 +421,6 @@ document.addEventListener("keydown", function(event) {
             }
         }
         return;
-    }
-
-    if(event.key === 'C'){
-        toogleCheckBoxes();
     }
 
     if(event.key === 'c'){
@@ -880,10 +452,8 @@ document.addEventListener("keydown", function(event) {
                 imgContainer.appendChild(imgItemCreator(filename,foldername));
             }
 
-            setAData();
-            setNumData();
-            calculateRowHeights();
-            setWidth();
+            rowLevel = 0;
+            calculateRowMaxImageHeights();
 
             var imgNames = document.getElementsByClassName('img-name');
             var imgFolderNames = document.getElementsByClassName('img-folder-name');
@@ -909,25 +479,22 @@ document.addEventListener("keydown", function(event) {
 
     if(event.ctrlKey && (event.key === '1' || event.key === '2' || event.key === '3' || event.key === '4' || event.key === '5' || event.key === '6' || event.key === '7' || event.key === '8' || event.key === '9' || event.key === '0'))
         return;
-    else if(event.key === "1") count = 1;
-    else if(event.key === "2") count = 2;
-    else if(event.key === "3") count = 3;
-    else if(event.key === "4") count = 4;
-    else if(event.key === "5") count = 5;
-    else if(event.key === "6") count = 6;
-    else if(event.key === "7") count = 7;
-    else if(event.key === "8") count = 8;
-    else if(event.key === "9") count = 9;
-    else if(event.key === "0") count = 10;
-
-    console.log('count after key press:');
-    functionForCount2(event.key);
+    else if(event.key === "1") no_Of_Imgs_Per_Row = 1;
+    else if(event.key === "2") no_Of_Imgs_Per_Row = 2;
+    else if(event.key === "3") no_Of_Imgs_Per_Row = 3;
+    else if(event.key === "4") no_Of_Imgs_Per_Row = 4;
+    else if(event.key === "5") no_Of_Imgs_Per_Row = 5;
+    else if(event.key === "6") no_Of_Imgs_Per_Row = 6;
+    else if(event.key === "7") no_Of_Imgs_Per_Row = 7;
+    else if(event.key === "8") no_Of_Imgs_Per_Row = 8;
+    else if(event.key === "9") no_Of_Imgs_Per_Row = 9;
+    else if(event.key === "0") no_Of_Imgs_Per_Row = 10;
 
     if(event.key === "s" || event.key === "S" || event.key === "1" || event.key === "2" || event.key === "3" || event.key === "4" || event.key === "5" || event.key === "6" || event.key === "7" || event.key === "8" || event.key === "9" || event.key === "0"){
-        localStorage.setItem("numData", "" + count);
-        // console.log('in even lsitioner');
-        calculateRowHeights();
-        setWidth();
+        update_numData_To_LocalStorage();
+        rowLevel = 0;
+        calculateRowMaxImageHeights();
+        setWidthForAll_ImgItems_Based_No_Of_Imgs_Per_Row();
         navigateToImgNumber(focusElement,event.key);
     }
 });
@@ -935,16 +502,3 @@ document.addEventListener("keydown", function(event) {
 function fixA(){
 
 }
-
-function toogleCheckBoxes(){
-    var checkBoxDiv = document.querySelector('#checkboxes-container');
-    if(checkBoxDiv.style.display === 'inline-block'){
-        checkBoxDiv.style.display = 'none';
-    }
-    else{
-        checkBoxDiv.style.display = 'inline-block';
-    }
-}
-toogleCheckBoxes();
-toogleCheckBoxes();
-
