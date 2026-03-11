@@ -1,3 +1,5 @@
+var url = window.location.href;
+
 // console.log('serverRelatedButtons.js loaded');
 
 // deletion logic

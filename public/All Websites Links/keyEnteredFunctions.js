@@ -37,9 +37,11 @@ function openShortcutsFile(){
     anchorElement.click();
 }
 
-async function searchOperation(enteredKey, isCtrlKey){
+function searchOperation(enteredKey, isCtrlKey){
+    if(consoleLevel === 1){
+        console.log('searchOperation called');
+    }
     var searchBox = document.querySelector('.search-box');
-    searchBox.focus();
 
     if(enteredKey === "Shift" && !isCtrlKey){ // to empty the search box
         searchBox.value = '';
@@ -98,4 +100,81 @@ function M_Mode_Operation(enteredKey){
         searchStartIndex++;
     }
     // if no matching tab with starting letter, then no redirection happens
+}
+
+function arrowLeftOrRightClicked(keyEntered){
+    const blackHeader_Anchors = document.querySelectorAll(".black-header a");
+
+    var currFolder_Percentile20 = space_to_Percentile20(getFolderNameFromUrl());
+            
+    for(var i=0;i<blackHeader_Anchors.length;i++){
+        var anchorHrefValue = blackHeader_Anchors[i].href.split('#')[1];
+        console.log('cop',anchorHrefValue, currFolder_Percentile20);
+        if(anchorHrefValue === currFolder_Percentile20){
+
+            if(keyEntered === "ArrowRight"){
+                if(i===blackHeader_Anchors.length-1){
+                    // if we are on last tab, then go to 2nd tab instead of home tab
+                    blackHeader_Anchors[1].click();
+                }
+                else{
+                    blackHeader_Anchors[i+1].click();
+                }
+            }
+
+            else{
+                if(i === 0 || i === 1){ // if we are on 1st or 2nd tab goto last tab
+                    // since we should not be going to home tab(1st tab)
+                    blackHeader_Anchors[blackHeader_Anchors.length-1].click();
+                }
+                else{
+                    blackHeader_Anchors[i - 1].click();
+                }
+            }
+
+            break;
+        }
+    }
+}
+
+function arrowTopOrBottomClicked(keyEntered){
+    var imgItems = document.getElementsByClassName('img-item');
+
+    if (keyEntered === 'ArrowDown'){
+
+        if(smoothMoment){
+            window.scrollBy(0,100);
+            return;
+        }
+
+        focusElement = (focusElement - focusElement % no_Of_Imgs_Per_Row) + no_Of_Imgs_Per_Row;
+        
+        if(focusElement >= imgItems.length){
+            focusElement = imgItems.length - 1;
+        }
+        if(consoleLevel === 2){
+            console.log('New FocusElement:',focusElement);
+        }
+
+        balanceRowLevel();
+    }
+    else{
+
+        if(smoothMoment){
+            window.scrollBy(0,-100);
+            return;
+        }
+
+        focusElement = (focusElement - focusElement % no_Of_Imgs_Per_Row) - no_Of_Imgs_Per_Row;
+
+        if(focusElement < 0){
+            focusElement = 0;
+        }
+
+        if(consoleLevel === 2){
+            console.log('New FocusElement:',focusElement);
+        }
+
+        balanceRowLevel();
+    }
 }

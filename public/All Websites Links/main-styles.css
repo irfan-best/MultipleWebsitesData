@@ -5,7 +5,10 @@
 }
 
 .black-header1{
-  /* display: none; */
+  position : fixed;
+  top : 0px;
+  z-index: 3;
+  display: none;
 }
 
 .img-name{

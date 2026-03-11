@@ -40,7 +40,6 @@ function toogleFullScreen(){
     else{
         document.documentElement.requestFullscreen();
     }
-    isFullScreen = !isFullScreen;
 }
 
 function toogleImgNames(){

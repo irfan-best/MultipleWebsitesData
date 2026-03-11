@@ -1,10 +1,13 @@
-
 // this method returns data in below format
 // <div class="img-item">
 //             <div class="img-box"><img src="Images/{FolderName}/{Filename}"/></div>
 //             <div class="img-folder-name" style="display:none;">{FolderName}</div>
 //             <div class="img-name">{Filename}</div>
 // </div>
+// yellow-color setting for video files
+// img width setup
+// when img is clicked focusElement is update (that listner also set)
+// when we click on img, img name will be copied( if includeAnimeOrNot = true, then img name + " Anime" copied)
 function imgItemCreator(imgNameWithExtension,foldername){
     if(consoleLevel === 2){
         console.log('imgItemCreator start:',imgNameWithExtension,foldername);
@@ -21,12 +24,11 @@ function imgItemCreator(imgNameWithExtension,foldername){
     var imgTag = document.createElement("img");
     imgTag.setAttribute("class","img-tag");
     imgTag.setAttribute("src","Images/"+foldername+"/"+imgNameWithExtension);
-    
-    imgBox.appendChild(imgTag);
-    imgBox.addEventListener("click", function(event) {
-        elementToScroll = event.target;
+    imgTag.addEventListener("click", function(event) {
         set_FocusElement_onImgClick(event.target); 
     });
+    
+    imgBox.appendChild(imgTag);
 
     var imgName = document.createElement("div");
     imgName.setAttribute("class","img-name");
@@ -53,15 +55,21 @@ function imgItemCreator(imgNameWithExtension,foldername){
 
     imgItem.appendChild(imgName);
 
+    // var hidden_ImgTag_WithFileExtension = document.createElement('div');
+    // hidden_ImgTag_WithFileExtension.innerHTML = imgNameWithExtension;
+    // hidden_ImgTag_WithFileExtension.style.display = 'none';
+    // hidden_ImgTag_WithFileExtension.classList.add('hidden-img-tag-with-file-extension');
+    // imgItem.appendChild(hidden_ImgTag_WithFileExtension);
+
     return imgItem;
 }
 
-// sorting order can be "random", "asc" or "desc"
+// uses sorting order global variable
 // empties the imgs-container
 // calls imgItemCreator for each image and appends it to the imgs-container
 // called when url doesn't have foldername mentioned or url ends with home or .html
 // when currently on home page and when we click on 'r' or 'R' or 't' this method will get fired.
-function homeListGenerator(sortingOrder){
+function homeListGenerator(){
     if(consoleLevel === 1){
         console.log('homeListGenerator start:',sortingOrder);
     }
@@ -91,13 +99,13 @@ function homeListGenerator(sortingOrder){
     })
 }
 
-// sorting order can be "random", "asc" or "desc"
+// uses sorting order global varaible
 // imgNamePresentInFolder is the list of img name present in an particular folder
 // empties the imgs-container
 // calls imgItemCreator for each image present in the {foldername} and appends it to the imgs-container
 // called when url has foldername mentioned in it
 // when currently on folder page and when we click on 'r' or 'R' or 't' this method will get fired.
-function imgListGenerator(foldername,imgNamePresentInFolder,sortingOrder){
+function imgListGenerator(foldername,imgNamePresentInFolder){
 
     if(consoleLevel === 1){
         console.log('imgListGenerator start:',foldername,imgNamePresentInFolder,sortingOrder);
@@ -147,6 +155,8 @@ function getWebsiteNameFromUrl(){
 // this method works for both localhost or without localhost url
 function getFolderNameFromUrl(){
     var url = window.location.href;
+    console.log('getFolderNameFromUrl url',url);
+    console.log('url split',url.split("#"));
     var folderName = url.split("#")[1].replaceAll('%20',' ');
     if(consoleLevel === 1){
         console.log('getFolderNameFromUrl called:',folderName);
@@ -181,7 +191,7 @@ function getFolderIndex(folderName){
         if(fileNames[i] === folderName){
             return i;
         }
-    return 0;
+    return -1;
 }
 
 // this method updates imgs to be shown when we click on an header item
@@ -266,7 +276,9 @@ function getPathToOpenInFileExplorer() {
 // to make sure that wont happen this methods handles the logic
 function balanceRowLevel(){
     var imgItems = document.getElementsByClassName('img-item');
-    console.log('balanceRowLevel',focusElement);
+    if(consoleLevel === 1){
+        console.log('balanceRowLevel focusElement:',focusElement);
+    }
 
     var rowStartIndex = focusElement - (focusElement % no_Of_Imgs_Per_Row);
     var rowEndIndex = Math.min(rowStartIndex + no_Of_Imgs_Per_Row, imgItems.length);
@@ -282,9 +294,7 @@ function balanceRowLevel(){
             tallestImgIndex = k;
         }
     }
-    console.log('tallestImgIndex',tallestImgIndex)
-    focusElement = tallestImgIndex;
-    navigateToImgNumber(focusElement);
+    navigateToImgNumber(tallestImgIndex);
 }
 
 // this method is used to return img index that has been clicked,
@@ -306,65 +316,12 @@ function getElementNumberThatHasBeenClicked(element){
     return newFocusIndex;
 }
 
-// when an img-box is clicked, focusElement will get update to index of the img-box 
-function set_On_Click_Event_ForImageBoxs(){
-    var imgBoxs = document.getElementsByClassName('img-box');
-    for(var i=0;i<imgBoxs.length;i++){
-        imgBoxs[i].addEventListener("click", function(event) {
-            elementToScroll = event.target;
-            focusElement = getElementNumberThatHasBeenClicked(event.target);
-        });
-    }
-}  
-
 function set_FocusElement_onImgClick(clickedImgBoxElement){
-    focusElement = Array.from(document.getElementsByClassName('img-item'))
-    .findIndex(item => item.querySelector('img') === clickedImgBoxElement)
+    focusElement = Array.from(document.getElementsByClassName('img-tag'))
+    .findIndex(item => item === clickedImgBoxElement)
     if(consoleLevel === 1) 
         console.log('set_FocusElement_onImgClick focusElement updated to:',focusElement);
 }
-
-// this method will make rowLevel = 0 and calculates row heights.
-// Example, when no_Of_Imgs_Per_Row is 4, then it will calculate max height for each 4 img-boxees and push it to rowHeights array,
-// so rowHeights[0] will have max height of first 4 img-boxees, rowHeights[1] will have max height of next 4 img-boxees and so on.
-function calculateRowMaxImageHeights(){
-    if(consoleLevel === 1){
-        console.log('calculateRowMaxImageHeights entered no_Of_Imgs_Per_Row',no_Of_Imgs_Per_Row);
-    }
-    rowHeights = [];
-
-    var imgItems = document.getElementsByClassName('img-item');
-    for(var i=0;i<imgItems.length;i++){
-        var currentMaxHeightofRow = 0;
-        for(var j=i;j<i+no_Of_Imgs_Per_Row && j<imgItems.length;j++){
-            // console.log('height value:',imgItems[j].heightValue);
-            currentMaxHeightofRow = Math.max(currentMaxHeightofRow,imgItems[j].clientHeight);
-        }
-        i += no_Of_Imgs_Per_Row;
-        rowHeights.push(currentMaxHeightofRow);
-    }
-    if(consoleLevel === 1){
-        console.log('calculateRowMaxImageHeights ended, rowHeights:',rowHeights);
-    }
-}
-// same method instead of img-item, we are calculating max height for img-boxes
-// function calculateRowMaxImageHeights(){
-//     rowHeights = [];
-
-//     var imgBoxes = document.getElementsByClassName('img-box');
-//     for(var i=0;i<imgBoxes.length;){
-//         var currentMaxHeightofRow = 0;
-//         for(var j=i;j<i+no_Of_Imgs_Per_Row && j<imgBoxes.length;j++){
-//             // console.log('height value:',imgBoxes[j].heightValue);
-//             currentMaxHeightofRow = Math.max(currentMaxHeightofRow,imgBoxes[j].clientHeight);
-//         }
-//         i += no_Of_Imgs_Per_Row;
-//         rowHeights.push(currentMaxHeightofRow);
-//     }
-//     if(consoleLevel === 1){
-//         console.log('calculateRowMaxImageHeights called, rowHeights:',rowHeights);
-//     }
-// }
 
 // this method will set width of all img-items based on no_Of_Imgs_Per_Row value,
 // Example, when no_Of_Imgs_Per_Row is 4, then width of each img-item will be 25%
@@ -403,12 +360,6 @@ function changeWidth_For_Minus_Equal_Keys(enterredKey){
     }
 }
 
-function navigateToFocusElement(){
-    var imgTags = document.getElementsByClassName('img-tag');
-    var element = imgTags[focusElement];
-    element.scrollIntoView(scroll_To_Top_OR_Bottom_Of_Img);
-}
-
 function navigateDownByValue(value){
     window.scrollBy(0,value);
 }
@@ -429,17 +380,7 @@ function navigateToBottom(){
     document.body.scrollIntoView(false);
 }
 
-function navigateToImgNumber(index,keyPressed){
-    if(smoothMoment){
-        if(keyPressed === 'ArrowDown'){
-            window.scrollBy(0,100);
-        } 
-        else if(keyPressed === 'ArrowUp'){
-            window.scrollBy(0,-100);
-        }
-        return;
-    }
-
+function navigateToImgNumber(index){
     var imgTags = document.getElementsByClassName('img-tag');
     if(imgTags.length === 0) return; // no images in a folder case
 
@@ -459,6 +400,15 @@ function enableSearchMode(){
     var searchBox = document.querySelector('.search-box');
     searchBox.style.display = 'block';
     searchMode = true;
+    searchBox.focus();
+}
+
+function ToogleSearchMode(){
+    var searchBox = document.querySelector('.search-box');
+    searchMode = !searchMode;
+    searchBox.style.display = searchMode ? 'block' : 'none';
+    if(searchMode)
+        searchBox.focus();
 }
 
 function clearSearchValue(){
@@ -484,17 +434,25 @@ function highLightTheCorrectHeader(folderName_With_Percentile20){
     if(consoleLevel === 1){
         console.log('highLightTheCorrectHeader called, folderName_With_Percentile20:',folderName_With_Percentile20);
     }
+    
+    var atleastOneMatchFound = false;
 
     for(var i=0;i<anchorElements.length;i++){
         var anchorFolderName_With_Percentile20 = anchorElements[i].href.split('#')[1];
         if(anchorFolderName_With_Percentile20 === folderName_With_Percentile20){
             anchorElements[i].style.fontWeight = "bold";
             anchorElements[i].style.color = "#0add96";   
+            atleastOneMatchFound = true;
         }
         else{
             anchorElements[i].style.fontWeight = "normal";
             anchorElements[i].style.color = "white";
         }
+    }
+
+    if(!atleastOneMatchFound){
+        anchorElements[1].style.fontWeight = "bold";
+        anchorElements[1].style.color = "#0add96";   
     }
 }
 
@@ -505,4 +463,18 @@ function getButton_BasedOn_InnerHTML(innerHtmlValue){
             return allButtons[i];
     }
     return null;
+}
+
+function ifAnyOfWriteModeIsTrue(){
+    return fileNameChangeMode || searchMode || M_Mode;
+}
+
+function isLetter(char){
+    const code = char.charCodeAt(0);
+    return (code >= 65 && code <= 90) || // Uppercase A-Z
+            (code >= 97 && code <= 122);  // Lowercase a-z
+}
+
+function isDigit(char) {
+    return char >= '0' && char <= '9';
 }

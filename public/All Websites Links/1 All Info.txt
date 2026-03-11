@@ -1,0 +1,36 @@
+All Modes:
+        multipleElementsSelectionMode;
+        searchMode;
+        M_Mode;
+
+        fileNameChangeMode;
+
+js files order:
+        boolean and conditional variables
+
+        general methods
+        c set and toogle methods
+        imagesfunc
+        increase
+        keyEnteredFunctions
+        serverRelatedButtons
+        serverCaller
+        listSites
+        open file name matching folder
+
+Used Keys:
+        1,2,3,4,5,6,7,8,9,0
+        
+        - and =                         -> to increase or decrease img width percentages
+
+        R                               -> to make sortOrder = asc
+        r                               -> to make sortOrder = random
+        t                               -> to make sortOrder = desc
+        
+        ctrl + Enter                    -> To switch from 'Byoru Tier 1' to 'Byoru Tier 1 - Avg' or vise versa
+                                            Current only available for when website category is in starNamesList
+
+        
+
+
+// used key, h,j,J,t,T,r,R,s,S,a,A

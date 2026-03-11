@@ -13,7 +13,13 @@ function call_HomeList_OR_imgList_Generator(){
         if(consoleLevel === 1){
             console.log('folder page:',folderName);
         }
-        var index = getFolderIndex(folderName);
+        var index = getFolderIndex(folderName); 
+        if(index === -1){ // #hash part of url doesn't match any folder names
+            var firstFolderName = document.querySelectorAll('.black-header a')[1];
+
+            window.location.hash = '#' + firstFolderName.href.split('#')[1];
+            index = 0;
+        }
         imgListGenerator(fileNames[index],mainList[index]);
     }
 }
@@ -31,6 +37,12 @@ function setHomePage_AND_AllFolderImgCounts(){
 }
 
 no_Of_Imgs_Per_Row = get_No_Of_Imgs_Per_Row_From_LocalStorage();
+localHost_on = window.location.href.includes(localHostURL);
+
+if(window.location.href.endsWith('.html')){
+    window.location.href = window.location.href + '#home';
+}
+
 call_HomeList_OR_imgList_Generator(); // add imgs based on url, verify home page or folder page
 setHomePage_AND_AllFolderImgCounts(); // adds no of imgs in header items
 
@@ -46,14 +58,11 @@ document.querySelectorAll("a").forEach(function(anchor) {
             console.log('anchor clicked href:',event.target.href);
         }
 
-        rowLevel = 0;
         focusElement = 0;
-        calculateRowMaxImageHeights();
 
         var folderName_With_Percentile20 = event.target.href.split('#')[1]; 
         highLightTheCorrectHeader(folderName_With_Percentile20);
 
-        // set_On_Click_Event_ForImageBoxs();
         disableSearchMode();
         clearSearchValue();
 
@@ -62,7 +71,7 @@ document.querySelectorAll("a").forEach(function(anchor) {
                 console.log('isFullScreen is true, navigating to img number 0');
             }
             setTimeout(function() {
-                navigateToFocusElement();
+                balanceRowLevel();
             }, 50);
         }
 
@@ -75,7 +84,7 @@ document.querySelectorAll("a").forEach(function(anchor) {
 var searchBox = document.querySelector('.search-box');
 searchBox.addEventListener('input', (event) => {
     var searchValue = event.target.value;
-    if(consoleLevel === 1){
+    if(consoleLevel === 2){
         console.log('Search Box Value changed:',searchValue);
     }
     
@@ -93,4 +102,18 @@ searchBox.addEventListener('input', (event) => {
     }
 
     navigator.clipboard.writeText(imgNameToCopy + (!includeAnimeOrNot ? "" : " Anime"));
+});
+
+searchBox.addEventListener('keydown', (event)=>{
+    if(event.key === 'Shift'){
+        if(consoleLevel === 1){
+            console.log('Disabling SearchMode since Shift is entered');
+        }
+        disableSearchMode();
+    }
+})
+
+document.addEventListener('fullscreenchange', () => {
+    isFullScreen = !isFullScreen;
+    console.log('isFullScreen updated to:',isFullScreen);
 });

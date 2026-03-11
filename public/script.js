@@ -207,3 +207,8 @@ mainBoxs.forEach(box => {
     var h1 = box.querySelector('h1');
     h1.textContent += ' (' + (anchors.length) + ')';
 });
+
+var copyTerminalPath = document.getElementById('copy-terminal-path');
+copyTerminalPath.onclick = function(event){
+    navigator.clipboard.writeText(event.target.innerHTML);
+} 

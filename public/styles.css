@@ -50,3 +50,8 @@ a:hover{
     font-weight: bold;
     color:aqua !important; 
 }
+
+#copy-terminal-path{
+    height: 34px;
+    cursor: pointer;
+}
