@@ -13,8 +13,15 @@ import path from 'path';
 // and we have add in package.json ->  "type": "module" (so that we can use import)
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// 15th march
+var consoleLevel = 1;
+var nrmlURL = 'file:///E:/All in One/Websites/Get Files for All Folders/public/';
+var localHostURL = 'http://localhost:3001/';
 
 function space_to_Percentile20(text){
     var updatedText = text.replaceAll(' ','%20');
@@ -158,7 +165,7 @@ function getIndexFileContent(folderNames) {
 `       </ul>
             
         <div class="copy-container">
-            <button id="no-folders" class='copy-button'>No.of Folders</button>
+            <button id="no-of-folders" class='copy-button'>No.of Folders</button>
             <button id="show-website-name" class='copy-button'>Website Name</button>
             <img src="../../M Swith On.png"  class='m-switch-button' id="m-switch-on" style='display:none'/>
             <img src="../../M Swith Off.png" class='m-switch-button' id="m-switch-off"  />
@@ -200,9 +207,9 @@ function getIndexFileContent(folderNames) {
         <script src="../../boolean and conditional variables.js"></script>
         <script src="../../c set and toogle methods.js"></script>
         <script src="../../general methods.js"></script>
+        <script src="../../keyEnteredFunctions.js"></script>
         <script src="../../imagesfunc.js"></script>
         <script src="../../increase.js"></script>
-        <script src="../../keyEnteredFunctions.js"></script>
         <script src="../../serverRelatedButtons.js"></script>
         <script src="../../serverCaller.js"></script>
         <script src="../../listSites.js"></script>
@@ -296,37 +303,39 @@ app.listen(port, () => {
 
 // New Server Codes:
 
+// new 15th march
+// when entire URL is given
+function getFolderName(url){
+    var urlSplit = url.split('/');
+    return urlSplit[urlSplit.length - 2];
+}
 
+// new 15th march
+// when we click on 'x' for an img, then this route will be executed
+// deleted img would be present in recycle bin
+// input = 'http://localhost:3001/All%20Website%20Links/Main/Naruto%202/Images/hanabi/03ec47b32ce8f86f36b14d1dfc914e35.jpeg';
+// output = 'E:\All in One\Websites\Get Files for All Folders\public\All Websites Links\2 Animes\Naruto 2\Images\ew ones\ff.jpeg
 app.post('/delete-img', async (req, res) => {
     var url = req.body.imgPath;
-    console.log('imgPath:', url);
-
-    // url = 'http://localhost:3001/All%20Website%20Links/Main/Naruto%202/Images/hanabi/03ec47b32ce8f86f36b14d1dfc914e35.jpeg';
-    var urlSplit = url.split('/');
-    // console.log('urlSplit:', urlSplit);
-    var websiteName = urlSplit[5].replaceAll('%20'," "); // 'Naruto 2'
-    var websiteCategory = urlSplit[4].replaceAll('%20'," "); // 'Main'
-    var FolderName = urlSplit[urlSplit.length - 2].replaceAll('%20'," "); // 'Hanabi'
-    var fileName = urlSplit[urlSplit.length - 1].replaceAll('%20'," "); // '03ec47b32ce8f86f36b14d1dfc914e35.jpeg'
-
-    console.log('websiteName:', websiteName);
-    console.log('websiteCategory:', websiteCategory);
-    console.log('FolderName:', FolderName);
-    console.log('fileName:', fileName);
-
-    const filePath = path.join(__dirname, 'public','All Websites Links',websiteCategory,websiteName,'Images',FolderName, fileName);
-    console.log('File Path:', filePath);
-
-    await deleteToRecycleBin(filePath);
-    // /submit
+    
+    var updatedUrlPath = url.replaceAll('%20',' ').replaceAll(localHostURL,nrmlURL).replaceAll('/','\\').replace('file:\\\\\\','');
+    
+    if(consoleLevel >= 1){
+        console.log('delete-img server: imgPath:', url);
+        console.log('updatedUrlPath:', updatedUrlPath);
+    }
+    
+    await deleteToRecycleBin(updatedUrlPath);
 });
 
 async function deleteToRecycleBin(filename) {
   try {
     await trash([filename]); // absolute or relative path
-    console.log('Moved to Recycle Bin/Trash');
+    if(consoleLevel >= 1)
+        console.log('deleteToRecycleBin: Moved to Recycle Bin/Trash');
   } catch (err) {
-    console.error('Error moving to trash:', err);
+        if(consoleLevel >= 1)
+            console.error('deleteToRecycleBin: Error moving to trash:', err);
   }
 }
 

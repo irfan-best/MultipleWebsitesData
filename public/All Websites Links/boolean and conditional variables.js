@@ -45,6 +45,8 @@ var leftRightKeys = ['ArrowLeft','ArrowRight'];
 
 var navigationKeys = ['w','W','z','/']; 
 
+var selectedImagesList = []; // when multipleElementsSelectionMode is enabled then img names are saved in this list
+
 // ----------------------------------------------------------------------------------------------------------
 // ------------------------------------------- all booleans -------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------
@@ -52,7 +54,7 @@ var navigationKeys = ['w','W','z','/'];
 var includeAnimeOrNot = false; // enter 's' to toogle, using in imgItemCreator, when we are doing search 
 var showImgExetension = false; // enter 'e' to toogle img-name extension
 
-var scroll_To_Top_OR_Bottom_Of_Img = false; // true means 'Top', false means 'Bottom'
+var scroll_To_Top_OR_Bottom_Of_Img = true; // true means 'Top', false means 'Bottom'
 // when 'z' or '/' is clicked this value will get toggled
 // used in navigateToImgNumber(index);
 
@@ -82,6 +84,8 @@ var localHost_on = false;
 var smoothMoment = false; // enter ; to toogle the value
 // when we this is enable and when we enter up or down arrow scroll will be by 100 units
 
+var includeFileExtensions = false; // this is for edit img name i guess
+
 // ----------------------------------------------------------------------------------------------------------
 // ------------------------------------------- all Modes ----------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------
@@ -90,12 +94,18 @@ var multipleElementsSelectionMode = false;
 var M_Mode = false;
 
 var searchMode = false; // when we click on "space" then we enter search mode,
-// when we click "esc" then we exit search mode, in search mode we can type text to search for any img
+// when we click "Escape" then we exit search mode, in search mode we can type text to search for any img
+
+var fileNameChangeMode = false; // when we click on 'x' this mode will get enabled, to change file name
+// fileNameChangeMode is not writtable mode
+
+var fileNameChangeFocusMode = false; // when we enter focus on an edit box, then fileNameChangeFocusMode = true,
+    // when we exit the focus of the element, then fileNameChangeFocusMode = false;
+    // fileNameChangeFocusMode is writtable mode
 
 // ----------------------------------------------------------------------------------------------------------
 // ------------------------------------------- new ones -----------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------
 
 
-var fileNameChangeMode = false;
 var count2Or1Toogle = false;

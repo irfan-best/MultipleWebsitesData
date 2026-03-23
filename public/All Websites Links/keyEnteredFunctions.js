@@ -38,7 +38,7 @@ function openShortcutsFile(){
 }
 
 function searchOperation(enteredKey, isCtrlKey){
-    if(consoleLevel === 1){
+    if(consoleLevel >= 1){
         console.log('searchOperation called');
     }
     var searchBox = document.querySelector('.search-box');
@@ -109,7 +109,6 @@ function arrowLeftOrRightClicked(keyEntered){
             
     for(var i=0;i<blackHeader_Anchors.length;i++){
         var anchorHrefValue = blackHeader_Anchors[i].href.split('#')[1];
-        console.log('cop',anchorHrefValue, currFolder_Percentile20);
         if(anchorHrefValue === currFolder_Percentile20){
 
             if(keyEntered === "ArrowRight"){

@@ -1,38 +1,5 @@
 var url = window.location.href;
 
-// console.log('serverRelatedButtons.js loaded');
-
-// deletion logic
-function addDeleteButtons() {
-    var imgBox = document.querySelectorAll('.img-box');
-    // console.log('imgBox in srvRelated:', imgBox);
-    for(var i=0;i<imgBox.length;i++){
-        var deleteButton = document.createElement("button");
-        deleteButton.innerHTML = "X";
-        deleteButton.style.display = 'none'; // Initially hide the button
-        deleteButton.setAttribute("class", "delete-button");
-        deleteButton.onclick = function() {
-            var imgBox = this.parentElement; // Get the parent img-box
-            var imgElement = imgBox.querySelector('img'); // Get the img element inside the img-box
-            deleteImg(imgElement.src);
-            // console.log('delete button clicked for img:', imgElement.src);
-            var imgItem = imgBox.parentElement;
-            imgItem.remove(); // Remove the img-box from the DOM
-
-            updateHeaderCounts();
-
-            setTimeout(() => {
-                // console.log('sendData 5secs called after deleteImg');
-                sendData(); // to update the website
-                // imgBox.remove(); // Remove the img-box from the DOM
-            }, 2000); // Delay to allow the deleteImg function to complete
-        };
-        imgBox[i].appendChild(deleteButton);
-    }
-}
-
-addDeleteButtons();
-
 function updateHeaderCounts(){
     var anchorElements = document.querySelectorAll("a");
     var currentPage = window.location.href.substring(window.location.href.indexOf('#')+1);
@@ -56,182 +23,6 @@ function updateHeaderCounts(){
 
 }
 
-var includeFileExtensions = false;
-
-window.addEventListener('keydown', function(event) {
-    if(event.key === 'Tab'){
-        event.preventDefault();
-        // console.log('Tab Enetered');
-        multipleElementsSelectionMode = !multipleElementsSelectionMode;
-
-        if(multipleElementsSelectionMode){
-            var imgItems = document.querySelectorAll('.img-item');
-            for(var i=0;i<imgItems.length;i++){
-                imgItems[i].addEventListener('click',function(event){
-                    // console.log('fileNameCahgneMode in lop:',multipleElementsSelectionMode);
-
-                    if(!multipleElementsSelectionMode) return;
-                        // console.log('event.target:',event.target);
-                        // console.log('event.target parent:',event.target.parentElement);
-                        var element = event.target;
-                        while(true){
-                            // console.log('inside while:'+element);
-                            if(element.classList.contains('img-item')){
-                                // console.log('while breaking');
-                                break;
-
-                            }
-                            element = element.parentElement;
-                        }
-                        // console.log('corect event.target:',element);
-
-                        element.classList.toggle('selected-img');
-                        if(!selectedImagesList.includes(element.querySelector('img').src)){
-                            selectedImagesList.push(element.querySelector('img').src);
-                            // console.log('selectedImagesList:',selectedImagesList)
-                        }
-                        else{
-                            selectedImagesList.splice(selectedImagesList.indexOf(element.querySelector('img').src),1);
-                        }
-
-                    })
-                }
-        }
-
-        if(!multipleElementsSelectionMode){
-            var imgItems = document.querySelectorAll('.img-item');
-            for(var i=0;i<imgItems.length;i++){
-                imgItems[i].classList.remove('selected-img');
-            }
-        }
-        selectedImagesList = [];
-        // console.log('multipleElementsSelectionMode:',multipleElementsSelectionMode);
-    }
-
-    else if(event.key === 'y' && fileNameChangeMode){
-        if(!includeFileExtensions){
-            includeFileExtensions = true;
-            // console.log('y entered, include extensions');
-            var imgNameInputBox = document.querySelectorAll('.img-name-input-box');
-            for(var i=0;i<imgNameInputBox.length;i++){
-                var tempSplitData = imgNameInputBox[i].parentElement.querySelector('img').src.split('.');
-                imgNameInputBox[i].value += '.' + tempSplitData[tempSplitData.length - 1];
-            }
-        }
-        else{
-            includeFileExtensions = false;
-            // console.log('y entered, exclude extensions');
-            var imgNameInputBox = document.querySelectorAll('.img-name-input-box');
-            for(var i=0;i<imgNameInputBox.length;i++){
-                imgNameInputBox[i].value = imgNameInputBox[i].value.substring(0,imgNameInputBox[i].value.lastIndexOf('.'));
-            }
-        }
-    }
-
-    else if(event.key === 'x' && !searchMode ){
-        // console.log('x key pressed');
-        var imgNameInputBox = this.document.querySelectorAll('.img-name-input-box');
-        for(var i=0;i<imgNameInputBox.length; i++){
-            if( imgNameInputBox[i].style.display === 'none') {
-                imgNameInputBox[i].style.display = 'block'; // Show all delete buttons
-                fileNameChangeMode = true;
-                // console.log('filechangeMode:',fileNameChangeMode);
-
-                imgNameInputBox[i].parentElement.querySelector('.submit-button').style.display = 'block';
-            }
-            else{
-                imgNameInputBox[i].style.display = 'none'; // Hide all delete buttons
-                fileNameChangeMode = false;
-                imgNameInputBox[i].parentElement.querySelector('.submit-button').style.display = 'none';
-
-            }
-        }
-    }
-
-    if(includeFileExtensions || multipleElementsSelectionMode || fileNameChangeMode || searchMode){
-        return;
-    }
-
-    if (event.key === 'd') {
-        // console.log('d key pressed');
-        var deleteButtons = document.querySelectorAll('.delete-button');
-        deleteButtons.forEach(button => {
-            if( button.style.display === 'none') {
-                button.style.display = 'block'; // Show all delete buttons
-            }
-            else{
-                button.style.display = 'none'; // Hide all delete buttons
-            }
-            // button.style.display = 'block'; // Show all delete buttons
-        });
-    }
-
-    
-    
-});
-
-
-// update img name logic
-var imgItems = document.querySelectorAll('.img-item');
-// console.log('imgBoxes:',imgItems);
-for(var i=0;i<imgItems.length;i++){
-    var img = imgItems[i].querySelector('img');
-    var imgNameInputBox = document.createElement('input');
-    imgNameInputBox.name = 'imageName';
-    var splitData = img.src.split('/');
-    imgNameInputBox.value = splitData[splitData.length-1].replaceAll("%20"," ");
-    if(!includeFileExtensions){
-        imgNameInputBox.value = imgNameInputBox.value.substring(0,imgNameInputBox.value.lastIndexOf('.'));
-    }
-    imgNameInputBox.setAttribute('class','img-name-input-box');
-    imgItems[i].appendChild(imgNameInputBox);
-
-    imgNameInputBox.addEventListener('focus',function(){
-        fileNameChangeMode = true;
-    })
-
-    imgNameInputBox.addEventListener('blur',function(){
-        fileNameChangeMode = false;
-    })
-
-    imgNameInputBox.style.display = 'none';
-
-    var submitButton = document.createElement('button');
-    submitButton.innerHTML = 'Update FileName';
-    submitButton.setAttribute('class','submit-button');
-    submitButton.style.display = 'none';
-    imgItems[i].appendChild(submitButton);
-
-    submitButton.onclick = function(){
-        var parentElement = this.parentElement;
-        var currentImgUrl = parentElement.querySelector('img').src;
-        var newImageName = parentElement.querySelector('input').value;
-        // console.log('currentImgUrl:'+currentImgUrl);
-        // console.log('newImageName:'+newImageName);
-
-        if(!includeFileExtensions){
-            // var splitData = currentImgUrl.split('.');
-            // var lastIndexOf = currentImgUrl.lastIndexOf('.');
-            var tempSplitData = currentImgUrl.split('.');
-            // '.' + tempSplitData[tempSplitData.length - 1];
-            // console.log('url string')
-            newImageName = newImageName + '.' + tempSplitData[tempSplitData.length - 1];
-        }
-        renameFile(currentImgUrl,newImageName);
-
-        var imgName = parentElement.querySelector('.img-name');
-        imgName.innerHTML = newImageName.split('.')[0];
-
-        setTimeout(() => {
-            // console.log('sendData 5secs called after deleteImg');
-            sendData(); // to update the website
-            // imgBox.remove(); // Remove the img-box from the DOM
-        }, 2000);
-
-    }
-}
-
-var selectedImagesList = [];
 var copyOrMoveMode = '';
 
 var moveButton = document.createElement('button');
@@ -315,9 +106,9 @@ deleteButton.onclick = function(){
     }
 
     setTimeout(() => {
-        // console.log('sendData 5secs called after deleteImg');
+        // console.log('sendData 5secs called after deleteFile');
         sendData(); // to update the website
-    }, 2000); // Delay to allow the deleteImg function to complete
+    }, 2000); // Delay to allow the deleteFile function to complete
            
 }
 
@@ -379,7 +170,7 @@ submitButtonForWebsiteSelection.onclick = function(){
         moveServerCaller();
 
         setTimeout(() => {
-            // console.log('sendData 5secs called after deleteImg');
+            // console.log('sendData 5secs called after deleteFile');
             sendData(); // to update the website
             selectedImagesList = [];
             // imgBox.remove(); // Remove the img-box from the DOM
@@ -392,7 +183,7 @@ submitButtonForWebsiteSelection.onclick = function(){
     else if(copyOrMoveMode === 'Move Folder'){
         moveFolderServerCaller();
         setTimeout(() => {
-            // console.log('sendData 5secs called after deleteImg');
+            // console.log('sendData 5secs called after deleteFile');
             sendData(); // to update the website
             // imgBox.remove(); // Remove the img-box from the DOM
         }, 2000);   
@@ -400,7 +191,7 @@ submitButtonForWebsiteSelection.onclick = function(){
 
  
      setTimeout(() => {
-        // console.log('sendData 5secs called after deleteImg');
+        // console.log('sendData 5secs called after deleteFile');
         const categorySelect = document.getElementById('categorySelect');
         const websiteSelect = document.getElementById('websiteSelect');
 

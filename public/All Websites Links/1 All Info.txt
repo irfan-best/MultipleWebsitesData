@@ -6,31 +6,105 @@ All Modes:
         fileNameChangeMode;
 
 js files order:
-        boolean and conditional variables
+        boolean and conditional variables - only variable declarations
+        general methods - only methods
+        c set and toogle methods - only methods
+        keyEnteredFunctions - only methods
 
-        general methods
-        c set and toogle methods
-        imagesfunc
-        increase
-        keyEnteredFunctions
+        imagesfunc - has only addEventListener logic
+        increase - logics starts here
+        
         serverRelatedButtons
         serverCaller
         listSites
         open file name matching folder
 
-Used Keys:
-        1,2,3,4,5,6,7,8,9,0
+Mode specific keys:
+        Escape                          when we are in searchMode enter shift to exit
         
-        - and =                         -> to increase or decrease img width percentages
+        1 to 0                          when we are in multipleElementsSelectionMode, then 1 will click on 
+                                        first img of current row, 2 will click 2nd img of current row..
+        
+        l                               when we are in multipleElementsSelectionMode, only selected img names,
+                                        will get copied
 
-        R                               -> to make sortOrder = asc
-        r                               -> to make sortOrder = random
-        t                               -> to make sortOrder = desc
+        m                               when we are in multipleElementsSelectionMode, move button will get clicked
+        shift                           when we are in multipleElementsSelectionMode, submit btn will be clicked
+        number < no_Of_Imgs_Per_Row     when we are in multipleElementsSelectionMode, then on current, if 1 key 
+                                        is entered then first element of row is clicked, if 2 key entered then
+                                        2nd element of current row is clicked and so on...
+
+        M                               when we are in M_Mode, will exit the M_Mode
+
+        ;                               when we are in fileNameChangeMode, will include img extension
+        Escape                          when we are in fileNameChangeMode, will exit fileNameChangeMode
+        
+Used Keys:
         
         ctrl + Enter                    -> To switch from 'Byoru Tier 1' to 'Byoru Tier 1 - Avg' or vise versa
                                             Current only available for when website category is in starNamesList
 
+        m                               to enter M_mode
+        h                               toogle fixed header and relative header
+        H                               toogle entire header removal/or addition
+        a                               toogles show/hide img names
+        A                               toogles show/hide folder names (useful for home tab)
+        `                               when we in local host url, then nrml url for same will copied to clipboard
+                                        when we are in nrml url, then will get redirect to localhost url
         
+        - / =                           decrese/increase width % of img-tags
+        e                               toogle img extensions
+        ;                               toogle smooth moment, when smooth moment = true, scroll by value
+        / or z                          will update scroll_To_Top_OR_Bottom_Of_Img and balance row
+        w                               navigate to top of the page
+        W                               navigate to bottom of the page
+        f                               toogle fullscreen
+        arrow up/arrow down             based on smoothMoment will do scrolling
+        arrow left/right                when we will never goto home tab
+        r                               sortOrder = random
+        R                               sortOrder = asc
+        t                               sortOrder = desc
+        i                               toogle to show imgs or not
+        space                           to enter searchMode
+        p                               getPathToOpenInFileExplorer();
+        l                               getAllVisibleImgNames();
+        u                               getUrlPathData();
+        y                               folder name
+        q                               goto home tab
+        s                               toogle includeAnimeOrNot
+        0 to 9                          increase/decreses imgs widths
+        
+        c                               show imgs order based on created date desc
+
+        x                               we will show edit boxes, will enter fileNameChangeMode
+                                        (we enter focus of an edit box - fileNameChangeFocusMode = true)
+                                        (we exit  focus of an edit box - fileNameChangeFocusMode = false)
+
+        Tab                             toogle multipleElementsSelectionMode
+        d                               show/hide delete buttons
 
 
+when click on an header's anchor element:
+        focusElement = 0;
+        highLightTheCorrectHeader(folderName);
+        disableSearchMode();
+        clearSearchValue();
+        if(fullScreen) balanceRowLevel(); called // so that everytime we are first img, instead of header
+        // recheck
+
+when searchMode, when we enter text, matching img's would be display='block', not matching would be
+display = 'none'; and first img name would be copied to clipboard (based on includeAnimeOrNot)
+
+enter shift, to exit the searchMode;
+when we enter or exit fullscreen - fullscreenchange event will get fired
+
+no_Of_Imgs_Per_Row -> from local storage
+url ending with .html -> will make it -> .html#home
 // used key, h,j,J,t,T,r,R,s,S,a,A
+
+Edge Cases:
+        When url ends with .html (no hash part)
+        when url has #unknown-folder (then no folder name is matching)
+        when url has numbers(like 1 hype)
+        when folder doesn't have any imgs
+        

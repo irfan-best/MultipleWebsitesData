@@ -48,6 +48,8 @@ li a:hover {
     flex-wrap: wrap;
     text-align: center;
     justify-content: center;
+    
+    align-items: flex-end; /* new change since we are now defaulting scroll_To_Top_OR_Bottom_Of_Img = false */
 }
 
 .img-item{

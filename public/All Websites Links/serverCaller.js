@@ -1,5 +1,8 @@
-function deleteImg(imgSrc) {
-    console.log('deleteImg called in serverCaller:', imgSrc);
+// when we click on 'x' for an image, this method will be executed
+function deleteFile(imgSrc) {
+    if(consoleLevel >= 1){
+        console.log('deleteFile called in serverCaller:', imgSrc);
+    }
 
     fetch('/delete-img', {
         method: 'POST',
@@ -65,6 +68,7 @@ function renameFile(currentImgUrl,newImageName){
 
 function setCategoryNWebsites(){
     console.log('setCategoryNWebsites called');
+    if(!localHost_on) return;
     fetch('http://localhost:3001/getAllWebistes', {
         method: 'POST',
         headers: {

@@ -1,4 +1,23 @@
-highLightTheCorrectHeader(); 
+no_Of_Imgs_Per_Row = get_No_Of_Imgs_Per_Row_From_LocalStorage();
+localHost_on = window.location.href.includes(localHostURL);
+
+if(window.location.href.endsWith('.html')){
+    window.location.href = window.location.href + '#home';
+}
+
+call_HomeList_OR_imgList_Generator(); // add imgs based on url, verify home page or folder page
+setHomePage_AND_AllFolderImgCounts(); // adds no of imgs in header items
+
+var showWebsiteNameButton = document.getElementById("show-website-name");
+showWebsiteNameButton.innerHTML = getWebsiteNameFromUrl();
+
+var noOfFolders = document.getElementById("no-of-folders");
+noOfFolders.innerHTML = ( document.querySelectorAll('.black-header a').length - 1) + " folders";
+
+highLightTheCorrectHeader();
+
+var imgContainer = document.querySelector('.imgs-container');
+imgContainer.style.alignItems = scroll_To_Top_OR_Bottom_Of_Img ? 'flex-start': 'flex-end';
 
 document.addEventListener("keydown", function(event) {
     if(consoleLevel === 2){
@@ -22,7 +41,7 @@ document.addEventListener("keydown", function(event) {
     // ctrl + a -> select all (can be useful when doing select all in input boxes)
     // ctrl + l -> i will highlight current url and we can copy or replace current url
     if(event.ctrlKey && (NumKeysList.includes(event.key) || event.key.toLowerCase() === 'r' || event.key.toLowerCase() === 'f' || event.key.toLowerCase() === 'a' || event.key.toLowerCase() === 'l')){
-        if(consoleLevel === 1)
+        if(consoleLevel >= 1)
             console.log('Ctrl + R or F or A or L pressed, not running custom functionality');
         return;
     }
@@ -32,20 +51,9 @@ document.addEventListener("keydown", function(event) {
         event.preventDefault();
     }
 
-    if(ifAnyOfWriteModeIsTrue()){
-        if(isLetter(event.key) || NumKeysList.includes(event.key) || event.key === ' ' || WrittableSpecialKeyList.includes(event.key)) 
-            return;
-    }
-    
-    if(fileNameChangeMode){
-        if(upDownKeys.includes(event.key)){
-            // we should still allow custom ArrowUp and ArrowDown functions
-        }
-        else{
-            // not allow other operations
-            // we should not allow even custom ArrowRight and ArrowLeft - since while rename files, it should not goto otherpage.
-            return;
-        }
+    if(event.key === 'Escape'){
+        event.preventDefault();
+        console.log('preventign default')
     }
 
     if(multipleElementsSelectionMode){
@@ -54,7 +62,7 @@ document.addEventListener("keydown", function(event) {
             return;     
         }
         else if(event.key === 'm'){
-            if(consoleLevel === 1){
+            if(consoleLevel >= 1){
                 console.log('multipleElementsSelectionMode - m key entered');
             }
             getButton_BasedOn_InnerHTML('Move Button')?.click();
@@ -70,6 +78,10 @@ document.addEventListener("keydown", function(event) {
             if(enteredKeyNumber <= no_Of_Imgs_Per_Row){
 
                 var selectionImgNumber = (focusElement - (focusElement % no_Of_Imgs_Per_Row)) + enteredKeyNumber - 1;
+                if(consoleLevel === 2){
+                    console.log('focusElement in multipleElementsSelectionMode:',focusElement);
+                    console.log('selectionImgNumber:',selectionImgNumber);
+                }
                 var imgItems = document.getElementsByClassName("img-item");
 
                 imgItems[selectionImgNumber].click();
@@ -84,26 +96,71 @@ document.addEventListener("keydown", function(event) {
     }
 
     if (M_Mode && !upDownKeys.includes(event.key) && !leftRightKeys.includes(event.key)){
-        M_Mode_Operation(event.key);
+        if(event.key === 'M'){
+            toogle_M_Mode();
+        }
+        else{
+            M_Mode_Operation(event.key);
+        }
         return;
     }
+    console.log('preve def2');
 
-    // this should happen only when no other modes are true except fullscreen mode.
-    if (event.key === "m" && !M_Mode && !ifAnyOfWriteModeIsTrue()) {
-        toogle_M_Mode();
-        return;
+
+    if(fileNameChangeMode){
+        if(event.key === ';'){
+            if(!includeFileExtensions){
+                includeFileExtensions = true;
+                // console.log('y entered, include extensions');
+                var imgNameInputBox = document.querySelectorAll('.img-name-input-box');
+                for(var i=0;i<imgNameInputBox.length;i++){
+                    var tempSplitData = imgNameInputBox[i].parentElement.querySelector('img').src.split('.');
+                    imgNameInputBox[i].value += '.' + tempSplitData[tempSplitData.length - 1];
+                }
+            }
+            else{
+                includeFileExtensions = false;
+                // console.log('y entered, exclude extensions');
+                var imgNameInputBox = document.querySelectorAll('.img-name-input-box');
+                for(var i=0;i<imgNameInputBox.length;i++){
+                    imgNameInputBox[i].value = imgNameInputBox[i].value.substring(0,imgNameInputBox[i].value.lastIndexOf('.'));
+                }
+            }
+            return;
+        }
+        else if(event.key === 'Escape'){ // disable fileNameChangeMode
+            var imgNameInputBox = document.querySelectorAll('.img-name-input-box');
+            fileNameChangeMode = false;
+    
+            for(var i=0;i<imgNameInputBox.length; i++){
+                imgNameInputBox[i].style.display = 'none'; // Hide all delete buttons
+                imgNameInputBox[i].parentElement.querySelector('.submit-button').style.display = 'none';
+            }
+            return;
+        }
+        else if(leftRightKeys.includes(event.key)){
+            event.preventDefault(); 
+        }
     }
 
-    if (event.key === "M" && M_Mode){
-        toogle_M_Mode();
-        return;
-    }
-
-    if (!ifAnyOfWriteModeIsTrue() && (leftRightKeys.includes(event.key) || event.key === " ") ) {
+    if ( !ifAnyOfWriteModeIsTrue() && (leftRightKeys.includes(event.key) || event.key === " ") ) {
         event.preventDefault(); 
         // except when we are some text writting mode we should prevent default behavior of these keys
     }
-    
+
+    if(ifAnyOfWriteModeIsTrue()){
+        if(isLetter(event.key) || NumKeysList.includes(event.key) || event.key === ' ' || WrittableSpecialKeyList.includes(event.key)) {
+            console.log('coming here');
+            console.log('coming here',isLetter(event.key));
+            console.log('coming here',NumKeysList.includes(event.key));
+            console.log('coming here',event.key === ' ');
+            console.log('coming here',WrittableSpecialKeyList.includes(event.key));
+            return;
+        }
+    }
+
+    console.log('arrowdown bro2');
+
     var blackHeader = document.getElementsByClassName('black-header')[0];
     var blackHeader1 = document.getElementsByClassName('black-header1')[0];
     var copyContainer = document.querySelector(".copy-container");
@@ -115,7 +172,7 @@ document.addEventListener("keydown", function(event) {
 
         headToogle = !headToogle;
         blackHeader1.style.display = headToogle ? "none" : "block"; 
-        if(consoleLevel === 1){
+        if(consoleLevel >= 1){
             console.log('On h click blackheader1 become:',!headToogle);
         }
         return;
@@ -147,12 +204,18 @@ document.addEventListener("keydown", function(event) {
         return;
     }
 
+    // this should happen only when no other modes are true except fullscreen mode.
+    if (event.key === "m") {
+        toogle_M_Mode();
+        return;
+    }
+
     if(event.key === '`'){
         var windowHref = window.location.href;
 
         if(!localHost_on){ 
             windowHref = windowHref.replace(space_to_Percentile20(nrmlURL), localHostURL);
-            if(consoleLevel === 1){
+            if(consoleLevel >= 1){
                 console.log('clicked ` opening local host url:',windowHref);
             }
             window.open(windowHref,'_self');
@@ -160,7 +223,7 @@ document.addEventListener("keydown", function(event) {
 
         else{
             windowHref = windowHref.replace(localHostURL, space_to_Percentile20(nrmlURL)); 
-            if(consoleLevel === 1){
+            if(consoleLevel >= 1){
                 console.log('clicked ` coped nrml url:',windowHref);
             }
             navigator.clipboard.writeText(windowHref);
@@ -184,7 +247,10 @@ document.addEventListener("keydown", function(event) {
 
     if(event.key === '/' || event.key === 'z'){
         scroll_To_Top_OR_Bottom_Of_Img = !scroll_To_Top_OR_Bottom_Of_Img;
-        if(consoleLevel === 1){
+        var imgContainer = document.querySelector('.imgs-container');
+        imgContainer.style.alignItems = scroll_To_Top_OR_Bottom_Of_Img ? 'flex-start': 'flex-end';
+
+        if(consoleLevel >= 1){
             console.log('/ or z key pressed, toggling scroll_To_Top_OR_Bottom_Of_Img:',scroll_To_Top_OR_Bottom_Of_Img);
         }
         balanceRowLevel();
@@ -202,7 +268,7 @@ document.addEventListener("keydown", function(event) {
     }
 
     if (event.key === 'f'){
-        toogleFullScreen();
+        toogleFullScreen(); 
         return;
     }
 
@@ -251,7 +317,7 @@ document.addEventListener("keydown", function(event) {
     }
 
     if(event.key === ' '){
-        if(consoleLevel === 1){
+        if(consoleLevel >= 1){
             console.log('space key pressed, toggling search mode enter bro'); 
         }
         ToogleSearchMode();
@@ -335,6 +401,47 @@ document.addEventListener("keydown", function(event) {
         })
         .catch(error => {
             console.error('Error:', error);
+        });
+        return;
+    }
+
+    if(event.key === 'x'){
+        var imgNameInputBox = document.querySelectorAll('.img-name-input-box');
+        fileNameChangeMode = true;
+                
+        for(var i=0;i<imgNameInputBox.length; i++){
+            imgNameInputBox[i].style.display = 'block'; // Show all delete buttons
+            imgNameInputBox[i].parentElement.querySelector('.submit-button').style.display = 'block';
+        }
+        return;
+    }
+
+    if(event.key === 'Tab'){
+        event.preventDefault();
+        multipleElementsSelectionMode = !multipleElementsSelectionMode;
+        if(consoleLevel >= 1){
+            console.log('tab entered multipleElementsSelectionMode updated to:',multipleElementsSelectionMode);
+        }
+
+        if(!multipleElementsSelectionMode){
+            var imgItems = document.querySelectorAll('.img-item');
+            for(var i=0;i<imgItems.length;i++){
+                imgItems[i].classList.remove('selected-img');
+            }
+            selectedImagesList = [];
+        }
+        return;
+    }
+
+    if (event.key === 'd') {
+        var deleteButtons = document.querySelectorAll('.delete-button');
+        deleteButtons.forEach(button => {
+            if( button.style.display === 'none') {
+                button.style.display = 'block'; // Show all delete buttons
+            }
+            else{
+                button.style.display = 'none'; // Hide all delete buttons
+            }
         });
         return;
     }

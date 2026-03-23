@@ -1,60 +1,6 @@
-// will call homeList or imgList(for folder page) based on current url
-function call_HomeList_OR_imgList_Generator(){
-    var url = window.location.href;
-    var folderName = getFolderNameFromUrl();
-    
-    if(folderName === "home" || url.slice(-5) === ".html"){
-        if(consoleLevel === 1){
-            console.log('home page');
-        }
-        homeListGenerator();
-    }
-    else{
-        if(consoleLevel === 1){
-            console.log('folder page:',folderName);
-        }
-        var index = getFolderIndex(folderName); 
-        if(index === -1){ // #hash part of url doesn't match any folder names
-            var firstFolderName = document.querySelectorAll('.black-header a')[1];
-
-            window.location.hash = '#' + firstFolderName.href.split('#')[1];
-            index = 0;
-        }
-        imgListGenerator(fileNames[index],mainList[index]);
-    }
-}
-
-// setting no.of imgs counts for black-header and black-header1 (setting logic)
-function setHomePage_AND_AllFolderImgCounts(){
-    var allFilesCount = 0;
-    for(var i=0;i<fileNames.length;i++){
-        allFilesCount += mainList[i].length;
-        document.getElementById("data-"+(space_to_Percentile20(fileNames[i]))).innerHTML = mainList[i].length;
-        document.getElementById("data1-"+(space_to_Percentile20(fileNames[i]))).innerHTML = mainList[i].length;
-    }
-    document.getElementById("data0").innerHTML = allFilesCount; // home page no of imgs
-    document.getElementById("data1").innerHTML = allFilesCount; // home page no of imgs
-}
-
-no_Of_Imgs_Per_Row = get_No_Of_Imgs_Per_Row_From_LocalStorage();
-localHost_on = window.location.href.includes(localHostURL);
-
-if(window.location.href.endsWith('.html')){
-    window.location.href = window.location.href + '#home';
-}
-
-call_HomeList_OR_imgList_Generator(); // add imgs based on url, verify home page or folder page
-setHomePage_AND_AllFolderImgCounts(); // adds no of imgs in header items
-
-var showWebsiteNameButton = document.getElementById("show-website-name");
-showWebsiteNameButton.innerHTML = getWebsiteNameFromUrl();
-
-var noFolders = document.getElementById("no-folders");
-noFolders.innerHTML = ( document.querySelectorAll('.black-header a').length - 1) + " folders";
-
-document.querySelectorAll("a").forEach(function(anchor) {
+document.querySelectorAll(".black-header a, .black-header1 a").forEach(function(anchor) {
     anchor.addEventListener("click", function(event) {
-        if(consoleLevel === 1){
+        if(consoleLevel >= 1){
             console.log('anchor clicked href:',event.target.href);
         }
 
@@ -65,9 +11,14 @@ document.querySelectorAll("a").forEach(function(anchor) {
 
         disableSearchMode();
         clearSearchValue();
+        balanceRowLevel();
+
+        multipleElementsSelectionMode = false;
+        fileNameChangeFocusMode = false;
+        fileNameChangeMode = false;
 
         if(isFullScreen){
-            if(consoleLevel === 1){
+            if(consoleLevel >= 1){
                 console.log('isFullScreen is true, navigating to img number 0');
             }
             setTimeout(function() {
@@ -75,8 +26,10 @@ document.querySelectorAll("a").forEach(function(anchor) {
             }, 50);
         }
 
-        addDeleteButtons(); // from serverRelatedButtons.js
-        multipleElementsSelectionMode = false // from serverRelatedButtons.js
+        // from serverRelatedButtons.js
+        multipleElementsSelectionMode = false;
+        selectedImagesList = [];
+
         setFolderName(); // from serverRelatedButtons.js
     });
 });
@@ -105,8 +58,8 @@ searchBox.addEventListener('input', (event) => {
 });
 
 searchBox.addEventListener('keydown', (event)=>{
-    if(event.key === 'Shift'){
-        if(consoleLevel === 1){
+    if(event.key === 'Escape'){
+        if(consoleLevel >= 1){
             console.log('Disabling SearchMode since Shift is entered');
         }
         disableSearchMode();
@@ -114,6 +67,23 @@ searchBox.addEventListener('keydown', (event)=>{
 })
 
 document.addEventListener('fullscreenchange', () => {
+    if(isFullScreen && searchMode){ 
+        // if we are in full screen mode and in search Mode, when we click on esc
+        // then only we should exit search Mode, wihtout exiting full screen;
+
+        setTimeout(() => {
+            disableSearchMode();
+            toogleFullScreen();
+            console.log('fullScreenMode Entered back when SearchMode was on');
+            // toogleFullScreen();
+
+        }, 100); // Delay to allow the deleteFile function to complete
+       
+    }
+
     isFullScreen = !isFullScreen;
-    console.log('isFullScreen updated to:',isFullScreen);
+    
+    if(consoleLevel >= 1){
+        console.log('isFullScreen updated to:',isFullScreen);
+    }
 });

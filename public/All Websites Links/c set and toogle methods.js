@@ -23,7 +23,7 @@ function toogle_M_Mode(){
         mSwitchOff.style.display = 'none';
     }
     M_Mode = !M_Mode;
-    if(consoleLevel === 1){
+    if(consoleLevel >= 1){
         console.log('toogle_M_Mode: Mode is now:', M_Mode);
     }
 }
@@ -49,7 +49,7 @@ function toogleImgNames(){
         imgNames[i].style.display = showImgNames ? 'inline' : 'none';
     }
 
-    if(consoleLevel === 1){
+    if(consoleLevel >= 1){
         console.log('toogleImgNames called, showImgNames after change:',showImgNames);
     }
 
@@ -62,7 +62,7 @@ function toogleFolderNames(){
         imageFolders[i].style.display = showFolderNames ? 'block' : 'none' ;
     }
 
-    if(consoleLevel === 1){
+    if(consoleLevel >= 1){
         console.log('toogleFolderNames called, showFolderNames after change:',showFolderNames);
     }
 }
