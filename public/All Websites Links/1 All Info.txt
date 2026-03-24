@@ -14,8 +14,8 @@ js files order:
         imagesfunc - has only addEventListener logic
         increase - logics starts here
         
-        serverRelatedButtons
         serverCaller
+        serverRelatedButtons
         listSites
         open file name matching folder
 
@@ -39,6 +39,11 @@ Mode specific keys:
         ;                               when we are in fileNameChangeMode, will include img extension
         Escape                          when we are in fileNameChangeMode, will exit fileNameChangeMode
         
+        a                               when imgRankingchangeMode = true then all selected imgs will be deselected
+        clicking an img                 when imgRankingchangeMode = true then img will get selected/unselected
+        ctrl + clicking an img          when imgRankingchangeMode = true we can select multiple imgs,
+                                        it has 3 cases check method in general method to understand more.
+
 Used Keys:
         
         ctrl + Enter                    -> To switch from 'Byoru Tier 1' to 'Byoru Tier 1 - Avg' or vise versa
@@ -59,12 +64,13 @@ Used Keys:
         w                               navigate to top of the page
         W                               navigate to bottom of the page
         f                               toogle fullscreen
-        arrow up/arrow down             based on smoothMoment will do scrolling
+        shift + arrow up/arrow down     scrolling by 100 - irrespective of modes
         arrow left/right                when we will never goto home tab
         r                               sortOrder = random
         R                               sortOrder = asc
         t                               sortOrder = desc
         i                               toogle to show imgs or not
+        I                               toogle imgRankingchangeMode
         space                           to enter searchMode
         p                               getPathToOpenInFileExplorer();
         l                               getAllVisibleImgNames();
@@ -83,6 +89,11 @@ Used Keys:
         Tab                             toogle multipleElementsSelectionMode
         d                               show/hide delete buttons
 
+when img click features:
+        when we click on img - img name will be copied to clipboard without file extension
+        when we db click on img - then img folder path will be copied to clipboard
+        when we db click on img - when we are in List website of an stars category, then it's folder website will,
+                be opened in enw tab
 
 when click on an header's anchor element:
         focusElement = 0;

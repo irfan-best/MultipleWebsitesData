@@ -28,6 +28,7 @@ document.querySelectorAll(".black-header a, .black-header1 a").forEach(function(
 
         // from serverRelatedButtons.js
         multipleElementsSelectionMode = false;
+        imgRankingchangeMode = false;
         selectedImagesList = [];
 
         setFolderName(); // from serverRelatedButtons.js

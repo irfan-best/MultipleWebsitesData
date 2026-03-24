@@ -104,8 +104,6 @@ document.addEventListener("keydown", function(event) {
         }
         return;
     }
-    console.log('preve def2');
-
 
     if(fileNameChangeMode){
         if(event.key === ';'){
@@ -150,16 +148,14 @@ document.addEventListener("keydown", function(event) {
 
     if(ifAnyOfWriteModeIsTrue()){
         if(isLetter(event.key) || NumKeysList.includes(event.key) || event.key === ' ' || WrittableSpecialKeyList.includes(event.key)) {
-            console.log('coming here');
-            console.log('coming here',isLetter(event.key));
-            console.log('coming here',NumKeysList.includes(event.key));
-            console.log('coming here',event.key === ' ');
-            console.log('coming here',WrittableSpecialKeyList.includes(event.key));
             return;
         }
     }
 
-    console.log('arrowdown bro2');
+    if(imgRankingchangeMode && leftRightKeys.includes(event.key)){
+        // when we are in rankingChangeMode - should not goto other tabs
+        return;
+    }
 
     var blackHeader = document.getElementsByClassName('black-header')[0];
     var blackHeader1 = document.getElementsByClassName('black-header1')[0];
@@ -194,6 +190,15 @@ document.addEventListener("keydown", function(event) {
         return;
     }
 
+    if(event.key === 'a' && imgRankingchangeMode){
+        selectedImagesList = [];
+        var imgItems = document.getElementsByClassName('img-item');
+        for(var i=0;i<imgItems.length;i++){
+            imgItems[i].classList.remove('selected-img');
+        }
+        return;
+    }
+
     if(event.key === "a"){  
         toogleImgNames();
         return;
@@ -203,6 +208,8 @@ document.addEventListener("keydown", function(event) {
         toogleFolderNames();
         return;
     }
+
+
 
     // this should happen only when no other modes are true except fullscreen mode.
     if (event.key === "m") {
@@ -241,10 +248,6 @@ document.addEventListener("keydown", function(event) {
         toogleImgExtensions();
     }
 
-    if(event.key ===';'){
-        smoothMoment = !smoothMoment;
-    }
-
     if(event.key === '/' || event.key === 'z'){
         scroll_To_Top_OR_Bottom_Of_Img = !scroll_To_Top_OR_Bottom_Of_Img;
         var imgContainer = document.querySelector('.imgs-container');
@@ -273,7 +276,7 @@ document.addEventListener("keydown", function(event) {
     }
 
     if (event.key === "ArrowDown" || event.key === "ArrowUp"){
-        arrowTopOrBottomClicked(event.key);
+        arrowTopOrBottomClicked(event.key, event.shiftKey);
         return;
     } 
     
@@ -314,6 +317,11 @@ document.addEventListener("keydown", function(event) {
                 imgNames[i].style.border = 'none';
             }
         }
+        return;
+    }
+
+    if(event.key === 'I' && !event.ctrlKey){
+        imgRankingchangeMode = !imgRankingchangeMode;
     }
 
     if(event.key === ' '){
@@ -345,7 +353,8 @@ document.addEventListener("keydown", function(event) {
         return;
     }
 
-    if(event.key === 'q'){
+    // dont go to home tab when chaning thr ranking
+    if(event.key === 'q' && !imgRankingchangeMode){
         document.querySelectorAll(".black-header a")[0].click();
         return;
     }

@@ -446,3 +446,33 @@ function sendDataOtherOne(url) {
         console.error('Error:', error);
     });
 }
+
+// new feature
+function updateRankingFunc(){
+    console.log('updateRankingButton called:');
+    var imgNamesWithExtension = [];
+    var imgNames = document.getElementsByClassName('img-tag');
+    for(var i=0;i<imgNames.length;i++){
+        var imgSrc = imgNames[i].src.replaceAll('%20', ' ');
+        imgNamesWithExtension.push(imgSrc.slice(imgSrc.lastIndexOf('/')+1))
+    }
+    console.log('New Img Order:');
+    console.log(imgNamesWithExtension);
+    var folderPath = getCurrentFolderFullPath();
+    console.log('fodlerPath:',folderPath);
+    fetch('http://localhost:3001/update-img-ranking', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({imgNamesWithExtension: JSON.stringify(imgNamesWithExtension),folderPath: folderPath}), // Send the form data as JSON
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('successful fetch');
+
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}

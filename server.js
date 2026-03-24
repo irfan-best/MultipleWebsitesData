@@ -210,8 +210,8 @@ function getIndexFileContent(folderNames) {
         <script src="../../keyEnteredFunctions.js"></script>
         <script src="../../imagesfunc.js"></script>
         <script src="../../increase.js"></script>
-        <script src="../../serverRelatedButtons.js"></script>
         <script src="../../serverCaller.js"></script>
+        <script src="../../serverRelatedButtons.js"></script>
         <script src="../../listSites.js"></script>
         <script src="../../open file name matching folder.js"></script>
     </body>
@@ -768,4 +768,75 @@ app.post('/getImgsCreatedDates',async (req,res) => {
     );
     // console.log('newImgPaths:',newImgPaths);
     return res.json({newImgPaths: newImgPaths});
+});
+
+//////////////////////////////////////
+// folderPath -> path where file are present
+// imgList -> array of img names along with extensions
+// this is for "Updating Ranking" button
+// rename files that are send in order to temp_0001, temp_0002 ...
+// and then renames then again to Rank 0001, Rank 0002 ...
+// we are not chaning file extensions - what ever original file name had extension
+// same will be there even after 2 renames
+async function renameImagesInOrder(folderPath, imgList) {
+    try {
+        // Step 1: Rename to Temp names to avoid collisions
+        // Example: '0 0 0.webp' -> 'temp_0001.webp'
+        for (let i = 0; i < imgList.length; i++) {
+            const oldName = imgList[i];
+            const extension = path.extname(oldName);
+            const tempName = `temp_${(i + 1).toString().padStart(4, '0')}${extension}`;
+            
+            await fs.rename(
+                path.join(folderPath, oldName),
+                path.join(folderPath, tempName)
+            );
+
+            console.log('1st Renamed from to:',oldName, tempName);
+            
+            // Update the list with temp names for the second pass
+            imgList[i] = tempName;
+        }
+        // console.log('first update imgList:',imgList);
+
+        // Step 2: Rename to Final Rank names
+        // Example: 'temp_0001.webp' -> 'Rank 0001.webp'
+        for (let i = 0; i < imgList.length; i++) {
+            const tempName = imgList[i];
+            const extension = path.extname(tempName);
+            const finalName = `Rank ${(i + 1).toString().padStart(4, '0')}${extension}`;
+
+            await fs.rename(
+                path.join(folderPath, tempName),
+                path.join(folderPath, finalName)
+            );
+        }
+        // console.log('2nd update imgList:',imgList);
+
+        return { success: true };
+    } catch (error) {
+        console.error("Renaming Error:", error);
+        throw error;
+    }
+}
+
+app.post('/update-img-ranking', async (req, res) => {
+    var { folderPath, imgNamesWithExtension } = req.body;
+    console.log('update-img-ranking folderPath:',folderPath);
+    var imgList = JSON.parse(imgNamesWithExtension);
+
+    // Basic Validation
+    if (!folderPath || !imgList || !Array.isArray(imgList)) {
+        return res.status(400).json({ error: "Missing folderPath or imgList" });
+    }
+
+    try {
+        await renameImagesInOrder(folderPath, imgList);
+        res.status(200).json({ message: "Images re-ranked successfully!" });
+    } catch (err) {
+        res.status(500).json({ 
+            error: "Failed to rename files", 
+            details: err.message 
+        });
+    }
 });

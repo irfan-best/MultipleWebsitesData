@@ -17,24 +17,115 @@ function imgItemCreator(imgNameWithExtension,foldername){
     imgItem.setAttribute("class","img-item");
 
     var imgNameWithoutExtension = imgNameWithExtension.slice(0,imgNameWithExtension.lastIndexOf('.'));
-    imgItem.addEventListener('click', async () => {
-            if(!multipleElementsSelectionMode) 
+    imgItem.addEventListener('click', async (event) => {
+            if(!multipleElementsSelectionMode && !imgRankingchangeMode) 
                 await navigator.clipboard.writeText(!includeAnimeOrNot ? imgNameWithoutExtension : imgNameWithoutExtension + " Anime");
             else{
-                console.log('multipleElementsSelectionMode imgitem clicked');
+                console.log('multipleElementsSelectionMode or imgRankingchangeMode imgitem clicked');
 
-                // console.log('event.target:',event.target);
-                // console.log('event.target parent:',event.target.parentElement);
                 var element = event.target;
+                // at this point event.target is img-tag
                 while(true){
-                    // console.log('inside while:'+element);
                     if(element.classList.contains('img-item')){
-                        // console.log('while breaking');
                         break;
-
                     }
                     element = element.parentElement;
                 }
+
+                if(event.ctrlKey){
+                    var firstSelectedImgIndex = -1;
+                    var imgItems = document.getElementsByClassName('img-item');
+                    for(var i=0;i<imgItems.length;i++){
+                        if(imgItems[i].classList.contains('selected-img')){
+                            firstSelectedImgIndex = i;
+                            break;
+                        }
+                    }
+                    console.log('firstSelectedImgIndex:',firstSelectedImgIndex);
+
+                    var lastSelectedImgIndex = -1;
+                    var imgItems = document.getElementsByClassName('img-item');
+                    for(var i=imgItems.length-1;i>=0;i--){
+                        if(imgItems[i].classList.contains('selected-img')){
+                            lastSelectedImgIndex = i;
+                            break;
+                        }
+                    }
+                    console.log('lastSelectedImgIndex:',lastSelectedImgIndex);
+
+                    var currentImgIndex = -1;
+                    for(var i=0;i<imgItems.length;i++){
+                        if(element === imgItems[i]){
+                            currentImgIndex = i;
+                            break;
+                        }
+                    }
+                    console.log('currentImgIndex:',currentImgIndex);
+                    
+                    if(firstSelectedImgIndex > currentImgIndex){
+                        // select imgs from currentImgIndex to firstSElectedImgIndex - 1
+                        for(var i=currentImgIndex;i<firstSelectedImgIndex;i++){
+                            imgItems[i].classList.add('selected-img');
+                            var imgSrc = imgItems[i].querySelector('.img-tag').src;
+                            if(!selectedImagesList.includes(imgSrc)){
+                                selectedImagesList.push(imgSrc);
+                            }
+                        }
+                    }
+                    else if(currentImgIndex > lastSelectedImgIndex){
+                        // select imgs from lastSelectedImgIndex + 1 to currentImgIndex
+                        for(var i=lastSelectedImgIndex + 1;i<=currentImgIndex;i++){
+                            imgItems[i].classList.add('selected-img');
+                            var imgSrc = imgItems[i].querySelector('.img-tag').src;
+                            if(!selectedImagesList.includes(imgSrc)){
+                                selectedImagesList.push(imgSrc);
+                            }
+                        }
+                    }
+                    else{
+                        // get closest selected index;
+                        var gap=99999999999999;
+                        var leastGapIndex;
+                        for(var i=0;i<imgItems.length;i++){
+                            if(imgItems[i].classList.contains('selected-img')){
+                                var currGap = Math.abs(currentImgIndex - i);
+                                if(currGap<gap){
+                                    gap = currGap;
+                                    leastGapIndex = i;
+                                }
+                            }
+                        }
+                        console.log('leastGapIndex:',leastGapIndex);
+
+                        if(leastGapIndex < currentImgIndex){
+                            // select all from leastGapIndex + 1 to currIndex
+                            for(var i=leastGapIndex + 1;i<=currentImgIndex;i++){
+                                imgItems[i].classList.add('selected-img');
+                                var imgSrc = imgItems[i].querySelector('.img-tag').src;
+                                if(!selectedImagesList.includes(imgSrc)){
+                                    selectedImagesList.push(imgSrc);
+                                }
+                            }
+                        }
+                        else{
+                            // select all from currIndex to leastGapIndex - 1;
+                            for(var i=currentImgIndex;i<leastGapIndex;i++){
+                                imgItems[i].classList.add('selected-img');
+                                var imgSrc = imgItems[i].querySelector('.img-tag').src;
+                                if(!selectedImagesList.includes(imgSrc)){
+                                    selectedImagesList.push(imgSrc);
+                                }
+                            }
+                        }
+
+                    }
+
+                    return;
+
+                }
+                // console.log('event.target:',event.target);
+                // console.log('event.target parent:',event.target.parentElement);
+                
                 // console.log('corect event.target:',element);
 
                 element.classList.toggle('selected-img'); // selected-img always gets added here
@@ -51,10 +142,50 @@ function imgItemCreator(imgNameWithExtension,foldername){
 
     imgItem.addEventListener('dblclick', async (event) => {
         console.log('dblckick',event.target);
-        var fileExplorerFolderPath = event.target.src;
-        fileExplorerFolderPath = fileExplorerFolderPath.substring(0, fileExplorerFolderPath.lastIndexOf('/'));
-        console.log('fileExplorerFolderPath:',fileExplorerFolderPath);
-        await navigator.clipboard.writeText(fileExplorerFolderPath);
+        if(getWebsiteNameFromUrl().includes('List') && starNamesList.includes(getCategoryNameFromUrl())){
+            console.log('special case');
+
+            var element = event.target
+            while(true){
+                    // console.log('inside while:'+element);
+                if(element.classList.contains('img-item')){
+                    // console.log('while breaking');
+                    break;
+
+                }
+                element = element.parentElement;
+            }
+
+            var imgName = element.querySelector('.img-name').innerHTML;
+            
+            var reqFolderPath = nrmlURL + folderInsidePublic + getCategoryNameFromUrl() + "/" + getCategoryNameFromUrl() + " " 
+                + getFolderNameFromUrl() + "/index.html#" + imgName.replaceAll(' ','%20');
+            removeStartFileText(reqFolderPath);
+            console.log('reqFolderpath:',reqFolderPath);
+            window.open(reqFolderPath,'_blank');
+        }
+        else if(getWebsiteNameFromUrl() === 'Hentai List'){
+            var element = event.target
+            while(true){
+                    // console.log('inside while:'+element);
+                if(element.classList.contains('img-item')){
+                    // console.log('while breaking');
+                    break;
+
+                }
+                element = element.parentElement;
+            }
+
+            // D:\Hentai\0 Dark\peace hame
+            var clickedImgFolder = element.querySelector('.img-folder-name').innerHTML;
+            var clickedImgName = element.querySelector('.img-name').innerHTML;
+            var reqFolderPath = 'D:\\Hentai\\' + clickedImgFolder + "\\" + clickedImgName;
+            console.log('reqFolderpath:',reqFolderPath);
+            await navigator.clipboard.writeText(reqFolderPath);
+            return;
+            // window.open(reqFolderPath,'_blank');
+        }
+        await navigator.clipboard.writeText(getImgFolderPath(event.target.src));
     });
 
     var imgBox = document.createElement("div");
@@ -619,4 +750,29 @@ function setHomePage_AND_AllFolderImgCounts(){
     }
     document.getElementById("data0").innerHTML = allFilesCount; // home page no of imgs
     document.getElementById("data1").innerHTML = allFilesCount; // home page no of imgs
+}
+
+// when we pass http://localhost:3001/All%20Websites%20Links/5%20Pics%20Data/Todo%20Pokie/Images/0/F3Ffz7RXsAE2RhU.jpg
+// then we will get path file:///E:/All in One/Websites/Get Files for All Folders/public/All Websites Links/5 Pics Data/Todo Pokie/Images
+function getImgFolderPath(imgSrc){
+    var folderPath = imgSrc.substring(0, imgSrc.lastIndexOf('/'))
+            .replaceAll(localHostURL,nrmlURL).replaceAll('%20'," ");
+    if(consoleLevel >= 1){
+        console.log('getImgFolderPath imgSrc:',imgSrc);
+        console.log('getImgFolderPath folderPath:',folderPath);
+    }
+    return folderPath;
+}
+
+function removeStartFileText(url){
+    return url.replaceAll("file:///","");
+}
+
+// returns E:/All in One/Websites/Get Files for All Folders/public/All Websites Links/5 Pics Data/Todo Pokie/Images/0/
+// current selected header
+function getCurrentFolderFullPath(){
+    var currFolderPath = nrmlURL + folderInsidePublic + getCategoryNameFromUrl() + "/" + getWebsiteNameFromUrl() + "/Images/" + getFolderNameFromUrl() + "/";
+    currFolderPath = removeStartFileText(currFolderPath);
+    console.log('getCurrentFolderFullPath currFolderPath:',currFolderPath);
+    return currFolderPath;
 }

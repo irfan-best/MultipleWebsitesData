@@ -1,5 +1,3 @@
-var url = window.location.href;
-
 function updateHeaderCounts(){
     var anchorElements = document.querySelectorAll("a");
     var currentPage = window.location.href.substring(window.location.href.indexOf('#')+1);
@@ -259,6 +257,12 @@ var currentFolderNameSubmitButton = document.createElement('button');
 currentFolderNameSubmitButton.setAttribute('class','copy-button');
 currentFolderNameSubmitButton.innerHTML = 'Set Folder Name';
 copyContainer.appendChild(currentFolderNameSubmitButton);
+
+var updateRankingButton = document.createElement('button');
+updateRankingButton.setAttribute('class','copy-button');
+updateRankingButton.innerHTML = 'Updating Ranking';
+updateRankingButton.onclick = updateRankingFunc;
+copyContainer.appendChild(updateRankingButton);
 
 
 function setFolderName(){

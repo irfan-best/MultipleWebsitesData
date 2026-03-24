@@ -136,15 +136,112 @@ function arrowLeftOrRightClicked(keyEntered){
     }
 }
 
-function arrowTopOrBottomClicked(keyEntered){
+function arrowTopOrBottomClicked(keyEntered, isShiftKey){
+    console.log('arrowTopOrBottomClicked keyEntered:',keyEntered,"isShiftKey",isShiftKey);
     var imgItems = document.getElementsByClassName('img-item');
 
-    if (keyEntered === 'ArrowDown'){
+    if(isShiftKey){
+        // if shift + up/down key then always scroll by 100
+        window.scrollBy(0,keyEntered === "ArrowUp" ? -100 : 100);
+        return;
+    }
+    
+    if(imgRankingchangeMode){
+        var imgItems = document.getElementsByClassName('img-item');
+    
+        console.log('selectImgs:',selectedImagesList);
+        var selectedImgNamesList = [];
+        for(var i=0;i<selectedImagesList.length;i++)
+            selectedImgNamesList.push(selectedImagesList[i].slice(selectedImagesList[i].lastIndexOf('/')+1).replaceAll("%20",' '));
+        console.log('selectedImgNamesList:',selectedImgNamesList);
+        
+        if(selectedImgNamesList.length === 0 ) return;
 
-        if(smoothMoment){
-            window.scrollBy(0,100);
-            return;
+        var allImgNames = [];
+        var imgTags = document.getElementsByClassName('img-tag');
+        for(var i=0; i<imgTags.length;i++){
+            var imgSrc = imgTags[i].src
+            allImgNames.push(imgSrc.slice(imgSrc.lastIndexOf('/')+1).replaceAll('%20',' '));
         }
+        console.log('allImgNames:',allImgNames);
+
+        var imgContainer = document.getElementsByClassName('imgs-container')[0];
+
+        if(keyEntered === 'ArrowUp'){
+            var firstSelectImgIndex = -1;
+            for(var i=0;i<allImgNames.length;i++){
+                if(selectedImgNamesList.includes(allImgNames[i])){
+                    firstSelectImgIndex = i;
+                    break;
+                }
+            }
+            console.log('first selected img Index:',firstSelectImgIndex);
+
+            if(firstSelectImgIndex === 0){
+                return;
+                // we should not select first img when we are doing up operation
+            }
+
+            var listOfImgItemsToBeMoved = [];
+            for(var i=0;i<imgItems.length;i++){
+                var imgSrc = imgItems[i].querySelector('.img-tag').src;
+                var imgName = imgSrc.slice(imgSrc.lastIndexOf('/')+1).replaceAll("%20"," ");
+                if(selectedImgNamesList.includes(imgName)){
+                    listOfImgItemsToBeMoved.push(imgItems[i]);
+                }
+            }
+
+            var previousListItem = imgItems[firstSelectImgIndex - 1];
+            console.log('previousListItem',previousListItem)
+            for(var i=0;i<listOfImgItemsToBeMoved.length;i++){
+                imgContainer.insertBefore(listOfImgItemsToBeMoved[i],previousListItem)
+            }
+
+            console.log('listOfImgItemsToBeMoved:',listOfImgItemsToBeMoved);
+            focusElement = firstSelectImgIndex - 1;
+            balanceRowLevel();
+        }
+        else{
+            var lastSelectImgIndex = -1;
+            for(var i=allImgNames.length-1;i>=0;i--){
+                if(selectedImgNamesList.includes(allImgNames[i])){
+                    lastSelectImgIndex = i;
+                    break;
+                }
+            }
+            console.log('last selected img Index:',lastSelectImgIndex);
+
+            if(lastSelectImgIndex === allImgNames.length-1){
+                return;
+                // we should not select last img when we are doing down operation
+            }
+
+            var listOfImgItemsToBeMoved = [];
+            for(var i=0;i<imgItems.length;i++){
+                var imgSrc = imgItems[i].querySelector('.img-tag').src;
+                var imgName = imgSrc.slice(imgSrc.lastIndexOf('/')+1).replaceAll("%20"," ");
+                if(selectedImgNamesList.includes(imgName)){
+                    listOfImgItemsToBeMoved.push(imgItems[i]);
+                }
+            }
+
+            var nextListItem = imgItems[lastSelectImgIndex + 1];
+            console.log('nextListItem',nextListItem)
+            for(var i=0;i<listOfImgItemsToBeMoved.length;i++){
+                imgContainer.insertBefore(listOfImgItemsToBeMoved[i], nextListItem );
+            }
+
+            imgContainer.insertBefore(nextListItem,listOfImgItemsToBeMoved[0]);
+
+            console.log('listOfImgItemsToBeMoved:',listOfImgItemsToBeMoved);
+            focusElement = lastSelectImgIndex + 1;
+            balanceRowLevel();
+        }
+
+        return;
+    }
+
+    if (keyEntered === 'ArrowDown'){
 
         focusElement = (focusElement - focusElement % no_Of_Imgs_Per_Row) + no_Of_Imgs_Per_Row;
         
@@ -158,11 +255,6 @@ function arrowTopOrBottomClicked(keyEntered){
         balanceRowLevel();
     }
     else{
-
-        if(smoothMoment){
-            window.scrollBy(0,-100);
-            return;
-        }
 
         focusElement = (focusElement - focusElement % no_Of_Imgs_Per_Row) - no_Of_Imgs_Per_Row;
 

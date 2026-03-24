@@ -81,9 +81,6 @@ var localHost_on = false;
 // intially this variable would be set to true if current url starting with localHostURL
 // when we click '`' then we are utilizing localHost_on for condition check
 
-var smoothMoment = false; // enter ; to toogle the value
-// when we this is enable and when we enter up or down arrow scroll will be by 100 units
-
 var includeFileExtensions = false; // this is for edit img name i guess
 
 // ----------------------------------------------------------------------------------------------------------
@@ -103,9 +100,11 @@ var fileNameChangeFocusMode = false; // when we enter focus on an edit box, then
     // when we exit the focus of the element, then fileNameChangeFocusMode = false;
     // fileNameChangeFocusMode is writtable mode
 
+var imgRankingchangeMode = false;
 // ----------------------------------------------------------------------------------------------------------
 // ------------------------------------------- new ones -----------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------
 
 
 var count2Or1Toogle = false;
+var url = window.location.href;
