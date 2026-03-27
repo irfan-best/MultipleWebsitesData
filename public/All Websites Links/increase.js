@@ -157,6 +157,12 @@ document.addEventListener("keydown", function(event) {
         return;
     }
 
+    if(searchMode){
+        if(leftRightKeys.includes(event.key)){
+            return;
+        }
+    }
+
     var blackHeader = document.getElementsByClassName('black-header')[0];
     var blackHeader1 = document.getElementsByClassName('black-header1')[0];
     var copyContainer = document.querySelector(".copy-container");
@@ -373,7 +379,7 @@ document.addEventListener("keydown", function(event) {
     }
 
     if(event.key === 'c'){
-        var imgs = document.getElementsByTagName('img');
+        var imgs = document.getElementsByClassName('img-tag');
         var imgPaths = [];
         for(var i=0;i<imgs.length;i++){
             imgPaths.push(imgs[i].src);

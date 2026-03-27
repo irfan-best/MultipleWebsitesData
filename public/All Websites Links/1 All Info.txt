@@ -16,8 +16,6 @@ js files order:
         
         serverCaller
         serverRelatedButtons
-        listSites
-        open file name matching folder
 
 Mode specific keys:
         Escape                          when we are in searchMode enter shift to exit

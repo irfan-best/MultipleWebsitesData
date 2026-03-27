@@ -18,7 +18,7 @@ function deleteFile(imgSrc) {
 
 function sendData() {
     url = window.location.href;
-    console.log('sendData url:', url);
+    console.log('sendData in serverCaller.js url:', url);
     url = url.replaceAll('%20', ' ');
     urlSplit = url.split('/');
     console.log('urlSplit:', urlSplit);
@@ -67,49 +67,50 @@ function renameFile(currentImgUrl,newImageName){
 }
 
 function setCategoryNWebsites(){
-    console.log('setCategoryNWebsites called');
-    if(!localHost_on) return;
-    fetch('http://localhost:3001/getAllWebistes', {
+    if(consoleLevel >= 1)
+        console.log('setCategoryNWebsites called');
+    
+    fetch('http://localhost:3001/get-categories-webistes-foldernames', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({url: url}), // Send the form data as JSON
+        body: JSON.stringify({}), // Send the form data as JSON
     })
     .then(response => response.json())
     .then(data => {
-        console.log('successful fetch data map and list:',data);
-
-        var categoriesOfWebistesMap = new Map();
-        for(var i=0;i<data.categoriesOfWebistes.length;i++){
-            categoriesOfWebistesMap.set(data.categoriesOfWebistes[i],data.categoriesOfWebistesObject[data.categoriesOfWebistes[i]]);
+        var {categoriesToWebistesMapObject, websiteToFolderMapObject, categoriesList} = JSON.parse(data);
+        
+        if(consoleLevel>=3){
+            console.log('successful fetch get-categories-webistes-foldernames:',data);
+            console.log('categoriesToWebistesMapObject:',categoriesToWebistesMapObject);
+            console.log('websiteToFolderMapObject:',websiteToFolderMapObject);
+            console.log('categoriesList:',categoriesList);
         }
-        console.log('categoriesOfWebistesMap',categoriesOfWebistesMap);
 
         const categorySelect = document.getElementById('categorySelect');
         const websiteSelect = document.getElementById('websiteSelect');
         const folderSelect = document.getElementById('folderSelect');
 
-
-        // Populate continents
-        for (const websiteCategory of categoriesOfWebistesMap.keys()) {
+        // add categories picklist values
+        for (const websiteCategory of Object.keys(categoriesToWebistesMapObject) ) {
             const option = document.createElement('option');
             option.value = websiteCategory;
             option.textContent = websiteCategory;
             categorySelect.appendChild(option);
         }
 
-        // Event listener to update websites based on continent
+        // every time category changes, websites picklist values will get changed
         categorySelect.addEventListener('change', function () {
-            console.log('categroySElecte changed');
+            console.log('category changed');
             const selectedCategory = this.value;
-            const websites = categoriesOfWebistesMap.get(selectedCategory) || [];
+            const websites = categoriesToWebistesMapObject[selectedCategory] || [];
 
-            // Clear and disable website dropdown if no continent is selected
+            // Clear and disable website dropdown if no category is selected
             websiteSelect.innerHTML = '<option value="">-- Select Website --</option>';
             websiteSelect.disabled = websites.length === 0;
 
-            // Populate websites if available
+            // populate websites options if available
             websites.forEach(website => {
                 const option = document.createElement('option');
                 option.value = website;
@@ -117,20 +118,19 @@ function setCategoryNWebsites(){
                 websiteSelect.appendChild(option);
             });
 
-            if (websites.length > 0) {
-                websiteSelect.disabled = false;
-            }
         });
 
+        // every time website changes, folders picklist values will get changed
         websiteSelect.addEventListener('change', function () {
+            console.log('website changed');
             const selectedWebiste = this.value;
-            const folders = data.mapOfWebsiteAndFolderObject[selectedWebiste] || [];
+            const folders = websiteToFolderMapObject[selectedWebiste] || [];
 
-            // Clear and disable website dropdown if no continent is selected
+            // Clear and disable folder dropdown if no website is selected
             folderSelect.innerHTML = '<option value="">-- Select Folder --</option>';
             folderSelect.disabled = folders.length === 0;
 
-            // Populate websites if available
+            // populate folders options if available
             const option = document.createElement('option');
             option.value = '-- Create Folder --';
             option.textContent = '-- Create Folder --';
@@ -143,16 +143,16 @@ function setCategoryNWebsites(){
                 folderSelect.appendChild(option);
             });
 
-
-            if (folders.length > 0) {
-                folderSelect.disabled = false;
-            }
         });
 
+        // when "Create Folder" option is selected then we will be showing
+        // new folder name enter box
         folderSelect.addEventListener('change',function(event){
-            console.log('folder cahgne',event.target.value);
+            console.log('folder changed',event.target.value);
+            
             var newFolderLabel = document.querySelector(".new-folder-label");
             var newFolder = document.querySelector(".new-folder");
+            
             if(event.target.value === '-- Create Folder --'){
                 newFolderLabel.style.display = 'block';
                 newFolder.style.display = 'block';
@@ -169,7 +169,9 @@ function setCategoryNWebsites(){
         console.error('Error:', error);
     });
 }
-setCategoryNWebsites();
+
+if(localHost_on)
+    setCategoryNWebsites();
 
 function deleteServerCaller(){
     console.log('deleteServerCaller called');
@@ -237,7 +239,7 @@ function moveServerCaller(){
 
 function updateOtherWebiste(url) {
     // Send the form data to the server using fetch
-    console.log('sendData url:',url);
+    console.log('updateOtherWebiste url:',url);
     fetch('http://localhost:3001/allFolders', {
         method: 'POST',
         headers: {
@@ -414,22 +416,17 @@ function moveFolderServerCaller(){
 
 }
 
-var urlHref = window.location.href;
-if(urlHref.includes('http://localhost:3001/All%20Websites%20Links/')){
-    updateCurrentWebsite();
-}
-function updateCurrentWebsite(){
-    var url = window.location.href;
-    var urlSplit = url.split('http://localhost:3001/All%20Websites%20Links/')[1];
-    var mainUrl = urlSplit.substring(0,urlSplit.lastIndexOf('/index.html')+1).replaceAll('%20',' ');
-    console.log('mainUrl:',mainUrl);
-    sendDataOtherOne(mainUrl);
+if(localHost_on){
+    updateOneWebiste(getCategoryNameFromUrl() + "/" + getWebsiteNameFromUrl() + "/");
 }
 
-function sendDataOtherOne(url) {
-    // "All%20Websites%20Links/Alina Becker/Alina%20Becker%20uAvg%20-%20Avg/index.html#Rias%20Gremory%20-%20Highschool%20Dxd";
-    // Send the form data to the server using fetch
-    console.log('sendData url:',url);
+// url -> 1 Main/Ani List/
+// url -> {category}/{websitename}/
+// this method is used to update one website
+function updateOneWebiste(url) {
+    if(consoleLevel>=1)
+        console.log('updateOneWebiste url:',url);
+    
     fetch('http://localhost:3001/allFolders', {
         method: 'POST',
         headers: {
@@ -439,27 +436,30 @@ function sendDataOtherOne(url) {
     })
     .then(response => response.json())
     .then(data => {
-        console.log('successful fetch');
-
+        console.log('updateOneWebiste Successful fetch:',data);
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('updateOneWebiste Error:', error);
     });
 }
 
-// new feature
+// new feature - this method will get called when we click on "Updating Ranking" button
 function updateRankingFunc(){
-    console.log('updateRankingButton called:');
     var imgNamesWithExtension = [];
-    var imgNames = document.getElementsByClassName('img-tag');
-    for(var i=0;i<imgNames.length;i++){
-        var imgSrc = imgNames[i].src.replaceAll('%20', ' ');
+
+    var imgTags = document.getElementsByClassName('img-tag');
+    for(var i=0;i<imgTags.length;i++){
+        var imgSrc = imgTags[i].src.replaceAll('%20', ' ');
         imgNamesWithExtension.push(imgSrc.slice(imgSrc.lastIndexOf('/')+1))
     }
-    console.log('New Img Order:');
-    console.log(imgNamesWithExtension);
+    
     var folderPath = getCurrentFolderFullPath();
-    console.log('fodlerPath:',folderPath);
+
+    if(consoleLevel >= 1){
+        console.log('updateRankingFunc new order imgNamesWithExtension:',imgNamesWithExtension);
+        console.log('updateRankingFunc Full path of folder where imgs are there:',folderPath);
+    }
+
     fetch('http://localhost:3001/update-img-ranking', {
         method: 'POST',
         headers: {

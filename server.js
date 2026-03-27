@@ -63,6 +63,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 //     }
 // }
 
+// verified, 
+// example directoryPath = E:/All in One/Websites/Get Files for All Folders/public/All Websites Links/
+// returns list of folderNames in the given path's folder
 async function getFolderNames(directoryPath) {
     try {
         const items = await fs.readdir(directoryPath, { withFileTypes: true });
@@ -212,8 +215,6 @@ function getIndexFileContent(folderNames) {
         <script src="../../increase.js"></script>
         <script src="../../serverCaller.js"></script>
         <script src="../../serverRelatedButtons.js"></script>
-        <script src="../../listSites.js"></script>
-        <script src="../../open file name matching folder.js"></script>
     </body>
 
 </html>`
@@ -374,58 +375,48 @@ app.post('/rename', async (req, res) => {
     }
 });
 
-app.post('/getAllWebistes',async (req,res) => {
-    // var mainURL = BASE_URL + LAST_URL;
-    // const directoryPath = mainURL + 'Images';
-    console.log('get all websites');
-    console.log('baseUrl:',BASE_URL);
+// used to set setCategoryNWebsites
+app.post('/get-categories-webistes-foldernames',async (req,res) => {
+    console.log('get-categories-webistes-foldernames route');
     var folderNames = await getFolderNames(BASE_URL);
-    // console.log('Folder Names:', folderNames);
 
-    var categoriesOfWebistes = []
+    var categoriesList = [];
+
     for(var i=1;i<folderNames.length;i++)
-        categoriesOfWebistes.push(folderNames[i]);
-    // console.log('categoriesOfWebistes',categoriesOfWebistes);
+        categoriesList.push(folderNames[i]);
+    // we are not adding first folder, since first folder is "0 Sample" folder
 
-    var categoriesOfWebistesMap = new Map();
-    for(var i=0;i<categoriesOfWebistes.length;i++){
-        categoriesOfWebistesMap.set(categoriesOfWebistes[i],[]);
-    }
+    // console.log('categoriesList',categoriesList);
 
-    // console.log('categoriesOfWebistesMap',categoriesOfWebistesMap);
-
-    var listOfWebsites = [];
-    var mapOfWebsiteAndFolder = new Map();
-
-    for(var i=0;i<categoriesOfWebistes.length;i++){
-        var subPath = BASE_URL + categoriesOfWebistes[i] + "/";
+    var categoriesToWebistesMap = new Map();
+    var websiteToFolderMap = new Map();
+    
+    for(var i=0;i<categoriesList.length;i++){
+        var subPath = BASE_URL + categoriesList[i] + "/";
         var websites = await getFolderNames(subPath);
-        // console.log('websites for category:',categoriesOfWebistes[i],websites);
-        listOfWebsites = [...listOfWebsites,...websites];
-        categoriesOfWebistesMap.set(categoriesOfWebistes[i],websites);
+        categoriesToWebistesMap.set(categoriesList[i],websites);
 
         for(var j=0;j<websites.length;j++){
-            var webSitePath = BASE_URL + categoriesOfWebistes[i] + "/" + websites[j] + '/Images/'
+            var webSitePath = BASE_URL + categoriesList[i] + "/" + websites[j] + '/Images/'
             var folders = await getFolderNames(webSitePath);
-            // console.log('webiste[]',j,websites[j]);
-            // console.log('folders:',folders)
-            mapOfWebsiteAndFolder.set(websites[j],folders);
+            websiteToFolderMap.set(websites[j],folders);
         }
     }
 
-    // console.log('categoriesOfWebistesMap test',categoriesOfWebistesMap);
+    // converting Map into javascript object - since JSON.stringify doesn't support Map
+    const categoriesToWebistesMapObject = Object.fromEntries(categoriesToWebistesMap);
+    const websiteToFolderMapObject = Object.fromEntries(websiteToFolderMap);
 
-    const categoriesOfWebistesObject = Object.fromEntries(categoriesOfWebistesMap);
-    // console.log('categoriesOfWebistesObject',categoriesOfWebistesObject);
+    // console.log('categoriesToWebistesMap:',categoriesToWebistesMap);
+    // console.log('websiteToFolderMap:',websiteToFolderMap);
 
-    // console.log('listOfWebsites:',listOfWebsites);
-    // console.log('mapOfWebsiteAndFolder',mapOfWebsiteAndFolder)
-
-    const mapOfWebsiteAndFolderObject = Object.fromEntries(mapOfWebsiteAndFolder);
-
-    res.json({categoriesOfWebistesObject: categoriesOfWebistesObject, categoriesOfWebistes: categoriesOfWebistes,
-        listOfWebsites: listOfWebsites, mapOfWebsiteAndFolderObject: mapOfWebsiteAndFolderObject
-    });
+    res.json(JSON.stringify(
+        {
+            categoriesToWebistesMapObject: categoriesToWebistesMapObject, 
+            websiteToFolderMapObject: websiteToFolderMapObject,
+            categoriesList: categoriesList
+        }
+    ));
 })
 
 app.post('/deleteSelectedImages',async (req,res) => {

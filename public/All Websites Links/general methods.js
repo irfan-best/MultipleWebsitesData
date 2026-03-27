@@ -397,8 +397,6 @@ function getWebsiteNameFromUrl(){
 // this method works for both localhost or without localhost url
 function getFolderNameFromUrl(){
     var url = window.location.href;
-    console.log('getFolderNameFromUrl url',url);
-    console.log('url split',url.split("#"));
     var folderName = url.split("#")[1].replaceAll('%20',' ');
     if(consoleLevel >= 1){
         console.log('getFolderNameFromUrl called:',folderName);

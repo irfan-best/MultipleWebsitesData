@@ -1,4 +1,4 @@
-var consoleLevel = 1; // 0: no logs, 1: important logs, 2: all logs
+var consoleLevel = 0; // 0: no logs, 1: important logs, 2: all logs
 
 var nrmlURL = 'file:///E:/All in One/Websites/Get Files for All Folders/public/';
 var localHostURL = 'http://localhost:3001/';
