@@ -85,13 +85,17 @@ Used Keys:
                                         (we exit  focus of an edit box - fileNameChangeFocusMode = false)
 
         Tab                             toogle multipleElementsSelectionMode
+        D                               toogle specialFunctionsOnImgClickEnabled
         d                               show/hide delete buttons
+
+picklist-container:
+        this will have website, category and folder selection
 
 when img click features:
         when we click on img - img name will be copied to clipboard without file extension
-        when we db click on img - then img folder path will be copied to clipboard
-        when we db click on img - when we are in List website of an stars category, then it's folder website will,
-                be opened in enw tab
+        when we specialFunctionsOnImgClickEnabled and click on img - then img folder path will be copied to clipboard
+        when we specialFunctionsOnImgClickEnabled and click on img - when we are in List website of an stars category, then it's folder website will,
+                be opened in new tab
 
 when click on an header's anchor element:
         focusElement = 0;

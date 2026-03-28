@@ -147,18 +147,7 @@ document.addEventListener("keydown", function(event) {
     }
 
     if(ifAnyOfWriteModeIsTrue()){
-        if(isLetter(event.key) || NumKeysList.includes(event.key) || event.key === ' ' || WrittableSpecialKeyList.includes(event.key)) {
-            return;
-        }
-    }
-
-    if(imgRankingchangeMode && leftRightKeys.includes(event.key)){
-        // when we are in rankingChangeMode - should not goto other tabs
-        return;
-    }
-
-    if(searchMode){
-        if(leftRightKeys.includes(event.key)){
+        if(leftRightKeys.includes(event.key) || isLetter(event.key) || NumKeysList.includes(event.key) || event.key === ' ' || WrittableSpecialKeyList.includes(event.key)) {
             return;
         }
     }
@@ -446,6 +435,10 @@ document.addEventListener("keydown", function(event) {
             selectedImagesList = [];
         }
         return;
+    }
+
+    if(event.key === 'D'){
+        specialFunctionsOnImgClickEnabled = !specialFunctionsOnImgClickEnabled;
     }
 
     if (event.key === 'd') {

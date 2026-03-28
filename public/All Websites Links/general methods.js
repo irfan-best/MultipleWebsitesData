@@ -18,6 +18,8 @@ function imgItemCreator(imgNameWithExtension,foldername){
 
     var imgNameWithoutExtension = imgNameWithExtension.slice(0,imgNameWithExtension.lastIndexOf('.'));
     imgItem.addEventListener('click', async (event) => {
+        if(!specialFunctionsOnImgClickEnabled)
+        {
             if(!multipleElementsSelectionMode && !imgRankingchangeMode) 
                 await navigator.clipboard.writeText(!includeAnimeOrNot ? imgNameWithoutExtension : imgNameWithoutExtension + " Anime");
             else{
@@ -138,54 +140,60 @@ function imgItemCreator(imgNameWithExtension,foldername){
 
                 console.log('selected Img List:',selectedImagesList);
             }
+        }
+        else{
+            console.log('specialFunctionsOnImgClickEnabled case',event.target);
+            if(getWebsiteNameFromUrl().includes('List') && starNamesList.includes(getCategoryNameFromUrl())){
+                console.log('special case');
+
+                var element = event.target
+                while(true){
+                    if(element.classList.contains('img-item')){
+                        break;
+                    }
+                    element = element.parentElement;
+                }
+
+                var imgName = element.querySelector('.img-name').innerHTML;
+                
+                var reqFolderPath = nrmlURL + folderInsidePublic + getCategoryNameFromUrl() + "/" + getCategoryNameFromUrl() + " " 
+                    + getFolderNameFromUrl() + "/index.html#" + imgName.replaceAll(' ','%20');
+                removeStartFileText(reqFolderPath);
+
+                if(consoleLevel>=1){
+                    console.log('folder Path List site of stars category:',reqFolderPath);
+                }
+                window.open(reqFolderPath,'_blank');
+            }
+            else if(getWebsiteNameFromUrl() === 'Hentai List'){
+                var element = event.target
+                while(true){
+                    if(element.classList.contains('img-item')){
+                        break;
+                    }
+                    element = element.parentElement;
+                }
+
+                // D:\Hentai\0 Dark\peace hame
+                var clickedImgFolder = element.querySelector('.img-folder-name').innerHTML;
+                var clickedImgName = element.querySelector('.img-name').innerHTML;
+                
+                var reqFolderPath = 'D:\\Hentai\\' + clickedImgFolder + "\\" + clickedImgName;
+
+                if(consoleLevel>=1){
+                    console.log('folder Path List site of hentai folder:',reqFolderPath);
+                }
+
+                await navigator.clipboard.writeText(reqFolderPath);
+            }
+            else{
+                await navigator.clipboard.writeText(getImgFolderPath(event.target.src));
+            }
+        }
     });
 
     imgItem.addEventListener('dblclick', async (event) => {
-        console.log('dblckick',event.target);
-        if(getWebsiteNameFromUrl().includes('List') && starNamesList.includes(getCategoryNameFromUrl())){
-            console.log('special case');
-
-            var element = event.target
-            while(true){
-                    // console.log('inside while:'+element);
-                if(element.classList.contains('img-item')){
-                    // console.log('while breaking');
-                    break;
-
-                }
-                element = element.parentElement;
-            }
-
-            var imgName = element.querySelector('.img-name').innerHTML;
-            
-            var reqFolderPath = nrmlURL + folderInsidePublic + getCategoryNameFromUrl() + "/" + getCategoryNameFromUrl() + " " 
-                + getFolderNameFromUrl() + "/index.html#" + imgName.replaceAll(' ','%20');
-            removeStartFileText(reqFolderPath);
-            console.log('reqFolderpath:',reqFolderPath);
-            window.open(reqFolderPath,'_blank');
-        }
-        else if(getWebsiteNameFromUrl() === 'Hentai List'){
-            var element = event.target
-            while(true){
-                    // console.log('inside while:'+element);
-                if(element.classList.contains('img-item')){
-                    // console.log('while breaking');
-                    break;
-
-                }
-                element = element.parentElement;
-            }
-
-            // D:\Hentai\0 Dark\peace hame
-            var clickedImgFolder = element.querySelector('.img-folder-name').innerHTML;
-            var clickedImgName = element.querySelector('.img-name').innerHTML;
-            var reqFolderPath = 'D:\\Hentai\\' + clickedImgFolder + "\\" + clickedImgName;
-            console.log('reqFolderpath:',reqFolderPath);
-            await navigator.clipboard.writeText(reqFolderPath);
-            return;
-            // window.open(reqFolderPath,'_blank');
-        }
-        await navigator.clipboard.writeText(getImgFolderPath(event.target.src));
+        
     });
 
     var imgBox = document.createElement("div");
@@ -216,7 +224,7 @@ function imgItemCreator(imgNameWithExtension,foldername){
         updateHeaderCounts();
 
         setTimeout(() => {
-            sendData(); // to update the current website
+            updateCurrentWebiste(); // to update the current website
         }, 2000); // Delay to allow the deleteFile function to complete
     };
     imgBox.appendChild(deleteButton);
@@ -272,26 +280,29 @@ function imgItemCreator(imgNameWithExtension,foldername){
         var parentElement = this.parentElement;
         var currentImgUrl = parentElement.querySelector('img').src;
         var newImageName = parentElement.querySelector('input').value;
-        // console.log('currentImgUrl:'+currentImgUrl);
-        // console.log('newImageName:'+newImageName);
+        
+        var folderPath = getCurrentFolderFullPath();
+        var currentImgName = currentImgUrl.slice(currentImgUrl.lastIndexOf('/')+1);
 
         if(!includeFileExtensions){
-            // var splitData = currentImgUrl.split('.');
-            // var lastIndexOf = currentImgUrl.lastIndexOf('.');
-            var tempSplitData = currentImgUrl.split('.');
-            // '.' + tempSplitData[tempSplitData.length - 1];
-            // console.log('url string')
-            newImageName = newImageName + '.' + tempSplitData[tempSplitData.length - 1];
+            // adding extension to imgName
+            newImageName = newImageName + '.' + currentImgUrl.slice(currentImgUrl.lastIndexOf('.') + 1);
         }
-        renameFile(currentImgUrl,newImageName);
 
+        if(consoleLevel>=1){
+            console.log('folderPath:',folderPath);
+            console.log('currentImgName:'+currentImgName);
+            console.log('newImageName:'+newImageName);
+        }
+
+        renameFile(folderPath,currentImgName,newImageName);
+
+        // update imgName in UI
         var imgName = parentElement.querySelector('.img-name');
         imgName.innerHTML = newImageName.split('.')[0];
 
         setTimeout(() => {
-            // console.log('sendData 5secs called after deleteFile');
-            sendData(); // to update the website
-            // imgBox.remove(); // Remove the img-box from the DOM
+            updateCurrentWebiste();
         }, 2000);
 
     }
@@ -697,7 +708,7 @@ function getButton_BasedOn_InnerHTML(innerHtmlValue){
 }
 
 function ifAnyOfWriteModeIsTrue(){
-    return searchMode || M_Mode || fileNameChangeFocusMode;
+    return searchMode || M_Mode || fileNameChangeFocusMode || showPickListContainer;
 }
 
 function isLetter(char){
@@ -773,4 +784,12 @@ function getCurrentFolderFullPath(){
     currFolderPath = removeStartFileText(currFolderPath);
     console.log('getCurrentFolderFullPath currFolderPath:',currFolderPath);
     return currFolderPath;
+}
+
+function tooglePicklistContainerVisibility(){
+    var picklistContainer = document.querySelector('.picklist-container');
+    
+    picklistContainer.style.visibility =  showPickListContainer ? 'hidden': 'visible';
+
+    showPickListContainer = !showPickListContainer;
 }

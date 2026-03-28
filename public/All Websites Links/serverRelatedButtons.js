@@ -33,8 +33,7 @@ moveButton.onclick = function(){
         return;
     }
 
-    var picklistContainer = document.querySelector('.picklist-container');
-    picklistContainer.style.visibility = 'visible';
+    tooglePicklistContainerVisibility();
 
     var url = window.location.href;
     splitData = url.split('/');
@@ -104,8 +103,7 @@ deleteButton.onclick = function(){
     }
 
     setTimeout(() => {
-        // console.log('sendData 5secs called after deleteFile');
-        sendData(); // to update the website
+        updateCurrentWebiste(); // to update the website
     }, 2000); // Delay to allow the deleteFile function to complete
            
 }
@@ -119,8 +117,7 @@ copyImgToFolderButton.onclick = function(){
         return;
     }
 
-    var picklistContainer = document.querySelector('.picklist-container');
-    picklistContainer.style.visibility = 'visible';
+    tooglePicklistContainerVisibility();
 
     var url = window.location.href;
     splitData = url.split('/');
@@ -142,8 +139,7 @@ copyContainer.appendChild(copyImgToFolderButton);
 
 var xButton = document.querySelector('.remove-button');
 xButton.onclick = function(){
-    var picklistContainer = document.querySelector('.picklist-container');
-    picklistContainer.style.visibility = 'hidden';
+    tooglePicklistContainerVisibility();
 }
 
 var submitButtonForWebsiteSelection = document.querySelector('.submit-button-for-website-selection');
@@ -151,8 +147,7 @@ submitButtonForWebsiteSelection.onclick = function(){
     // console.log('submitButtonForWebsiteSelection called');
     var selectedImages = document.querySelectorAll('.selected-img');
 
-    var picklistContainer = document.querySelector('.picklist-container');
-    picklistContainer.style.visibility = 'hidden';
+    tooglePicklistContainerVisibility();
 
     if(copyOrMoveMode === 'Move'){
         for(var i=0;i<selectedImages.length;i++){
@@ -168,10 +163,8 @@ submitButtonForWebsiteSelection.onclick = function(){
         moveServerCaller();
 
         setTimeout(() => {
-            // console.log('sendData 5secs called after deleteFile');
-            sendData(); // to update the website
+            updateCurrentWebiste(); // to update the website
             selectedImagesList = [];
-            // imgBox.remove(); // Remove the img-box from the DOM
         }, 2000);   
     }
 
@@ -181,21 +174,18 @@ submitButtonForWebsiteSelection.onclick = function(){
     else if(copyOrMoveMode === 'Move Folder'){
         moveFolderServerCaller();
         setTimeout(() => {
-            // console.log('sendData 5secs called after deleteFile');
-            sendData(); // to update the website
-            // imgBox.remove(); // Remove the img-box from the DOM
+            updateCurrentWebiste(); // to update the website
         }, 2000);   
     }
 
  
      setTimeout(() => {
-        // console.log('sendData 5secs called after deleteFile');
         const categorySelect = document.getElementById('categorySelect');
         const websiteSelect = document.getElementById('websiteSelect');
 
-        updateOtherWebiste(categorySelect.value+'/'+websiteSelect.value+'/'); // to update the website
-
-        // imgBox.remove(); // Remove the img-box from the DOM
+        updateOneWebiste(categorySelect.value+'/'+websiteSelect.value+'/'); // to update the website
+        // we are updating other website, i.e if we move img from "naruto 2" to "naruto"
+        // then we are updating "naruto" website
     }, 4000); 
 }
 
@@ -204,8 +194,7 @@ moveFolder.innerHTML = 'Move Folder';
 moveFolder.setAttribute('class','copy-button');
 moveFolder.onclick = function(){
 
-    var picklistContainer = document.querySelector('.picklist-container');
-    picklistContainer.style.visibility = 'visible';
+    tooglePicklistContainerVisibility();
 
     var url = window.location.href;
     splitData = url.split('/');
@@ -227,8 +216,7 @@ copyFolder.innerHTML = 'Copy Folder';
 copyFolder.setAttribute('class','copy-button');
 copyFolder.onclick = function(){
 
-    var picklistContainer = document.querySelector('.picklist-container');
-    picklistContainer.style.visibility = 'visible';
+    tooglePicklistContainerVisibility();
 
     var url = window.location.href;
     splitData = url.split('/');

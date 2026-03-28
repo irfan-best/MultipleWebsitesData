@@ -340,85 +340,6 @@ async function deleteToRecycleBin(filename) {
   }
 }
 
-
-app.post('/rename', async (req, res) => {
-    var currentImgUrl = req.body.currentImgUrl;
-    var newImageName = req.body.newImageName;
-
-    var splitData = currentImgUrl.split('/');
-    var oldImageName = splitData[splitData.length-1];
-    console.log('in Server: currentImgUrl:'+currentImgUrl);
-    console.log('in Server: newImageName:'+newImageName);
-    console.log('in Server: oldImageName:'+oldImageName);
-
-    var imgPath = currentImgUrl.slice(0,currentImgUrl.lastIndexOf('/')+1);
-    console.log('imgPath:'+imgPath);
-
-
-    
-    // const uploadDir = path.join(__dirname, 'public', 'uploads');
-    var oldPath = path.join(__dirname, 'public','All%20Websites%20Links',splitData[splitData.length-5],splitData[splitData.length-4],'Images',splitData[splitData.length-2], oldImageName);
-    var newPath = path.join(__dirname, 'public','All%20Websites%20Links',splitData[splitData.length-5],splitData[splitData.length-4],'Images',splitData[splitData.length-2], newImageName);
-
-    oldPath = oldPath.replaceAll('%20'," ");
-    newPath = newPath.replaceAll('%20'," ");
-    // const oldPath = imgPath + oldImageName;
-    // const newPath = imgPath + newImageName;
-    console.log('oldPath:'+oldPath);
-
-    try {
-        await fs.rename(oldPath, newPath);
-        res.json({ success: true, message: 'File renamed successfully' });
-    } catch (err) {
-        console.error('Rename error:', err);
-        res.status(500).json({ success: false, message: 'Rename failed' });
-    }
-});
-
-// used to set setCategoryNWebsites
-app.post('/get-categories-webistes-foldernames',async (req,res) => {
-    console.log('get-categories-webistes-foldernames route');
-    var folderNames = await getFolderNames(BASE_URL);
-
-    var categoriesList = [];
-
-    for(var i=1;i<folderNames.length;i++)
-        categoriesList.push(folderNames[i]);
-    // we are not adding first folder, since first folder is "0 Sample" folder
-
-    // console.log('categoriesList',categoriesList);
-
-    var categoriesToWebistesMap = new Map();
-    var websiteToFolderMap = new Map();
-    
-    for(var i=0;i<categoriesList.length;i++){
-        var subPath = BASE_URL + categoriesList[i] + "/";
-        var websites = await getFolderNames(subPath);
-        categoriesToWebistesMap.set(categoriesList[i],websites);
-
-        for(var j=0;j<websites.length;j++){
-            var webSitePath = BASE_URL + categoriesList[i] + "/" + websites[j] + '/Images/'
-            var folders = await getFolderNames(webSitePath);
-            websiteToFolderMap.set(websites[j],folders);
-        }
-    }
-
-    // converting Map into javascript object - since JSON.stringify doesn't support Map
-    const categoriesToWebistesMapObject = Object.fromEntries(categoriesToWebistesMap);
-    const websiteToFolderMapObject = Object.fromEntries(websiteToFolderMap);
-
-    // console.log('categoriesToWebistesMap:',categoriesToWebistesMap);
-    // console.log('websiteToFolderMap:',websiteToFolderMap);
-
-    res.json(JSON.stringify(
-        {
-            categoriesToWebistesMapObject: categoriesToWebistesMapObject, 
-            websiteToFolderMapObject: websiteToFolderMapObject,
-            categoriesList: categoriesList
-        }
-    ));
-})
-
 app.post('/deleteSelectedImages',async (req,res) => {
     console.log('deleteSelectedImages',req.body);
 
@@ -469,8 +390,9 @@ async function moveFolderNewVala(oldPath, newPath) {
     }
 }
 
-app.post('/moveSelectedImages',async (req,res) => {
-    console.log('moveSelectedImages',req.body);
+app.post('/move-selected-images',async (req,res) => {
+    console.log('move-selected-images route',req.body);
+    
     var firstImageUrl = req.body.selectedImagesList[0];
     var splitData = firstImageUrl.split('/');
     const from = 'public/All Websites Links/'+ splitData[4].replaceAll('%20',' ') + "/" + splitData[5].replaceAll('%20',' ') +"/Images/" + splitData[7].replaceAll('%20',' ');
@@ -761,6 +683,7 @@ app.post('/getImgsCreatedDates',async (req,res) => {
     return res.json({newImgPaths: newImgPaths});
 });
 
+// below this are rechecked
 //////////////////////////////////////
 // folderPath -> path where file are present
 // imgList -> array of img names along with extensions
@@ -831,3 +754,68 @@ app.post('/update-img-ranking', async (req, res) => {
         });
     }
 });
+
+// we change file name and click on submit for one img then this route will get called
+app.post('/rename-single-file', async (req, res) => {
+    var {folderPath, currentImgName, newImageName} = req.body;
+
+    console.log('rename-single-file route: folderPath:'+folderPath);
+    console.log('rename-single-file route: currentImgName:'+currentImgName);
+    console.log('rename-single-file route: newImageName:'+newImageName);
+
+    try{
+        await fs.rename(
+            path.join(folderPath, currentImgName),
+            path.join(folderPath, newImageName)
+        );
+        res.json({ success: true, message: 'File renamed successfully' });
+    }
+    catch (err){
+        console.error('Rename error:', err);
+        res.status(500).json({ success: false, message: 'Rename failed' });
+    }
+});
+
+// used to set setCategoryNWebsites
+app.post('/get-categories-webistes-foldernames',async (req,res) => {
+    console.log('get-categories-webistes-foldernames route');
+    var folderNames = await getFolderNames(BASE_URL);
+
+    var categoriesList = [];
+
+    for(var i=1;i<folderNames.length;i++)
+        categoriesList.push(folderNames[i]);
+    // we are not adding first folder, since first folder is "0 Sample" folder
+
+    // console.log('categoriesList',categoriesList);
+
+    var categoriesToWebistesMap = new Map();
+    var websiteToFolderMap = new Map();
+    
+    for(var i=0;i<categoriesList.length;i++){
+        var subPath = BASE_URL + categoriesList[i] + "/";
+        var websites = await getFolderNames(subPath);
+        categoriesToWebistesMap.set(categoriesList[i],websites);
+
+        for(var j=0;j<websites.length;j++){
+            var webSitePath = BASE_URL + categoriesList[i] + "/" + websites[j] + '/Images/'
+            var folders = await getFolderNames(webSitePath);
+            websiteToFolderMap.set(websites[j],folders);
+        }
+    }
+
+    // converting Map into javascript object - since JSON.stringify doesn't support Map
+    const categoriesToWebistesMapObject = Object.fromEntries(categoriesToWebistesMap);
+    const websiteToFolderMapObject = Object.fromEntries(websiteToFolderMap);
+
+    // console.log('categoriesToWebistesMap:',categoriesToWebistesMap);
+    // console.log('websiteToFolderMap:',websiteToFolderMap);
+
+    res.json(JSON.stringify(
+        {
+            categoriesToWebistesMapObject: categoriesToWebistesMapObject, 
+            websiteToFolderMapObject: websiteToFolderMapObject,
+            categoriesList: categoriesList
+        }
+    ));
+})

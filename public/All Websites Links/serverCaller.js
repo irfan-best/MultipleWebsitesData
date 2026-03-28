@@ -16,56 +16,6 @@ function deleteFile(imgSrc) {
     })
 }
 
-function sendData() {
-    url = window.location.href;
-    console.log('sendData in serverCaller.js url:', url);
-    url = url.replaceAll('%20', ' ');
-    urlSplit = url.split('/');
-    console.log('urlSplit:', urlSplit);
-    url = urlSplit[urlSplit.length - 3] + '/' + urlSplit[urlSplit.length - 2] + '/';
-    console.log('sendData url:', url);
-    // Send the form data to the server using fetch
-    console.log('sendData url:',url);
-    fetch('http://localhost:3001/allFolders', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({url: url}), // Send the form data as JSON
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('successful fetch');
-
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
-
-function renameFile(currentImgUrl,newImageName){
-    fetch('http://localhost:3001/rename', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(
-            {
-                currentImgUrl: currentImgUrl,
-                newImageName: newImageName 
-            }
-        ), // Send the form data as JSON
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('successful fetch');
-
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
-
 function setCategoryNWebsites(){
     if(consoleLevel >= 1)
         console.log('setCategoryNWebsites called');
@@ -170,8 +120,31 @@ function setCategoryNWebsites(){
     });
 }
 
-if(localHost_on)
-    setCategoryNWebsites();
+function renameFile(folderPath,currentImgName,newImageName){
+    fetch('http://localhost:3001/rename-single-file', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+            {
+                folderPath: folderPath,
+                currentImgName: currentImgName,
+                newImageName: newImageName 
+            }
+        ), // Send the form data as JSON
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('renameFile success:',data);
+
+    })
+    .catch(error => {
+        console.error('renameFile Error:', error);
+    });
+}
+
+// above this rechecked
 
 function deleteServerCaller(){
     console.log('deleteServerCaller called');
@@ -196,16 +169,10 @@ function deleteServerCaller(){
 }
 
 function moveServerCaller(){
-    console.log('moveServerCaller called');
-    console.log('selectedImagesList',selectedImagesList);
-
+    
     const categorySelect = document.getElementById('categorySelect');
     const websiteSelect = document.getElementById('websiteSelect');
     const folderSelect = document.getElementById('folderSelect');
-
-    console.log('categorySelect.value',categorySelect.value);
-    console.log('websiteSelect.value',websiteSelect.value);
-    console.log('folderSelect.value',folderSelect.value);
 
     var folderName = folderSelect.value;
 
@@ -213,52 +180,42 @@ function moveServerCaller(){
     if(folderSelect.value === '-- Create Folder --'){
         // newFolder = true;
         var newFolder = document.querySelector('.new-folder');
-        console.log('newFolder.value',newFolder.value);
         folderName = newFolder.value;
     }
+    
+    
+    if(consoleLevel >= 1){
+        console.log('moveServerCaller selectedImagesList:',selectedImagesList);
+        console.log('categorySelect.value',categorySelect.value);
+        console.log('websiteSelect.value',websiteSelect.value);
+        console.log('Folder Name:',folderName);
+    }
 
+    // fetch('http://localhost:3001/move-selected-images', {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(
+    //         {
+    //             selectedImagesList: selectedImagesList, 
+    //             categorySelected: categorySelect.value, 
+    //             websiteSelected: websiteSelect.value, 
+    //             folderSelected: folderName
+    //         }), // Send the form data as JSON
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //     console.log('move-selected-images success:',data);
+    // })
+    // .catch(error => {
+    //     console.error('move-selected-images Error:', error);
+    // });
 
-    fetch('http://localhost:3001/moveSelectedImages', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(
-            {selectedImagesList: selectedImagesList, categorySelected: categorySelect.value, websiteSelected: websiteSelect.value, folderSelected: folderName,
-            }), // Send the form data as JSON
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('successful fetch');
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-
-}
-
-function updateOtherWebiste(url) {
-    // Send the form data to the server using fetch
-    console.log('updateOtherWebiste url:',url);
-    fetch('http://localhost:3001/allFolders', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({url: url}), // Send the form data as JSON
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('successful fetch');
-
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
 }
 
 function copyServerCaller(){
-    console.log('moveServerCaller called');
+    console.log('copyServerCaller called');
     console.log('selectedImagesList',selectedImagesList);
 
     const categorySelect = document.getElementById('categorySelect');
@@ -416,7 +373,14 @@ function moveFolderServerCaller(){
 
 }
 
+// below this rechecked
 if(localHost_on){
+    setCategoryNWebsites();
+
+    updateCurrentWebiste();
+}
+
+function updateCurrentWebiste(){
     updateOneWebiste(getCategoryNameFromUrl() + "/" + getWebsiteNameFromUrl() + "/");
 }
 
