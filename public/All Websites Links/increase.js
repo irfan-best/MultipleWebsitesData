@@ -57,7 +57,10 @@ document.addEventListener("keydown", function(event) {
     }
 
     if(multipleElementsSelectionMode){
-        if(event.key === 'l'){
+        if(showPickListContainer){
+            return;
+        }
+        else if(event.key === 'l'){
             navigator.clipboard.writeText(getAllSelectedImgNames());   
             return;     
         }
@@ -136,12 +139,9 @@ document.addEventListener("keydown", function(event) {
             }
             return;
         }
-        else if(leftRightKeys.includes(event.key)){
-            event.preventDefault(); 
-        }
     }
 
-    if ( !ifAnyOfWriteModeIsTrue() && (leftRightKeys.includes(event.key) || event.key === " ") ) {
+    if (!ifAnyOfWriteModeIsTrue() && (leftRightKeys.includes(event.key) || event.key === " ") ) {
         event.preventDefault(); 
         // except when we are some text writting mode we should prevent default behavior of these keys
     }

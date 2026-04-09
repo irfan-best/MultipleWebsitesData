@@ -144,6 +144,56 @@ function renameFile(folderPath,currentImgName,newImageName){
     });
 }
 
+function moveSelectedImagesCaller(){
+    
+    const categorySelect = document.getElementById('categorySelect');
+    const websiteSelect = document.getElementById('websiteSelect');
+    const folderSelect = document.getElementById('folderSelect');
+
+    var folderName = folderSelect.value;
+
+    if(folderSelect.value === '-- Create Folder --'){
+        folderName = document.querySelector('.new-folder').value;
+    }
+    
+    var oldFolderPath = getCurrentFolderFullPath();
+    var newFolderPath = removeStartFileText(nrmlURL) + folderInsidePublic + categorySelect.value + "/" + websiteSelect.value + "/Images/" + folderName + "/";
+
+    var selectImgNamesList = getSelectImgNamesList();
+
+    if(consoleLevel >= 1){
+        console.log('oldFolderPath:', oldFolderPath);
+        console.log('newFolderPath:', newFolderPath);
+        console.log('selectImgNamesList:', selectImgNamesList);
+    }
+
+    fetch('http://localhost:3001/move-selected-images', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+            {
+                oldFolderPath: oldFolderPath, 
+                newFolderPath: newFolderPath, 
+                selectImgNamesList: selectImgNamesList,
+
+                websiteSelected: websiteSelect.value,
+                fromFolderName: getFolderNameFromUrl(), 
+                toFolderName: folderName,
+                starName: categorySelect.value,
+            }) 
+        }
+    )
+    .then(response => response.json())
+    .then(data => {
+        console.log('move-selected-images success:',data);
+    })
+    .catch(error => {
+        console.error('move-selected-images Error:', error);
+    });
+}
+
 // above this rechecked
 
 function deleteServerCaller(){
@@ -165,52 +215,6 @@ function deleteServerCaller(){
     .catch(error => {
         console.error('Error:', error);
     });
-
-}
-
-function moveServerCaller(){
-    
-    const categorySelect = document.getElementById('categorySelect');
-    const websiteSelect = document.getElementById('websiteSelect');
-    const folderSelect = document.getElementById('folderSelect');
-
-    var folderName = folderSelect.value;
-
-    // var newFolder = false;
-    if(folderSelect.value === '-- Create Folder --'){
-        // newFolder = true;
-        var newFolder = document.querySelector('.new-folder');
-        folderName = newFolder.value;
-    }
-    
-    
-    if(consoleLevel >= 1){
-        console.log('moveServerCaller selectedImagesList:',selectedImagesList);
-        console.log('categorySelect.value',categorySelect.value);
-        console.log('websiteSelect.value',websiteSelect.value);
-        console.log('Folder Name:',folderName);
-    }
-
-    // fetch('http://localhost:3001/move-selected-images', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(
-    //         {
-    //             selectedImagesList: selectedImagesList, 
-    //             categorySelected: categorySelect.value, 
-    //             websiteSelected: websiteSelect.value, 
-    //             folderSelected: folderName
-    //         }), // Send the form data as JSON
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //     console.log('move-selected-images success:',data);
-    // })
-    // .catch(error => {
-    //     console.error('move-selected-images Error:', error);
-    // });
 
 }
 
@@ -314,70 +318,44 @@ function copyFolderServerCaller(){
 
 }
 
+// below this rechecked
+
 function moveFolderServerCaller(){
     const categorySelect = document.getElementById('categorySelect');
     const websiteSelect = document.getElementById('websiteSelect');
-    const folderSelect = document.getElementById('folderSelect');
+    
+    var oldFolderPath = getCurrentFolderFullPath().replaceAll('/','\\');
+    var newFolderPath = removeStartFileText(nrmlURL) + folderInsidePublic + categorySelect.value 
+        + "/" + websiteSelect.value + '/Images/' + getFolderNameFromUrl() + '/';
+    newFolderPath = newFolderPath.replaceAll('/','\\');
 
-    console.log('categorySelect.value',categorySelect.value);
-    console.log('websiteSelect.value',websiteSelect.value);
-    // console.log('folderSelect.value',folderSelect.value);
+    console.log('moveFolderServerCaller oldFolderPath',oldFolderPath);
+    console.log('moveFolderServerCaller newFolderPath',newFolderPath);
 
-    // var folderName = folderSelect.value;
-
-    // // var newFolder = false;
-    // if(folderSelect.value === '-- Create Folder --'){
-    //     // newFolder = true;
-    //     var newFolder = document.querySelector('.new-folder');
-    //     console.log('newFolder.value',newFolder.value);
-    //     folderName = newFolder.value;
-    // }
-
-    var selectedImagesList = [];
-    var imgBoxes = document.querySelectorAll('.img-box');
-    imgBoxes.forEach((imgBox) => {
-        var img = imgBox.querySelector('img');
-        if (img) {
-            var imgSrc = img.src;
-            console.log('imgSrc:', imgSrc);
-            selectedImagesList.push(imgSrc);
-        }
-    });
-
-    console.log('selectedImagesList in copy folder server:', selectedImagesList);
-    console.log('categorySelect.value in copy folder server:', categorySelect.value);
-    console.log('websiteSelect.value in copy folder server:', websiteSelect.value);
-    var folderNameEnter = document.querySelector('.folder-name-enter');
-    var folderName = '';
-    if(folderNameEnter){
-        folderName = folderNameEnter.value;
-    }
-    console.log('folder name:',folderName);
-
-    fetch('http://localhost:3001/moveFolder', {
+    fetch('http://localhost:3001/move-folder', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(
-            {selectedImagesList: selectedImagesList, categorySelected: categorySelect.value, websiteSelected: websiteSelect.value, folderSelected: folderName,
-            }), // Send the form data as JSON
-    })
+            {
+                oldFolderPath: oldFolderPath, newFolderPath: newFolderPath
+            })
+        }
+    )
     .then(response => response.json())
     .then(data => {
-        console.log('successful fetch');
+        console.log('moveFolderServerCaller success:',data);
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('moveFolderServerCaller Error:', error);
     });
-
 }
 
-// below this rechecked
 if(localHost_on){
-    setCategoryNWebsites();
-
     updateCurrentWebiste();
+
+    setTimeout(setCategoryNWebsites, 2000);
 }
 
 function updateCurrentWebiste(){

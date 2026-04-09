@@ -91,6 +91,10 @@ Used Keys:
 picklist-container:
         this will have website, category and folder selection
 
+move-selected-images:
+        when we are in list site of an stars website, then move img b/w folders of list webiste,
+        will also move entire folder of imgs
+
 when img click features:
         when we click on img - img name will be copied to clipboard without file extension
         when we specialFunctionsOnImgClickEnabled and click on img - then img folder path will be copied to clipboard

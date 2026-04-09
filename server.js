@@ -1,11 +1,8 @@
 import express from 'express';
-// const bodyParser = require('body-parser');
 import bodyParser from 'body-parser';
-// const fs = require('fs').promises;
 import { promises as fs } from 'fs';
 import trash from 'trash';
 import fs1 from 'fs';
-import { get } from 'http';
 import path from 'path';
 
 // new changes
@@ -14,6 +11,13 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
+var nrmlURL = 'file:///E:/All in One/Websites/Get Files for All Folders/public/';
+var localHostURL = 'http://localhost:3001/';
+var folderInsidePublic = 'All Websites Links/';
+
+function removeStartFileText(url){
+    return url.replaceAll("file:///","");
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -40,46 +44,6 @@ app.use(express.json());
 app.use(express.static('public'));
 // const path = require('path');
 app.use(express.static(path.join(__dirname, 'public'))); 
-
-// Example usage
-// get folder names:
-// const fs1 = require('fs');
-// const { get } = require('http');
-
-// function getFolderNames(directoryPath) {
-//     try {
-//         // Read all files and folders in the directory
-//         const items = fs1.readdirSync(directoryPath, { withFileTypes: true });
-
-//         // Filter only directories
-//         const folders = items
-//             .filter((item) => item.isDirectory())
-//             .map((folder) => folder.name);
-
-//         return folders;
-//     } catch (err) {
-//         console.error('Error reading directory:', err);
-//         return [];
-//     }
-// }
-
-// verified, 
-// example directoryPath = E:/All in One/Websites/Get Files for All Folders/public/All Websites Links/
-// returns list of folderNames in the given path's folder
-async function getFolderNames(directoryPath) {
-    try {
-        const items = await fs.readdir(directoryPath, { withFileTypes: true });
-
-        const folders = items
-            .filter((item) => item.isDirectory())
-            .map((folder) => folder.name);
-
-        return folders;
-    } catch (err) {
-        console.error('Error reading directory:', err);
-        return [];
-    }
-}
 
 // ----------------------------- Anime Related Data -------------------------------------------------------------
 
@@ -132,213 +96,9 @@ app.post('/submit', async (req, res) => {
     }
 });
 
-function getIndexFileContent(folderNames) {
-    var linksText = ""; var scriptsText = ""; var linksText1 = "";
-    for(var i=0;i<folderNames.length;i++){
-        linksText   += `            <li><a onclick="changeList('${folderNames[i].replaceAll(/'/g, "\\'")}')" href="#${space_to_Percentile20(folderNames[i])}">${folderNames[i]}(<span id="data-${space_to_Percentile20(folderNames[i])}"></span>)</a></li>\n`;
-        linksText1  += `            <li><a onclick="changeList('${folderNames[i].replaceAll(/'/g, "\\'")}')" href="#${space_to_Percentile20(folderNames[i])}">${folderNames[i]}(<span id="data1-${space_to_Percentile20(folderNames[i])}"></span>)</a></li>\n`;
-        scriptsText += `        <script src="List Data/${folderNames[i]}.js"></script>\n`;
-    }
-
-    var fileContent = `<!DOCTYPE html>
-<html>
-    
-    <head>
-        <link rel="stylesheet" href="../../main-styles.css">
-        <link rel="stylesheet" href="../../serverRelatedButton.css">
-    </head>
-
-    <body>
-
-        <ul class='black-header'>
-            <li><a onclick="changeList('home')" href="#home">Home(<span id="data0"></span>)</a></li>
-`
-    +
-    linksText
-    +
-`       </ul>
-`
-    +
-            `
-        <ul class='black-header1'>
-            <li><a onclick="changeList('home')" href="#home">Home(<span id="data1"></span>)</a></li>
-`
-            +linksText1 
-    +
-`       </ul>
-            
-        <div class="copy-container">
-            <button id="no-of-folders" class='copy-button'>No.of Folders</button>
-            <button id="show-website-name" class='copy-button'>Website Name</button>
-            <img src="../../M Swith On.png"  class='m-switch-button' id="m-switch-on" style='display:none'/>
-            <img src="../../M Swith Off.png" class='m-switch-button' id="m-switch-off"  />
-        </div>
-
-        <div class="imgs-container" id="imgs-container">
-        </div>
-
-        <div class="picklist-container">
-            <div class="remove-button">X</div>
-            <label for="categorySelect">Select Website Category:</label>
-            <select id="categorySelect">
-                <option value="">-- Select Website Category --</option>
-            </select>
-
-            <label for="websiteSelect">Select Website:</label>
-            <select id="websiteSelect" disabled>
-                <option value="">-- Select Website --</option>
-            </select>
-
-            <label for="folderSelect">Select Folder:</label>
-            <select id="folderSelect" disabled>
-                <option value="">-- Select Folder --</option>
-            </select>
-
-            <label for="newFolder" class="new-folder-label">New Folder Name:</label>
-            <input class="new-folder" type="text">
-
-            <button class="submit-button submit-button-for-website-selection">Submit</button>
-        </div>
-
-        <input type="text" class="search-box" />
-
-        <script src="List Data/0 Files.js"></script>
-`
-    +
-    scriptsText
-    +`
-        <script src="../../boolean and conditional variables.js"></script>
-        <script src="../../c set and toogle methods.js"></script>
-        <script src="../../general methods.js"></script>
-        <script src="../../keyEnteredFunctions.js"></script>
-        <script src="../../imagesfunc.js"></script>
-        <script src="../../increase.js"></script>
-        <script src="../../serverCaller.js"></script>
-        <script src="../../serverRelatedButtons.js"></script>
-    </body>
-
-</html>`
-
-    return fileContent;
-}
-
-function getFiles0Content(folderNames) {
-    return `
-    var fileNames = `
-        +
-        JSON.stringify(folderNames,null,2)
-        +
-    `;\nvar mainList = [];`;
-}
-
-async function createFiles(mainURL, fileContent, files0Content) {    
-    await fs.writeFile(mainURL + 'index.html', fileContent);
-    await fs.writeFile(mainURL + 'List Data/0 Files.js', files0Content);
-}
-
-app.post('/allFolders', async (req, res) => {
-    console.log('req data:' + req.body.url);
-
-    var LAST_URL = req.body.url;
-    var mainURL = BASE_URL + LAST_URL;
-
-    console.log('mainURL:', mainURL);
-
-    const directoryPath = mainURL + 'Images';
-    console.log('Directory Path:', directoryPath);
-    var folderNames = await getFolderNames(directoryPath);
-    // console.log('Folder Names:', folderNames);
-    // console.log('Folder Names:', folderNames);
-    
-    var fileContent = getIndexFileContent(folderNames);
-    var files0Content = getFiles0Content(folderNames);
-    createFiles(mainURL, fileContent, files0Content);
-
-    // console.log('index and 0 Files created successfully.');
-
-    const baseDir = mainURL + 'Images/';
-    const outputDir = mainURL + 'List Data/';
-    let filesResult = {};
-
-    try {
-        // Iterate through folder names
-        for (let i = 0; i < folderNames.length; i++) {
-            const directoryPath = path.join(baseDir, folderNames[i]);
-            // console.log('Processing folder:', directoryPath);
-
-            // Read directory contents
-            const files = await fs.readdir(directoryPath);
-            // console.log('Files in folder:', folderNames[i], files.slice(0, 5));
-
-            // Save the file data to a .js file
-            
-            const content = 'mainList['+ i +'] ' + ' = ' + JSON.stringify(files, null, 2);
-            const tempFilePath = path.join(outputDir, folderNames[i] + '.js');
-            await fs.writeFile(tempFilePath, content);
-
-            // Store the files in the result object
-            filesResult[folderNames[i]] = files;
-        }
-
-        // Send a single response after processing all folders
-        res.json({
-            message: 'Folders processed successfully.',
-            data: filesResult,
-        });
-    } catch (error) {
-        console.error('Error processing folders:', error);
-        res.status(500).json({
-            message: 'An error occurred while processing folders.',
-            error: error.message,
-        });
-    }
-});
-
-
-// Serve the static HTML file (optional step if you want to serve the HTML file)
-
-// Start the server
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
 });
-
-// New Server Codes:
-
-// new 15th march
-// when entire URL is given
-function getFolderName(url){
-    var urlSplit = url.split('/');
-    return urlSplit[urlSplit.length - 2];
-}
-
-// new 15th march
-// when we click on 'x' for an img, then this route will be executed
-// deleted img would be present in recycle bin
-// input = 'http://localhost:3001/All%20Website%20Links/Main/Naruto%202/Images/hanabi/03ec47b32ce8f86f36b14d1dfc914e35.jpeg';
-// output = 'E:\All in One\Websites\Get Files for All Folders\public\All Websites Links\2 Animes\Naruto 2\Images\ew ones\ff.jpeg
-app.post('/delete-img', async (req, res) => {
-    var url = req.body.imgPath;
-    
-    var updatedUrlPath = url.replaceAll('%20',' ').replaceAll(localHostURL,nrmlURL).replaceAll('/','\\').replace('file:\\\\\\','');
-    
-    if(consoleLevel >= 1){
-        console.log('delete-img server: imgPath:', url);
-        console.log('updatedUrlPath:', updatedUrlPath);
-    }
-    
-    await deleteToRecycleBin(updatedUrlPath);
-});
-
-async function deleteToRecycleBin(filename) {
-  try {
-    await trash([filename]); // absolute or relative path
-    if(consoleLevel >= 1)
-        console.log('deleteToRecycleBin: Moved to Recycle Bin/Trash');
-  } catch (err) {
-        if(consoleLevel >= 1)
-            console.error('deleteToRecycleBin: Error moving to trash:', err);
-  }
-}
 
 app.post('/deleteSelectedImages',async (req,res) => {
     console.log('deleteSelectedImages',req.body);
@@ -369,108 +129,6 @@ app.post('/deleteSelectedImages',async (req,res) => {
 
 
 })
-
-// new vala easy way
-// 'C:/Users/YourName/Desktop/SourceFolder' -> Oldpath
-// 'C:/Users/YourName/Desktop/DestinationFolder' -> Newpath
-async function moveFolderNewVala(oldPath, newPath) {
-    try {
-        // Ensure the destination directory exists (optional but recommended)
-        // await fs.mkdir(path.dirname(newPath), { recursive: true });
-
-        await fs.rename(oldPath, newPath);
-        console.log('Folder moved successfully!');
-    } catch (err) {
-        if (err.code === 'EXDEV') {
-            // This error happens if you move across different drives/partitions
-            console.error('Cannot move across partitions using rename. Use a copy-then-delete approach.');
-        } else {
-            console.error('Error moving folder:', err);
-        }
-    }
-}
-
-app.post('/move-selected-images',async (req,res) => {
-    console.log('move-selected-images route',req.body);
-    
-    var firstImageUrl = req.body.selectedImagesList[0];
-    var splitData = firstImageUrl.split('/');
-    const from = 'public/All Websites Links/'+ splitData[4].replaceAll('%20',' ') + "/" + splitData[5].replaceAll('%20',' ') +"/Images/" + splitData[7].replaceAll('%20',' ');
-    const to = 'public/All Websites Links/'+ req.body.categorySelected + "/" + req.body.websiteSelected +"/Images/"+ req.body.folderSelected;
-
-    for(var i=0;i<req.body.selectedImagesList.length;i++){
-        var filename = req.body.selectedImagesList[i].substring(req.body.selectedImagesList[i].lastIndexOf('/')+1);     
-        filename = filename.replaceAll('%20',' ');
-        await moveImageFile(filename, from, to);
-    }
-    var websiteSelected = req.body.websiteSelected;
-    // Alina Becker, Byoru, Lady Melamori, Zhu Ke Er
-    if(websiteSelected === 'Alina Becker List' || websiteSelected === 'Byoru List' || websiteSelected === 'Lady Melamori List' || websiteSelected === 'Zhu Ke Er List'){
-        var starName = req.body.categorySelected;
-        var fromFolderName = splitData[7].replaceAll('%20',' ');
-        var toFolderName = req.body.folderSelected;
-        console.log('starName:',starName);
-        console.log('fromFolderName:',fromFolderName); 
-        console.log('toFolderName:',toFolderName);
-        
-        var selectedImagesList = req.body.selectedImagesList;
-        var folderName = [];
-        for(var i=0;i<selectedImagesList.length;i++){
-            var url = selectedImagesList[i];
-            var urlSplit = url.split('/');
-            var fileName = urlSplit[urlSplit.length - 1].replaceAll('%20'," ");
-            // remove last part i.e .jpg or .png, remove after last . part
-            fileName = fileName.substring(0,fileName.lastIndexOf('.'));
-            folderName.push(fileName);
-        }
-        
-        console.log('folderName lsit in move:',folderName);
-
-        for(var i=0;i<folderName.length;i++){
-            // example moving "Blue Color" and "Red Color" img from 
-            // "List 2" to "List 1" for "Zhu Ke Er 0 List" website
-            // then move "Blue Color" folder from "Zhu Ke Er List 2" website to 
-            // "Zhu Ke Er List 1" website and same for "Red Color" folder
-            var fromPath = path.join(__dirname, 'public','All Websites Links',starName,starName + " " + fromFolderName,'Images', folderName[i]);
-            var toPath = path.join(__dirname, 'public','All Websites Links',starName,starName + " " + toFolderName,'Images', folderName[i]);
-            console.log('fromPath1:',fromPath);
-            console.log('toPath1:',toPath);
-            await moveFolderNewVala(fromPath, toPath);
-
-            var fromPath = path.join(__dirname, 'public','All Websites Links',starName,starName + " " + fromFolderName + " - Avg",'Images', folderName[i]);
-            var toPath = path.join(__dirname, 'public','All Websites Links',starName,starName + " " + toFolderName + " - Avg",'Images', folderName[i]);
-            console.log('fromPath2:',fromPath);
-            console.log('toPath2:',toPath);
-            await moveFolderNewVala(fromPath, toPath);
-
-        }
-    }
-})
-
-async function moveImageFile(filename, sourceFolder, destinationFolder) {
-
-  console.log('move Image File Called');
-  const sourcePath = path.join(__dirname, sourceFolder, filename);
-  const destinationPath = path.join(__dirname, destinationFolder, filename);
-
-  console.log('sourcePath:',sourcePath);
-  console.log('destinationPath:',destinationPath);
-
-  try {
-    // Ensure the destination folder exists
-    await fs.mkdir(path.join(__dirname, destinationFolder), { recursive: true });
-
-    // Copy the file
-    await fs.copyFile(sourcePath, destinationPath);
-
-    // Delete the original file
-    await fs.unlink(sourcePath);
-
-    console.log(`✅ Successfully moved '${filename}' from '${sourceFolder}' to '${destinationFolder}'`);
-  } catch (error) {
-    console.error(`❌ Failed to move '${filename}':`, error.message);
-  }
-}
 
 app.post('/copySelectedImages',async (req,res) => {
     console.log('copySelectedImages',req.body);
@@ -509,41 +167,6 @@ async function copyImageFile(filename, sourceFolder, destinationFolder) {
     console.log(`✅ Successfully moved '${filename}' from '${sourceFolder}' to '${destinationFolder}'`);
   } catch (error) {
     console.error(`❌ Failed to move '${filename}':`, error.message);
-  }
-}
-
-app.post('/moveFolder',async (req,res) => {
-
-    console.log('moveFolder', req.body);
-    var firstImageUrl = req.body.selectedImagesList[0];
-    var splitData = firstImageUrl.split('/');
-    const from = 'public/All Websites Links/' + splitData[4].replaceAll('%20', ' ') + "/" + splitData[5].replaceAll('%20', ' ') + "/Images/" + splitData[7].replaceAll('%20', ' ');
-    const to = 'public/All Websites Links/' + req.body.categorySelected + "/" + req.body.websiteSelected + "/Images/" + req.body.folderSelected;
-
-    let allCopied = true;
-    for (var i = 0; i < req.body.selectedImagesList.length; i++) {
-        var filename = req.body.selectedImagesList[i].substring(req.body.selectedImagesList[i].lastIndexOf('/') + 1);
-        filename = filename.replaceAll('%20', ' ');
-        try {
-            await copyImageFile(filename, from, to);
-        } catch (err) {
-            allCopied = false;
-            console.error(`Failed to copy ${filename}:`, err);
-        }
-    }
-
-    if (allCopied) {
-        const folderPathDel = path.join(__dirname, 'public', 'All Websites Links', splitData[4].replaceAll('%20', ' '), splitData[5].replaceAll('%20', ' '), 'Images', splitData[7].replaceAll('%20', ' '));
-        await deleteFolder(folderPathDel);
-    }
-})
-
-async function deleteFolder(folderPath) {
-  try {
-    await fs.rm(folderPath, { recursive: true, force: true });
-    console.log(`Folder deleted: ${folderPath}`);
-  } catch (err) {
-    console.error(`Error deleting folder: ${err}`);
   }
 }
 
@@ -689,7 +312,7 @@ app.post('/getImgsCreatedDates',async (req,res) => {
 // imgList -> array of img names along with extensions
 // this is for "Updating Ranking" button
 // rename files that are send in order to temp_0001, temp_0002 ...
-// and then renames then again to Rank 0001, Rank 0002 ...
+// and then renames then again to 0001, 0002 ...
 // we are not chaning file extensions - what ever original file name had extension
 // same will be there even after 2 renames
 async function renameImagesInOrder(folderPath, imgList) {
@@ -718,7 +341,7 @@ async function renameImagesInOrder(folderPath, imgList) {
         for (let i = 0; i < imgList.length; i++) {
             const tempName = imgList[i];
             const extension = path.extname(tempName);
-            const finalName = `Rank ${(i + 1).toString().padStart(4, '0')}${extension}`;
+            const finalName = `${(i + 1).toString().padStart(4, '0')}${extension}`;
 
             await fs.rename(
                 path.join(folderPath, tempName),
@@ -780,7 +403,7 @@ app.post('/rename-single-file', async (req, res) => {
 app.post('/get-categories-webistes-foldernames',async (req,res) => {
     console.log('get-categories-webistes-foldernames route');
     var folderNames = await getFolderNames(BASE_URL);
-
+    // console.log('categories List:',folderNames);
     var categoriesList = [];
 
     for(var i=1;i<folderNames.length;i++)
@@ -793,8 +416,12 @@ app.post('/get-categories-webistes-foldernames',async (req,res) => {
     var websiteToFolderMap = new Map();
     
     for(var i=0;i<categoriesList.length;i++){
-        var subPath = BASE_URL + categoriesList[i] + "/";
+        var subPath = removeStartFileText(nrmlURL) + folderInsidePublic + categoriesList[i] + "/";
+        // console.log('subPath:',subPath);
         var websites = await getFolderNames(subPath);
+
+        // console.log('websites for category:',categoriesList[i]);
+        // console.log('websites:',websites);
         categoriesToWebistesMap.set(categoriesList[i],websites);
 
         for(var j=0;j<websites.length;j++){
@@ -819,3 +446,329 @@ app.post('/get-categories-webistes-foldernames',async (req,res) => {
         }
     ));
 })
+
+// new 15th march
+// when we click on 'x' for an img, then this route will be executed
+// deleted img would be present in recycle bin
+// input = 'http://localhost:3001/All%20Website%20Links/Main/Naruto%202/Images/hanabi/03ec47b32ce8f86f36b14d1dfc914e35.jpeg';
+// output = 'E:\All in One\Websites\Get Files for All Folders\public\All Websites Links\2 Animes\Naruto 2\Images\ew ones\ff.jpeg
+app.post('/delete-img', async (req, res) => {
+    var url = req.body.imgPath;
+    
+    var updatedUrlPath = url.replaceAll('%20',' ').replaceAll(localHostURL,nrmlURL).replaceAll('/','\\').replace('file:\\\\\\','');
+    
+    if(consoleLevel >= 1){
+        console.log('delete-img server: imgPath:', url);
+        console.log('updatedUrlPath:', updatedUrlPath);
+    }
+    
+    await deleteToRecycleBin(updatedUrlPath);
+});
+
+async function deleteToRecycleBin(filename) {
+  try {
+    await trash([filename]); // absolute or relative path
+    if(consoleLevel >= 1)
+        console.log('deleteToRecycleBin: Moved to Recycle Bin/Trash');
+  } catch (err) {
+        if(consoleLevel >= 1)
+            console.error('deleteToRecycleBin: Error moving to trash:', err);
+  }
+}
+
+app.post('/move-folder',async (req,res) => {
+
+    console.log('move-folder route:', req.body);
+    var {oldFolderPath,newFolderPath} = req.body;
+
+    console.log('oldFolderPath:', oldFolderPath);
+    console.log('newFolderPath:', newFolderPath);
+    
+    try{
+        await fs.rename(oldFolderPath, newFolderPath);
+        res.json({ success: true, message: 'moved folder successfully' });
+    }
+    catch(error){
+        console.log('error moving folder:',error);
+        res.status(500).json({ success: false, message: 'moving folder failed' });
+    }
+})
+
+/**
+ * Creates a new folder at a specific base path.
+ * @param {string} basePath - e.g., "E:/All in One/Websites/Get Files for All Folders/"
+ * @param {string} folderName - e.g., "first folder"
+ */
+async function createNewFolder(basePath, folderName) {
+    // path.join handles slashes correctly regardless of OS
+    const fullPath = path.join(basePath, folderName);
+
+    try {
+        await fs.mkdir(fullPath, { recursive: true });
+        console.log(`Directory created successfully at: ${fullPath}`);
+        return fullPath;
+    } catch (err) {
+        console.error(`Error creating directory: ${err.message}`);
+        throw err;
+    }
+}
+
+app.post('/move-selected-images',async (req,res) => {
+    console.log('move-selected-images route',req.body);
+    
+    var {oldFolderPath,newFolderPath,selectImgNamesList} = req.body;
+    console.log('oldFolderPath:', oldFolderPath);
+    console.log('newFolderPath:', newFolderPath);
+    console.log('selectImgNamesList:', selectImgNamesList);
+
+    try{
+        var newFolderName = newFolderPath.slice(newFolderPath.lastIndexOf('/')+1);
+        var pathToCreateNewFolder = newFolderPath.slice(0,newFolderPath.lastIndexOf('/')+1); 
+        await createNewFolder(pathToCreateNewFolder, newFolderName );
+
+        for(var i=0;i<selectImgNamesList.length;i++){
+            await fs.rename(
+                path.join(oldFolderPath, selectImgNamesList[i]),
+                path.join(newFolderPath, selectImgNamesList[i])
+            );
+        }
+        
+        res.json({ success: true, message: 'moved selected images successfully' });
+    }
+    catch(error){
+        res.status(500).json({ success: false, message: 'moving selected images failed' });
+    }
+    
+    // recheck
+    var {websiteSelected, starName, fromFolderName, toFolderName} = req.body;
+    console.log('websiteSelected:', websiteSelected);
+    console.log('starName:', starName);
+    console.log('fromFolderName:', fromFolderName);
+    console.log('toFolderName:', toFolderName);
+
+    // Alina Becker, Byoru, Lady Melamori, Zhu Ke Er
+    if(websiteSelected === 'Alina Becker List' || websiteSelected === 'Byoru List' || websiteSelected === 'Lady Melamori List' || websiteSelected === 'Zhu Ke Er List'){
+
+        var oldFolderPath;
+        var newFolderPath;
+                
+        try{
+            for(var i=0;i<selectImgNamesList.length;i++){
+                var imgNameWithoutExtension = selectImgNamesList[i];
+                imgNameWithoutExtension = imgNameWithoutExtension.slice(0,imgNameWithoutExtension.lastIndexOf('.'));
+
+                oldFolderPath = removeStartFileText(nrmlURL) + folderInsidePublic + starName + '/' + 
+                    (starName + " " + fromFolderName) + '/' + 'Images/' + imgNameWithoutExtension + '/';
+
+                oldFolderPath = oldFolderPath.replaceAll('/','\\');
+                
+                newFolderPath = removeStartFileText(nrmlURL) + folderInsidePublic + starName + '/' + 
+                    (starName + " " + toFolderName) + '/' + 'Images/' + imgNameWithoutExtension + '/';
+
+                newFolderPath = newFolderPath.replaceAll('/','\\');
+
+                console.log('In loop oldFolderPath:', oldFolderPath);
+                console.log('In loop newFolderPath:', newFolderPath);
+
+                await fs.rename(oldFolderPath, newFolderPath);
+
+                // for - avg websites moving folder
+
+                oldFolderPath = removeStartFileText(nrmlURL) + folderInsidePublic + starName + '/' + 
+                    (starName + " " + fromFolderName + " - Avg") + '/' + 'Images/' + imgNameWithoutExtension + '/';
+
+                oldFolderPath = oldFolderPath.replaceAll('/','\\');
+                
+                newFolderPath = removeStartFileText(nrmlURL) + folderInsidePublic + starName + '/' + 
+                    (starName + " " + toFolderName + " - Avg") + '/' + 'Images/' + imgNameWithoutExtension + '/';
+
+                newFolderPath = newFolderPath.replaceAll('/','\\');
+
+                console.log('In loop oldFolderPath for avg:', oldFolderPath);
+                console.log('In loop newFolderPath for avg:', newFolderPath);
+
+                await fs.rename(oldFolderPath, newFolderPath);
+            }            
+
+            
+        }
+        catch(error){
+            console.log('error moving folder for stars list:',error);
+        }
+        
+    }
+})
+
+// url -> 1 Main/Ani List/
+app.post('/allFolders', async (req, res) => {
+    console.log('allFolders route:' + req.body.url);
+
+    var fileExplorerPath = removeStartFileText(nrmlURL) + folderInsidePublic + req.body.url;
+    const imagesFolderPath = fileExplorerPath + 'Images';
+
+    console.log('fileExplorerPath:', fileExplorerPath);
+    console.log('Directory Path:', imagesFolderPath);
+
+    var folderNames = await getFolderNames(imagesFolderPath);
+    // list of all folder names present in "Images" directory 
+    
+    var fileContent = getIndexFileContent(folderNames); // index.html content
+    var files0Content = getFiles0Content(folderNames); // List Data/0 Files.js content
+    createFiles(fileExplorerPath, fileContent, files0Content);
+
+    // console.log('successfully created index.html and 0 Files.js');
+    const listDataPath = fileExplorerPath + 'List Data/';
+
+    try {
+        // Iterate through folder names
+        for (let i = 0; i < folderNames.length; i++) {
+            const eachImageFolderPath = path.join(imagesFolderPath, folderNames[i]);
+            // console.log('eachImageFolderPath:', eachImageFolderPath);
+
+            // Read directory contents
+            const files = await fs.readdir(eachImageFolderPath);
+            // console.log('Files in eachImageFolderPath:', folderNames[i], files.slice(0, 5));
+
+            // Save the file data to an ".js" file            
+            const content = 'mainList['+ i +'] ' + ' = ' + JSON.stringify(files, null, 2);
+            const tempFilePath = path.join(listDataPath, folderNames[i] + '.js');
+            // console.log('tempFilePath:',tempFilePath);
+            // console.log('content:',content);
+            await fs.writeFile(tempFilePath, content);
+        }
+
+        // Send a single response after processing all folders
+        res.json({
+            message: 'Folders processed successfully.',
+            data: 'website updated successfully',
+        });
+    } catch (error) {
+        console.error('Error updating website:', error);
+        res.status(500).json({
+            message: 'An error occurred while updating website.',
+            error: error.message,
+        });
+    }
+});
+
+// example directoryPath = E:/All in One/Websites/Get Files for All Folders/public/All Websites Links/
+// returns list of folderNames in the given path's folder
+async function getFolderNames(directoryPath) {
+    console.log('getFolderNames called directoryPath:',directoryPath);
+    try {
+        const items = await fs.readdir(directoryPath, { withFileTypes: true });
+
+        const folders = items
+            .filter((item) => item.isDirectory())
+            .map((folder) => folder.name);
+
+        return folders;
+    } catch (err) {
+        console.error('Error reading directory:', err);
+        return [];
+    }
+}
+
+function getIndexFileContent(folderNames) {
+    var linksText = ""; var scriptsText = ""; var linksText1 = "";
+    for(var i=0;i<folderNames.length;i++){
+        linksText   += `            <li><a onclick="changeList('${folderNames[i].replaceAll(/'/g, "\\'")}')" href="#${space_to_Percentile20(folderNames[i])}">${folderNames[i]}(<span id="data-${space_to_Percentile20(folderNames[i])}"></span>)</a></li>\n`;
+        linksText1  += `            <li><a onclick="changeList('${folderNames[i].replaceAll(/'/g, "\\'")}')" href="#${space_to_Percentile20(folderNames[i])}">${folderNames[i]}(<span id="data1-${space_to_Percentile20(folderNames[i])}"></span>)</a></li>\n`;
+        scriptsText += `        <script src="List Data/${folderNames[i]}.js"></script>\n`;
+    }
+
+    var fileContent = `<!DOCTYPE html>
+<html>
+    
+    <head>
+        <link rel="stylesheet" href="../../main-styles.css">
+        <link rel="stylesheet" href="../../serverRelatedButton.css">
+    </head>
+
+    <body>
+
+        <ul class='black-header'>
+            <li><a onclick="changeList('home')" href="#home">Home(<span id="data0"></span>)</a></li>
+`
+    +
+    linksText
+    +
+`       </ul>
+`
+    +
+            `
+        <ul class='black-header1'>
+            <li><a onclick="changeList('home')" href="#home">Home(<span id="data1"></span>)</a></li>
+`
+            +linksText1 
+    +
+`       </ul>
+            
+        <div class="copy-container">
+            <button id="no-of-folders" class='copy-button'>No.of Folders</button>
+            <button id="show-website-name" class='copy-button'>Website Name</button>
+            <img src="../../M Swith On.png"  class='m-switch-button' id="m-switch-on" style='display:none'/>
+            <img src="../../M Swith Off.png" class='m-switch-button' id="m-switch-off"  />
+        </div>
+
+        <div class="imgs-container" id="imgs-container">
+        </div>
+
+        <div class="picklist-container">
+            <div class="remove-button">X</div>
+            <label for="categorySelect">Select Website Category:</label>
+            <select id="categorySelect">
+                <option value="">-- Select Website Category --</option>
+            </select>
+
+            <label for="websiteSelect">Select Website:</label>
+            <select id="websiteSelect" disabled>
+                <option value="">-- Select Website --</option>
+            </select>
+
+            <label for="folderSelect">Select Folder:</label>
+            <select id="folderSelect" disabled>
+                <option value="">-- Select Folder --</option>
+            </select>
+
+            <label for="newFolder" class="new-folder-label">New Folder Name:</label>
+            <input class="new-folder" type="text">
+
+            <button class="submit-button submit-button-for-website-selection">Submit</button>
+        </div>
+
+        <input type="text" class="search-box" />
+
+        <script src="List Data/0 Files.js"></script>
+`
+    +
+    scriptsText
+    +`
+        <script src="../../boolean and conditional variables.js"></script>
+        <script src="../../c set and toogle methods.js"></script>
+        <script src="../../general methods.js"></script>
+        <script src="../../keyEnteredFunctions.js"></script>
+        <script src="../../imagesfunc.js"></script>
+        <script src="../../increase.js"></script>
+        <script src="../../serverCaller.js"></script>
+        <script src="../../serverRelatedButtons.js"></script>
+    </body>
+
+</html>`
+
+    return fileContent;
+}
+
+function getFiles0Content(folderNames) {
+    return `
+    var fileNames = `
+        +
+        JSON.stringify(folderNames,null,2)
+        +
+    `;\nvar mainList = [];`;
+}
+
+async function createFiles(fileExplorerPath, fileContent, files0Content) {    
+    await fs.writeFile(fileExplorerPath + 'index.html', fileContent);
+    await fs.writeFile(fileExplorerPath + 'List Data/0 Files.js', files0Content);
+}

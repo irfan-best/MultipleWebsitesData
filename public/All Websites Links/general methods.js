@@ -16,7 +16,7 @@ function imgItemCreator(imgNameWithExtension,foldername){
     var imgItem = document.createElement("div");
     imgItem.setAttribute("class","img-item");
 
-    var imgNameWithoutExtension = imgNameWithExtension.slice(0,imgNameWithExtension.lastIndexOf('.'));
+    var imgNameWithoutExtension = imgNameWithExtension.slice(0,imgNameWithExtension.lastIndexOf('.')).replaceAll('%20',' ');
     imgItem.addEventListener('click', async (event) => {
         if(!specialFunctionsOnImgClickEnabled)
         {
@@ -163,6 +163,9 @@ function imgItemCreator(imgNameWithExtension,foldername){
                 if(consoleLevel>=1){
                     console.log('folder Path List site of stars category:',reqFolderPath);
                 }
+
+                if(localHost_on)
+                    reqFolderPath = reqFolderPath.replace(nrmlURL,localHostURL);
                 window.open(reqFolderPath,'_blank');
             }
             else if(getWebsiteNameFromUrl() === 'Hentai List'){
@@ -262,10 +265,12 @@ function imgItemCreator(imgNameWithExtension,foldername){
     
     imgNameInputBox.addEventListener('focus',function(){
         fileNameChangeFocusMode = true;
+        console.log('imgNameInputBox focused, fileNameChangeFocusMode set to true');
     })
 
     imgNameInputBox.addEventListener('blur',function(){
         fileNameChangeFocusMode = false;
+        console.log('imgNameInputBox blurred, fileNameChangeFocusMode set to false');
     })
 
     imgNameInputBox.style.display = 'none';
@@ -792,4 +797,13 @@ function tooglePicklistContainerVisibility(){
     picklistContainer.style.visibility =  showPickListContainer ? 'hidden': 'visible';
 
     showPickListContainer = !showPickListContainer;
+}
+
+function getSelectImgNamesList(){
+    var selectImgNamesList = [];
+    for(var i=0; i<selectedImagesList.length; i++){
+        var imgUrl = selectedImagesList[i].replaceAll('%20',' ');
+        selectImgNamesList.push(imgUrl.slice(imgUrl.lastIndexOf('/')+1));
+    }
+    return selectImgNamesList;
 }

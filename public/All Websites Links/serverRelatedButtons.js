@@ -160,7 +160,7 @@ submitButtonForWebsiteSelection.onclick = function(){
     }
 
     else if(copyOrMoveMode === 'Move'){
-        moveServerCaller();
+        moveSelectedImagesCaller();
 
         setTimeout(() => {
             updateCurrentWebiste(); // to update the website
