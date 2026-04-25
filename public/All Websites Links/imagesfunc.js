@@ -30,6 +30,9 @@ document.querySelectorAll(".black-header a, .black-header1 a").forEach(function(
         multipleElementsSelectionMode = false;
         imgRankingchangeMode = false;
         selectedImagesList = [];
+        setSelectedImgsNumberInUI();
+        specialScrollCase = false;
+        scroll_To_Top_OR_Bottom_Of_Img = Initial_ScrollValue;
 
         setFolderName(); // from serverRelatedButtons.js
     });

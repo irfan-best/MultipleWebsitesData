@@ -24,7 +24,7 @@ function updateHeaderCounts(){
 var copyOrMoveMode = '';
 
 var moveButton = document.createElement('button');
-moveButton.innerHTML = 'Move Button';
+moveButton.innerHTML = 'Move Selected Imgs';
 moveButton.setAttribute('class','copy-button');
 moveButton.onclick = function(){
 
@@ -89,7 +89,7 @@ moveButton.onclick = function(){
 }
 
 var deleteButton = document.createElement('button');
-deleteButton.innerHTML = 'Delete Button';
+deleteButton.innerHTML = 'Del Selected Imgs';
 deleteButton.setAttribute('class','copy-button');
 deleteButton.onclick = function(){
     if(!multipleElementsSelectionMode && selectedImagesList.length===0){
@@ -109,7 +109,7 @@ deleteButton.onclick = function(){
 }
 
 var copyImgToFolderButton = document.createElement('button');
-copyImgToFolderButton.innerHTML = 'Copy Imgs To Folder';
+copyImgToFolderButton.innerHTML = 'Copy Selected Imgs';
 copyImgToFolderButton.setAttribute('class','copy-button');
 copyImgToFolderButton.onclick = function(){
     // console.log('copyImgToFolderButton Clicked');
@@ -133,9 +133,9 @@ copyImgToFolderButton.onclick = function(){
 }
 
 var copyContainer = document.querySelector('.copy-container');
-copyContainer.appendChild(moveButton);
-copyContainer.appendChild(deleteButton);
-copyContainer.appendChild(copyImgToFolderButton);
+// copyContainer.appendChild(moveButton);
+// copyContainer.appendChild(deleteButton);
+// copyContainer.appendChild(copyImgToFolderButton);
 
 var xButton = document.querySelector('.remove-button');
 xButton.onclick = function(){
@@ -156,7 +156,7 @@ submitButtonForWebsiteSelection.onclick = function(){
     }
     
     if(copyOrMoveMode === 'Copy'){
-        copyServerCaller();
+        copySelectedImagesCaller();
     }
 
     else if(copyOrMoveMode === 'Move'){
@@ -165,11 +165,18 @@ submitButtonForWebsiteSelection.onclick = function(){
         setTimeout(() => {
             updateCurrentWebiste(); // to update the website
             selectedImagesList = [];
+            setSelectedImgsNumberInUI();
         }, 2000);   
     }
 
     else if(copyOrMoveMode === 'Copy Folder'){
         copyFolderServerCaller();
+    }
+    else if(copyOrMoveMode === 'Del Folder'){
+        deleteFolderServerCaller();
+        setTimeout(() => {
+            updateCurrentWebiste(); // to update the website
+        }, 2000); 
     }
     else if(copyOrMoveMode === 'Move Folder'){
         moveFolderServerCaller();
@@ -209,7 +216,7 @@ moveFolder.onclick = function(){
 
     copyOrMoveMode = 'Move Folder';
 }
-copyContainer.appendChild(moveFolder);
+// copyContainer.appendChild(moveFolder);
 
 var copyFolder = document.createElement('button');
 copyFolder.innerHTML = 'Copy Folder';
@@ -230,12 +237,19 @@ copyFolder.onclick = function(){
 
     copyOrMoveMode = 'Copy Folder';
 }
-copyContainer.appendChild(copyFolder);
+// copyContainer.appendChild(copyFolder);
+
+var deleteFolder = document.createElement('button');
+deleteFolder.innerHTML = 'Del Folder';
+deleteFolder.setAttribute('class','copy-button');
+deleteFolder.onclick = deleteFolderServerCaller;
+// copyContainer.appendChild(deleteFolder);
 
 
 var currentFolderName = document.createElement('input');
 currentFolderName.setAttribute('type','text');
 currentFolderName.setAttribute('class','folder-name-enter');
+currentFolderName.setAttribute('name','folder-name-enter');
 
 currentFolderName.style.color = 'white';
 copyContainer.appendChild(currentFolderName);
@@ -243,8 +257,35 @@ setFolderName();
 
 var currentFolderNameSubmitButton = document.createElement('button');
 currentFolderNameSubmitButton.setAttribute('class','copy-button');
-currentFolderNameSubmitButton.innerHTML = 'Set Folder Name';
-copyContainer.appendChild(currentFolderNameSubmitButton);
+currentFolderNameSubmitButton.innerHTML = 'Set Fol Name';
+currentFolderNameSubmitButton.onclick = updateCurrentFolderNameCaller;
+// copyContainer.appendChild(currentFolderNameSubmitButton);
+
+// .folder-name-enter on focus, folderNameEditingMode = true, on blur folderNameEditingMode = false
+var folderNameInput = document.querySelector('.folder-name-enter');
+console.log('folderNameInput:', folderNameInput);
+folderNameInput.addEventListener('focus', () => {
+    folderNameEditingMode = true;
+    if(consoleLevel >= 1){
+        console.log('folderNameEditingMode set to true');
+    }
+});
+
+folderNameInput.addEventListener('blur', () => {
+    folderNameEditingMode = false;
+    if(consoleLevel >= 1){
+        console.log('folderNameEditingMode set to false');
+    }
+});
+
+folderNameInput.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        // Prevent default behavior (like submitting a form) if needed
+        event.preventDefault(); 
+        console.log('Enter key pressed, calling updateCurrentFolderNameCaller');
+        updateCurrentFolderNameCaller();
+    }
+});
 
 var updateRankingButton = document.createElement('button');
 updateRankingButton.setAttribute('class','copy-button');

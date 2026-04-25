@@ -1,4 +1,4 @@
-var consoleLevel = 1; // 0: no logs, 1: important logs, 2: all logs
+var consoleLevel = 2; // 0: no logs, 1: important logs, 2: all logs
 
 var nrmlURL = 'file:///E:/All in One/Websites/Get Files for All Folders/public/';
 var localHostURL = 'http://localhost:3001/';
@@ -17,6 +17,8 @@ var sortingOrder = 'asc'; // asc or desc or random, only used in homeListGenerat
 // when we enter 'r' this will become 'random',
 // when we enter 'R' this will become 'asc',
 // when we enter 't' this will become 'desc'
+
+var noOfSelectedImgs = document.getElementById("no-of-selected-images");
 
 // ----------------------------------------------------------------------------------------------------------
 // ------------------------------------------- List Values --------------------------------------------------
@@ -46,6 +48,8 @@ var leftRightKeys = ['ArrowLeft','ArrowRight'];
 var navigationKeys = ['w','W','z','/']; 
 
 var selectedImagesList = []; // when multipleElementsSelectionMode is enabled then img names are saved in this list
+// it has data like - ['http://localhost:3001/All%20Websites%20Links/1%20M…20november/By%20the%20Grace%20of%20the%20Gods.jpg', 
+// 'http://localhost:3001/All%20Websites%20Links/1%20M…my%20List/Images/4th%20november/Beast%20Tamer.jpg']
 
 // ----------------------------------------------------------------------------------------------------------
 // ------------------------------------------- all booleans -------------------------------------------------
@@ -54,9 +58,13 @@ var selectedImagesList = []; // when multipleElementsSelectionMode is enabled th
 var includeAnimeOrNot = false; // enter 's' to toogle, using in imgItemCreator, when we are doing search 
 var showImgExetension = false; // enter 'e' to toogle img-name extension
 
-var scroll_To_Top_OR_Bottom_Of_Img = true; // true means 'Top', false means 'Bottom'
+var Initial_ScrollValue = true;
+var scroll_To_Top_OR_Bottom_Of_Img = Initial_ScrollValue; // true means 'Top', false means 'Bottom'
 // when 'z' or '/' is clicked this value will get toggled
 // used in navigateToImgNumber(index);
+
+var specialScrollCase = false;
+// For 2 imgs + full screen more, when img height is more than 900px then we will first scroll to top of img and then on next scroll we will scroll to bottom of img, this variable is used to track that condition    
 
 var isFullScreen = false; 
 // f to toogle FullScreen (toogleFullScreen), 
@@ -103,6 +111,7 @@ var fileNameChangeFocusMode = false; // when we enter focus on an edit box, then
 
 var imgRankingchangeMode = false;
 var showPickListContainer = false;
+var folderNameEditingMode = false;
 
 // ----------------------------------------------------------------------------------------------------------
 // ------------------------------------------- new ones -----------------------------------------------------

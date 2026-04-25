@@ -1,2 +1,0 @@
-
-currentElement = 1;

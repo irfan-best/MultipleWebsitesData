@@ -71,6 +71,7 @@ function imgItemCreator(imgNameWithExtension,foldername){
                             var imgSrc = imgItems[i].querySelector('.img-tag').src;
                             if(!selectedImagesList.includes(imgSrc)){
                                 selectedImagesList.push(imgSrc);
+                                setSelectedImgsNumberInUI();
                             }
                         }
                     }
@@ -81,6 +82,7 @@ function imgItemCreator(imgNameWithExtension,foldername){
                             var imgSrc = imgItems[i].querySelector('.img-tag').src;
                             if(!selectedImagesList.includes(imgSrc)){
                                 selectedImagesList.push(imgSrc);
+                                setSelectedImgsNumberInUI();
                             }
                         }
                     }
@@ -106,6 +108,7 @@ function imgItemCreator(imgNameWithExtension,foldername){
                                 var imgSrc = imgItems[i].querySelector('.img-tag').src;
                                 if(!selectedImagesList.includes(imgSrc)){
                                     selectedImagesList.push(imgSrc);
+                                    setSelectedImgsNumberInUI();
                                 }
                             }
                         }
@@ -116,6 +119,7 @@ function imgItemCreator(imgNameWithExtension,foldername){
                                 var imgSrc = imgItems[i].querySelector('.img-tag').src;
                                 if(!selectedImagesList.includes(imgSrc)){
                                     selectedImagesList.push(imgSrc);
+                                    setSelectedImgsNumberInUI();
                                 }
                             }
                         }
@@ -133,9 +137,11 @@ function imgItemCreator(imgNameWithExtension,foldername){
                 element.classList.toggle('selected-img'); // selected-img always gets added here
                 if(!selectedImagesList.includes(element.querySelector('img').src)){
                     selectedImagesList.push(element.querySelector('img').src);
+                    setSelectedImgsNumberInUI();
                 }
                 else{
                     selectedImagesList.splice(selectedImagesList.indexOf(element.querySelector('img').src),1);
+                    setSelectedImgsNumberInUI();
                 }
 
                 console.log('selected Img List:',selectedImagesList);
@@ -713,7 +719,7 @@ function getButton_BasedOn_InnerHTML(innerHtmlValue){
 }
 
 function ifAnyOfWriteModeIsTrue(){
-    return searchMode || M_Mode || fileNameChangeFocusMode || showPickListContainer;
+    return searchMode || M_Mode || fileNameChangeFocusMode || showPickListContainer || folderNameEditingMode;
 }
 
 function isLetter(char){
@@ -806,4 +812,8 @@ function getSelectImgNamesList(){
         selectImgNamesList.push(imgUrl.slice(imgUrl.lastIndexOf('/')+1));
     }
     return selectImgNamesList;
+}
+
+function setSelectedImgsNumberInUI(){
+    noOfSelectedImgs.innerHTML = selectedImagesList.length + " selected imgs";
 }

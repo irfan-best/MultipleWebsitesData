@@ -211,6 +211,55 @@ function arrowTopOrBottomClicked(keyEntered, isShiftKey){
 
     if (keyEntered === 'ArrowDown'){
 
+        if(isFullScreen && no_Of_Imgs_Per_Row === 2){
+            var maxHeightOfRow = -1;
+            var imgTags = document.getElementsByClassName('img-tag');
+
+            var currRowFirstElement = (focusElement - focusElement % no_Of_Imgs_Per_Row)
+            maxHeightOfRow = imgTags[currRowFirstElement].clientHeight > maxHeightOfRow ? imgTags[currRowFirstElement].clientHeight : maxHeightOfRow;
+
+            if(currRowFirstElement < imgTags.length - 1){
+                maxHeightOfRow = imgTags[currRowFirstElement + 1].clientHeight > maxHeightOfRow ? imgTags[currRowFirstElement + 1].clientHeight : maxHeightOfRow;
+            }
+
+            console.log('special case',maxHeightOfRow);
+            if(maxHeightOfRow > 900){
+                console.log('more than 900 case');
+                if(!specialScrollCase){
+                    scroll_To_Top_OR_Bottom_Of_Img = !scroll_To_Top_OR_Bottom_Of_Img; // scroll to top of img
+                    balanceRowLevel();
+                    specialScrollCase = true;
+                    return;
+                }
+                else{
+                    specialScrollCase = false;
+                    scroll_To_Top_OR_Bottom_Of_Img = !scroll_To_Top_OR_Bottom_Of_Img; // scroll to bottom of img
+                }
+            }
+        }
+        else if(isFullScreen && no_Of_Imgs_Per_Row === 1){
+            // in full screen mode with 1 img per row, down arrow key should work like page down key
+            var imgTags = document.getElementsByClassName('img-tag');
+
+            var currRowFirstElement = (focusElement - focusElement % no_Of_Imgs_Per_Row);
+            var maxHeightOfRow = imgTags[focusElement].clientHeight;
+            console.log('special case 2',imgTags[focusElement].clientHeight);
+
+            if(maxHeightOfRow > 900){
+                console.log('more than 900 case');
+                if(!specialScrollCase){
+                    scroll_To_Top_OR_Bottom_Of_Img = !scroll_To_Top_OR_Bottom_Of_Img; // scroll to top of img
+                    balanceRowLevel();
+                    specialScrollCase = true;
+                    return;
+                }
+                else{
+                    specialScrollCase = false;
+                    scroll_To_Top_OR_Bottom_Of_Img = !scroll_To_Top_OR_Bottom_Of_Img; // scroll to bottom of img
+                }
+            }
+        }
+
         focusElement = (focusElement - focusElement % no_Of_Imgs_Per_Row) + no_Of_Imgs_Per_Row;
         
         if(focusElement >= imgItems.length){
@@ -235,5 +284,9 @@ function arrowTopOrBottomClicked(keyEntered, isShiftKey){
         }
 
         balanceRowLevel();
+        if(specialScrollCase){
+            specialScrollCase = false;
+            scroll_To_Top_OR_Bottom_Of_Img = Initial_ScrollValue;
+        }
     }
 }

@@ -42,6 +42,8 @@ Mode specific keys:
         ctrl + clicking an img          when imgRankingchangeMode = true we can select multiple imgs,
                                         it has 3 cases check method in general method to understand more.
 
+        A                               when imgRankingchangeMode or multipleElementsSelectionMode, then all imgs are clicked
+
 Used Keys:
         
         ctrl + Enter                    -> To switch from 'Byoru Tier 1' to 'Byoru Tier 1 - Avg' or vise versa
@@ -97,9 +99,11 @@ move-selected-images:
 
 when img click features:
         when we click on img - img name will be copied to clipboard without file extension
-        when we specialFunctionsOnImgClickEnabled and click on img - then img folder path will be copied to clipboard
-        when we specialFunctionsOnImgClickEnabled and click on img - when we are in List website of an stars category, then it's folder website will,
+        when specialFunctionsOnImgClickEnabled and click on img - then img folder path will be copied to clipboard
+        when specialFunctionsOnImgClickEnabled and click on img - when we are in List website of an stars category, then it's folder website will,
                 be opened in new tab
+        when specialFunctionsOnImgClickEnabled and click on img - when we are in hentai list,
+                then it will copy path where hentai vids are present
 
 when click on an header's anchor element:
         focusElement = 0;
@@ -108,6 +112,26 @@ when click on an header's anchor element:
         clearSearchValue();
         if(fullScreen) balanceRowLevel(); called // so that everytime we are first img, instead of header
         // recheck
+
+
+when we in folder change box and click on enter, "Set Fol Name" will get called
+        and url's hash will be updated with new folder name
+
+when multipleElementsSelectionMode - true:
+        d - calls delete    selected images
+        D - calls delete    folder
+        c - calls copy      selected images
+        C - calls copy      folder
+        m - calls move      selected images
+        M - calls move      folder
+
+        for copy and move if img is present img name will end with time stamp
+                if folder name will end with time stamp
+
+        i.e if we are moving "1 hype" folder to "ani list", since "ani list" already has "ani list" folder,
+                now the folder that got moved will have name as "ani list _2026-04-25T07-50-41.450Z"
+
+        even for rename current folder this logic applies
 
 when searchMode, when we enter text, matching img's would be display='block', not matching would be
 display = 'none'; and first img name would be copied to clipboard (based on includeAnimeOrNot)

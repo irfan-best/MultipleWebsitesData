@@ -129,7 +129,7 @@ function renameFile(folderPath,currentImgName,newImageName){
         body: JSON.stringify(
             {
                 folderPath: folderPath,
-                currentImgName: currentImgName,
+                currentImgName: currentImgName.replaceAll('%20', ' '),
                 newImageName: newImageName 
             }
         ), // Send the form data as JSON
@@ -194,131 +194,102 @@ function moveSelectedImagesCaller(){
     });
 }
 
-// above this rechecked
-
-function deleteServerCaller(){
-    console.log('deleteServerCaller called');
-    console.log('selectedImagesList',selectedImagesList);
-
-    fetch('http://localhost:3001/deleteSelectedImages', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(
-            {selectedImagesList: selectedImagesList }), // Send the form data as JSON
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('successful fetch');
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-
-}
-
-function copyServerCaller(){
-    console.log('copyServerCaller called');
-    console.log('selectedImagesList',selectedImagesList);
-
+function copySelectedImagesCaller(){
+    
     const categorySelect = document.getElementById('categorySelect');
     const websiteSelect = document.getElementById('websiteSelect');
     const folderSelect = document.getElementById('folderSelect');
-
-    console.log('categorySelect.value',categorySelect.value);
-    console.log('websiteSelect.value',websiteSelect.value);
-    console.log('folderSelect.value',folderSelect.value);
 
     var folderName = folderSelect.value;
 
-    // var newFolder = false;
     if(folderSelect.value === '-- Create Folder --'){
-        // newFolder = true;
-        var newFolder = document.querySelector('.new-folder');
-        console.log('newFolder.value',newFolder.value);
-        folderName = newFolder.value;
+        folderName = document.querySelector('.new-folder').value;
+    }
+    
+    var oldFolderPath = getCurrentFolderFullPath();
+    var newFolderPath = removeStartFileText(nrmlURL) + folderInsidePublic + categorySelect.value + "/" + websiteSelect.value + "/Images/" + folderName + "/";
+
+    var selectImgNamesList = getSelectImgNamesList();
+
+    if(consoleLevel >= 1){
+        console.log('oldFolderPath:', oldFolderPath);
+        console.log('newFolderPath:', newFolderPath);
+        console.log('selectImgNamesList:', selectImgNamesList);
     }
 
-    fetch('http://localhost:3001/copySelectedImages', {
+    fetch('http://localhost:3001/copy-selected-images', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(
-            {selectedImagesList: selectedImagesList, categorySelected: categorySelect.value, websiteSelected: websiteSelect.value, folderSelected: folderName,
-            }), // Send the form data as JSON
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('successful fetch');
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+            {
+                oldFolderPath: oldFolderPath, 
+                newFolderPath: newFolderPath, 
+                selectImgNamesList: selectImgNamesList,
 
-}
-
-function copyFolderServerCaller(){
-    const categorySelect = document.getElementById('categorySelect');
-    const websiteSelect = document.getElementById('websiteSelect');
-    const folderSelect = document.getElementById('folderSelect');
-
-    console.log('categorySelect.value',categorySelect.value);
-    console.log('websiteSelect.value',websiteSelect.value);
-    // console.log('folderSelect.value',folderSelect.value);
-
-    // var folderName = folderSelect.value;
-
-    // // var newFolder = false;
-    // if(folderSelect.value === '-- Create Folder --'){
-    //     // newFolder = true;
-    //     var newFolder = document.querySelector('.new-folder');
-    //     console.log('newFolder.value',newFolder.value);
-    //     folderName = newFolder.value;
-    // }
-
-    var selectedImagesList = [];
-    var imgBoxes = document.querySelectorAll('.img-box');
-    imgBoxes.forEach((imgBox) => {
-        var img = imgBox.querySelector('img');
-        if (img) {
-            var imgSrc = img.src;
-            console.log('imgSrc:', imgSrc);
-            selectedImagesList.push(imgSrc);
+                websiteSelected: websiteSelect.value,
+                fromFolderName: getFolderNameFromUrl(), 
+                toFolderName: folderName,
+                starName: categorySelect.value,
+            }) 
         }
+    )
+    .then(response => response.json())
+    .then(data => {
+        console.log('copy-selected-images success:',data);
+    })
+    .catch(error => {
+        console.error('copy-selected-images Error:', error);
     });
+}
 
-    console.log('selectedImagesList in copy folder server:', selectedImagesList);
-    console.log('categorySelect.value in copy folder server:', categorySelect.value);
-    console.log('websiteSelect.value in copy folder server:', websiteSelect.value);
-    var folderNameEnter = document.querySelector('.folder-name-enter');
-    var folderName = '';
-    if(folderNameEnter){
-        folderName = folderNameEnter.value;
+function updateCurrentFolderNameCaller(){
+    const currentFolderNameInput = document.querySelector('.folder-name-enter');
+    var newFolderName = currentFolderNameInput.value;
+    var folderPath = getCurrentFolderFullPath().replaceAll('/','\\');
+    // last part to get parent folder path
+
+    var parentFolderPath = folderPath.substring(0, folderPath.length - 1); // remove last backslash
+    parentFolderPath = parentFolderPath.substring(0, parentFolderPath.lastIndexOf('\\') + 1); // get parent folder path
+
+    var newFolderPath = parentFolderPath + newFolderName + '\\';
+
+    // update hash part of website with newFolderName
+    window.location.hash = newFolderName.replaceAll(' ', '%20');
+
+
+    if(consoleLevel >= 1){
+        console.log('updateCurrentFolderNameCaller newFolderName:', newFolderName);
+        console.log('updateCurrentFolderNameCaller folderPath:', folderPath);
+        console.log('updateCurrentFolderNameCaller newFolderPath:', newFolderPath);
     }
-    console.log('folder name:',folderName);
 
-    fetch('http://localhost:3001/copySelectedImages', {
+    var oldFolderPath = folderPath;
+
+    fetch('http://localhost:3001/move-folder', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(
-            {selectedImagesList: selectedImagesList, categorySelected: categorySelect.value, websiteSelected: websiteSelect.value, folderSelected: folderName,
-            }), // Send the form data as JSON
-    })
+            {
+                oldFolderPath: oldFolderPath, newFolderPath: newFolderPath
+            })
+        }
+    )
     .then(response => response.json())
     .then(data => {
-        console.log('successful fetch');
+        console.log('moveFolderServerCaller success:',data);
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('moveFolderServerCaller Error:', error);
     });
 
+    setTimeout(() => {
+        updateCurrentWebiste(); // to update the current website
+    }, 2000); // Delay to allow the deleteFile function to complete
 }
-
-// below this rechecked
 
 function moveFolderServerCaller(){
     const categorySelect = document.getElementById('categorySelect');
@@ -349,6 +320,63 @@ function moveFolderServerCaller(){
     })
     .catch(error => {
         console.error('moveFolderServerCaller Error:', error);
+    });
+}
+
+function copyFolderServerCaller(){
+    const categorySelect = document.getElementById('categorySelect');
+    const websiteSelect = document.getElementById('websiteSelect');
+    
+    var oldFolderPath = getCurrentFolderFullPath().replaceAll('/','\\');
+    var newFolderPath = removeStartFileText(nrmlURL) + folderInsidePublic + categorySelect.value 
+        + "/" + websiteSelect.value + '/Images/' + getFolderNameFromUrl() + '/';
+    newFolderPath = newFolderPath.replaceAll('/','\\');
+
+    console.log('copyFolderServerCaller oldFolderPath',oldFolderPath);
+    console.log('copyFolderServerCaller newFolderPath',newFolderPath);
+
+    fetch('http://localhost:3001/copy-folder', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+            {
+                oldFolderPath: oldFolderPath, newFolderPath: newFolderPath
+            })
+        }
+    )
+    .then(response => response.json())
+    .then(data => {
+        console.log('copyFolderServerCaller success:',data);
+    })
+    .catch(error => {
+        console.error('copyFolderServerCaller Error:', error);
+    });
+}
+
+function deleteFolderServerCaller(){    
+    var folderPath = getCurrentFolderFullPath().replaceAll('/','\\');
+
+    console.log('deleteFolderServerCaller folderPath',folderPath);
+
+    fetch('http://localhost:3001/delete-folder', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+            {
+                folderPath: folderPath
+            })
+        }
+    )
+    .then(response => response.json())
+    .then(data => {
+        console.log('deleteFolderServerCaller success:',data);
+    })
+    .catch(error => {
+        console.error('deleteFolderServerCaller Error:', error);
     });
 }
 
@@ -417,4 +445,52 @@ function updateRankingFunc(){
     .catch(error => {
         console.error('Error:', error);
     });
+}
+
+function updateIndexFileWithCurrentFolderNameCaller(){
+    var folderName = getFolderNameFromUrl();
+    var websitePath = getCategoryNameFromUrl() + "/" + getWebsiteNameFromUrl() + "/";
+    if(consoleLevel >= 1){
+        console.log('updateIndexFileWithCurrentFolderNameCaller folderName:', folderName);
+        console.log('updateIndexFileWithCurrentFolderNameCaller websitePath:', websitePath);
+    }
+
+    fetch('http://localhost:3001/update-index-file', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+            {folderName: folderName, websitePath: websitePath  }), // Send the form data as JSON
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('successful fetch');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+//////////
+// above this rechecked
+function deleteServerCaller(){
+    console.log('deleteServerCaller called');
+    console.log('selectedImagesList',selectedImagesList);
+
+    fetch('http://localhost:3001/deleteSelectedImages', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+            {selectedImagesList: selectedImagesList }), // Send the form data as JSON
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('successful fetch');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+
 }

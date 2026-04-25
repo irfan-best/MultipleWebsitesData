@@ -20,7 +20,7 @@ var imgContainer = document.querySelector('.imgs-container');
 imgContainer.style.alignItems = scroll_To_Top_OR_Bottom_Of_Img ? 'flex-start': 'flex-end';
 
 document.addEventListener("keydown", function(event) {
-    if(consoleLevel === 2){
+    if(consoleLevel >= 2){
         console.log('entered Key:',event.key);
     }
 
@@ -56,8 +56,28 @@ document.addEventListener("keydown", function(event) {
         console.log('preventign default')
     }
 
+    if(multipleElementsSelectionMode || imgRankingchangeMode){
+        console.log('multipleElementsSelectionMode or rankingChangeMode is true, not running custom functionality for key:',event.key);
+        if(event.key === 'A'){
+            event.preventDefault();
+            // select all images
+            var imgItems = document.getElementsByClassName('img-item');
+            for(var i=0;i<imgItems.length;i++){
+                if(!imgItems[i].classList.contains('selected-img')){
+                    imgItems[i].click();
+                }
+            }
+        }
+        return;
+    }
+
     if(multipleElementsSelectionMode){
-        if(showPickListContainer){
+        if(event.key === 'Shift' && showPickListContainer){
+            console.log('multipleElementsSelectionMode - Space key entered');
+            getButton_BasedOn_InnerHTML('Submit').click();
+            return;
+        }
+        else if(showPickListContainer){
             return;
         }
         else if(event.key === 'l'){
@@ -68,12 +88,27 @@ document.addEventListener("keydown", function(event) {
             if(consoleLevel >= 1){
                 console.log('multipleElementsSelectionMode - m key entered');
             }
-            getButton_BasedOn_InnerHTML('Move Button')?.click();
+            getButton_BasedOn_InnerHTML('Move Selected Imgs')?.click();
             return;
         }
-        else if(event.key === 'Shift'){
-            console.log('multipleElementsSelectionMode - Space key entered');
-            getButton_BasedOn_InnerHTML('Submit').click();
+        else if(event.key === 'M'){
+            getButton_BasedOn_InnerHTML('Move Folder')?.click();
+            return;
+        }
+        else if(event.key === 'c'){
+            getButton_BasedOn_InnerHTML('Copy Selected Imgs')?.click();
+            return;
+        }
+        else if(event.key === 'C'){
+            getButton_BasedOn_InnerHTML('Copy Folder')?.click();
+            return;
+        }
+        else if(event.key === 'd'){
+            getButton_BasedOn_InnerHTML('Del Selected Imgs')?.click();
+            return;
+        }
+        else if(event.key === 'D'){
+            getButton_BasedOn_InnerHTML('Del Folder')?.click();
             return;
         }
         else if( NumKeysList.includes(event.key) ) {
@@ -187,6 +222,7 @@ document.addEventListener("keydown", function(event) {
 
     if(event.key === 'a' && imgRankingchangeMode){
         selectedImagesList = [];
+        setSelectedImgsNumberInUI();
         var imgItems = document.getElementsByClassName('img-item');
         for(var i=0;i<imgItems.length;i++){
             imgItems[i].classList.remove('selected-img');
@@ -339,7 +375,8 @@ document.addEventListener("keydown", function(event) {
     }
 
     if(event.key === 'u'){
-        navigator.clipboard.writeText(getUrlPathData());
+        updateIndexFileWithCurrentFolderNameCaller();
+        // navigator.clipboard.writeText(getUrlPathData());
         return;
     }
 
@@ -433,6 +470,7 @@ document.addEventListener("keydown", function(event) {
                 imgItems[i].classList.remove('selected-img');
             }
             selectedImagesList = [];
+            setSelectedImgsNumberInUI();
         }
         return;
     }

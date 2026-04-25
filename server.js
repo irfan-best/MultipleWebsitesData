@@ -96,10 +96,6 @@ app.post('/submit', async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
-});
-
 app.post('/deleteSelectedImages',async (req,res) => {
     console.log('deleteSelectedImages',req.body);
 
@@ -129,46 +125,6 @@ app.post('/deleteSelectedImages',async (req,res) => {
 
 
 })
-
-app.post('/copySelectedImages',async (req,res) => {
-    console.log('copySelectedImages',req.body);
-    var firstImageUrl = req.body.selectedImagesList[0];
-    var splitData = firstImageUrl.split('/');
-    const from = 'public/All Websites Links/'+ splitData[4].replaceAll('%20',' ') + "/" + splitData[5].replaceAll('%20',' ') +"/Images/" + splitData[7].replaceAll('%20',' ');
-    const to = 'public/All Websites Links/'+ req.body.categorySelected + "/" + req.body.websiteSelected +"/Images/"+ req.body.folderSelected;
-
-    for(var i=0;i<req.body.selectedImagesList.length;i++){
-        var filename = req.body.selectedImagesList[i].substring(req.body.selectedImagesList[i].lastIndexOf('/')+1);     
-        filename = filename.replaceAll('%20',' ');
-        await copyImageFile(filename, from, to);
-    }
-
-})
-
-async function copyImageFile(filename, sourceFolder, destinationFolder) {
-
-  console.log('move Image File Called');
-  const sourcePath = path.join(__dirname, sourceFolder, filename);
-  const destinationPath = path.join(__dirname, destinationFolder, filename);
-
-  console.log('sourcePath:',sourcePath);
-  console.log('destinationPath:',destinationPath);
-
-  try {
-    // Ensure the destination folder exists
-    await fs.mkdir(path.join(__dirname, destinationFolder), { recursive: true });
-
-    // Copy the file
-    await fs.copyFile(sourcePath, destinationPath);
-
-    // Delete the original file
-    // await fs.unlink(sourcePath);
-
-    console.log(`✅ Successfully moved '${filename}' from '${sourceFolder}' to '${destinationFolder}'`);
-  } catch (error) {
-    console.error(`❌ Failed to move '${filename}':`, error.message);
-  }
-}
 
 var pathValueTemp = '';
 // Example usage:
@@ -483,7 +439,27 @@ app.post('/move-folder',async (req,res) => {
 
     console.log('oldFolderPath:', oldFolderPath);
     console.log('newFolderPath:', newFolderPath);
-    
+    // newFolderPath = E:\\All in One\\Websites\\Get Files for All Folders\\public\\All Websites Links\\1 Main\\Not Completed List\\Images\\6 dropped\\
+
+    var parentOfNewFolderPath = newFolderPath.slice(0,newFolderPath.lastIndexOf('\\')); // removes last slash
+    parentOfNewFolderPath = parentOfNewFolderPath.slice(0,parentOfNewFolderPath.lastIndexOf('\\')+1); // removes folder name
+    console.log('parentOfNewFolderPath:', parentOfNewFolderPath);
+
+    var folderNamesInParentOfNewFolderPath = await getFolderNames(parentOfNewFolderPath);
+    console.log('folderNamesInParentOfNewFolderPath:', folderNamesInParentOfNewFolderPath);
+
+    var newFolerName = newFolderPath.slice(0,newFolderPath.length-1); // remove last slash
+    newFolerName = newFolerName.slice(newFolerName.lastIndexOf('\\')+1); // removes everything except folder name
+    console.log('newFolerName:', newFolerName);
+
+    // check if new path already has folder with same name, if yes then add current date time to new folder name
+    if(folderNamesInParentOfNewFolderPath.includes(newFolerName)){
+        var newFolderPathWithDateTime = parentOfNewFolderPath + newFolerName + ' _' + new Date().toISOString().replaceAll(':','-') + '\\';
+        newFolderPath = newFolderPathWithDateTime;
+    }
+
+    console.log('final newFolderPath:', newFolderPath);
+
     try{
         await fs.rename(oldFolderPath, newFolderPath);
         res.json({ success: true, message: 'moved folder successfully' });
@@ -491,6 +467,63 @@ app.post('/move-folder',async (req,res) => {
     catch(error){
         console.log('error moving folder:',error);
         res.status(500).json({ success: false, message: 'moving folder failed' });
+    }
+})
+
+app.post('/copy-folder',async (req,res) => {
+
+    console.log('copy-folder route:', req.body);
+    var {oldFolderPath,newFolderPath} = req.body;
+
+    console.log('oldFolderPath:', oldFolderPath);
+    console.log('newFolderPath:', newFolderPath);
+    // newFolderPath = E:\\All in One\\Websites\\Get Files for All Folders\\public\\All Websites Links\\1 Main\\Not Completed List\\Images\\6 dropped\\
+
+    var parentOfNewFolderPath = newFolderPath.slice(0,newFolderPath.lastIndexOf('\\')); // removes last slash
+    parentOfNewFolderPath = parentOfNewFolderPath.slice(0,parentOfNewFolderPath.lastIndexOf('\\')+1); // removes folder name
+    console.log('parentOfNewFolderPath:', parentOfNewFolderPath);
+
+    var folderNamesInParentOfNewFolderPath = await getFolderNames(parentOfNewFolderPath);
+    console.log('folderNamesInParentOfNewFolderPath:', folderNamesInParentOfNewFolderPath);
+
+    var newFolerName = newFolderPath.slice(0,newFolderPath.length-1); // remove last slash
+    newFolerName = newFolerName.slice(newFolerName.lastIndexOf('\\')+1); // removes everything except folder name
+    console.log('newFolerName:', newFolerName);
+
+    // check if new path already has folder with same name, if yes then add current date time to new folder name
+    if(folderNamesInParentOfNewFolderPath.includes(newFolerName)){
+        var newFolderPathWithDateTime = parentOfNewFolderPath + newFolerName + ' _' + new Date().toISOString().replaceAll(':','-') + '\\';
+        newFolderPath = newFolderPathWithDateTime;
+    }
+    
+    console.log('final newFolderPath:', newFolderPath);
+
+    try{
+        await fs.cp(oldFolderPath, newFolderPath, { recursive: true });
+        res.json({ success: true, message: 'copy folder successfully' });
+    }
+    catch(error){
+        console.log('error moving folder:',error);
+        res.status(500).json({ success: false, message: 'copy folder failed' });
+    }
+})
+
+app.post('/delete-folder',async (req,res) => {
+
+    console.log('delete-folder route:', req.body);
+    var {folderPath,newFolderPath} = req.body;
+
+    console.log('folderPath:', folderPath);
+    
+    try {
+        // recursive: true - deletes folder and all contents
+        // force: true - ignores errors if the folder doesn't exist
+        await fs.rm(folderPath, { recursive: true, force: true });
+        res.json({ success: true, message: 'Folder deleted successfully' });
+    } 
+    catch (error) {
+        console.error('Del Folder error:', error);
+        res.status(500).json({ success: false, message: 'Failed to Del Folder' });
     }
 })
 
@@ -513,6 +546,7 @@ async function createNewFolder(basePath, folderName) {
     }
 }
 
+// need to update data part getting added to file name
 app.post('/move-selected-images',async (req,res) => {
     console.log('move-selected-images route',req.body);
     
@@ -526,16 +560,33 @@ app.post('/move-selected-images',async (req,res) => {
         var pathToCreateNewFolder = newFolderPath.slice(0,newFolderPath.lastIndexOf('/')+1); 
         await createNewFolder(pathToCreateNewFolder, newFolderName );
 
+        // get file names in new folder path
+        // new folder path = pathToCreateNewFolder + newFolderName
+        var fileNames = await getFileFullNames(path.join(pathToCreateNewFolder, newFolderName));
+        console.log('fileNames in new folder path:', fileNames);
+
+        var updatedImgNamesList = selectImgNamesList.map(imgName => {   
+            const lastDotIndex = imgName.lastIndexOf('.');
+            const nameWithoutExt = imgName.slice(0, lastDotIndex);
+            const extension = imgName.slice(lastDotIndex);
+
+            if(fileNames.includes(imgName))
+                return (nameWithoutExt + ' _' + new Date().toISOString() + extension).replaceAll(':','-');
+            else return imgName;
+        });
+        console.log('updatedImgNamesList:', updatedImgNamesList);
+
         for(var i=0;i<selectImgNamesList.length;i++){
             await fs.rename(
                 path.join(oldFolderPath, selectImgNamesList[i]),
-                path.join(newFolderPath, selectImgNamesList[i])
+                path.join(newFolderPath, updatedImgNamesList[i])
             );
         }
         
         res.json({ success: true, message: 'moved selected images successfully' });
     }
     catch(error){
+        console.log('error moving selected images:',error);
         res.status(500).json({ success: false, message: 'moving selected images failed' });
     }
     
@@ -599,7 +650,53 @@ app.post('/move-selected-images',async (req,res) => {
     }
 })
 
+// need to update data part getting added to file name
+app.post('/copy-selected-images',async (req,res) => {
+    console.log('copy-selected-images route',req.body);
+    
+    var {oldFolderPath,newFolderPath,selectImgNamesList} = req.body;
+    console.log('oldFolderPath:', oldFolderPath);
+    console.log('newFolderPath:', newFolderPath);
+    console.log('selectImgNamesList:', selectImgNamesList);
+
+    try{
+        var newFolderName = newFolderPath.slice(newFolderPath.lastIndexOf('/')+1);
+        var pathToCreateNewFolder = newFolderPath.slice(0,newFolderPath.lastIndexOf('/')+1); 
+        await createNewFolder(pathToCreateNewFolder, newFolderName );
+
+        // get file names in new folder path
+        // new folder path = pathToCreateNewFolder + newFolderName
+        var fileNames = await getFileFullNames(path.join(pathToCreateNewFolder, newFolderName));
+        console.log('fileNames in new folder path:', fileNames);
+
+        var updatedImgNamesList = selectImgNamesList.map(imgName => {   
+            const lastDotIndex = imgName.lastIndexOf('.');
+            const nameWithoutExt = imgName.slice(0, lastDotIndex);
+            const extension = imgName.slice(lastDotIndex);
+
+            if(fileNames.includes(imgName))
+                return (nameWithoutExt + ' _' + new Date().toISOString() + extension).replaceAll(':','-');
+            else return imgName;
+        });
+        console.log('updatedImgNamesList:', updatedImgNamesList);
+
+        for(var i=0;i<selectImgNamesList.length;i++){
+            await fs.copyFile(
+                path.join(oldFolderPath, selectImgNamesList[i]),
+                path.join(newFolderPath, updatedImgNamesList[i])
+            );
+        }
+        
+        res.json({ success: true, message: 'moved selected images successfully' });
+    }
+    catch(error){
+        console.log('error moving selected images:',error);
+        res.status(500).json({ success: false, message: 'moving selected images failed' });
+    }
+})
+
 // url -> 1 Main/Ani List/
+// update url website (updates only 1 website)
 app.post('/allFolders', async (req, res) => {
     console.log('allFolders route:' + req.body.url);
 
@@ -669,6 +766,23 @@ async function getFolderNames(directoryPath) {
     }
 }
 
+// returns list of file names (including extensions) in the given directory path
+async function getFileFullNames(directoryPath) {
+    console.log('getFileFullNames called directoryPath:', directoryPath);
+    try {
+        const items = await fs.readdir(directoryPath, { withFileTypes: true });
+
+        const files = items
+            .filter((item) => item.isFile())
+            .map((file) => file.name);
+
+        return files;
+    } catch (err) {
+        console.error('Error reading directory:', err);
+        return [];
+    }
+}
+
 function getIndexFileContent(folderNames) {
     var linksText = ""; var scriptsText = ""; var linksText1 = "";
     for(var i=0;i<folderNames.length;i++){
@@ -705,7 +819,8 @@ function getIndexFileContent(folderNames) {
 `       </ul>
             
         <div class="copy-container">
-            <button id="no-of-folders" class='copy-button'>No.of Folders</button>
+        <button id="no-of-selected-images" class='copy-button'>0 selected imgs</button>
+        <button id="no-of-folders" class='copy-button'>No.of Folders</button>
             <button id="show-website-name" class='copy-button'>Website Name</button>
             <img src="../../M Swith On.png"  class='m-switch-button' id="m-switch-on" style='display:none'/>
             <img src="../../M Swith Off.png" class='m-switch-button' id="m-switch-off"  />
@@ -772,3 +887,65 @@ async function createFiles(fileExplorerPath, fileContent, files0Content) {
     await fs.writeFile(fileExplorerPath + 'index.html', fileContent);
     await fs.writeFile(fileExplorerPath + 'List Data/0 Files.js', files0Content);
 }
+
+app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+});
+
+// this method is used to update hash in anchor tag of index.html file of website, when we change folder name of a folder which is present in that website, since hash is same as folder name, so we need to update hash as well, otherwise when we click on that anchor tag, it will not take us to that folder since hash is not updated
+async function updateAnchorHash(filePath, targetFolder, newHash) {
+    try {
+        // 1. Read the HTML file
+        let content = await fs.readFile(filePath, 'utf8');
+
+        // 2. Encode the new hash (turns spaces into %20)
+        const encodedHash = encodeURIComponent(newHash);
+
+        /**
+         * 3. Regex Breakdown:
+         * href="All Websites Links/ -> Look for this start
+         * (${targetFolder}/index.html) -> Match your specific target folder path
+         * #[^"]* -> Match the existing hash (everything after # until the closing quote)
+         */
+        const regex = new RegExp(`(href="All Websites Links\/${targetFolder}\/index\.html)#([^"]*)"`, 'g');
+
+        // 4. Replace with the same base path but the new hash
+        const updatedContent = content.replace(regex, `$1#${encodedHash}"`);
+
+        // 5. Save the file back
+        await fs.writeFile(filePath, updatedContent, 'utf8');
+
+        console.log('File updated successfully!');
+    } catch (err) {
+        console.error('Error updating file:', err);
+    }
+}
+
+// need to update data part getting added to file name
+app.post('/update-index-file',async (req,res) => {
+    console.log('update-index-file',req.body);
+    
+    var {folderName,websitePath} = req.body;
+    console.log('folderName:', folderName);
+    console.log('websitePath:', websitePath);
+    // remove last slash from websitePath
+    if(websitePath.endsWith('/'))
+        websitePath = websitePath.slice(0, -1);
+
+    try{
+        // Usage:
+        const htmlFilePath = path.join(__dirname, 'public','index.html');
+        console.log('htmlFilePath:', htmlFilePath);
+        // const folderToFind = "1 Main/Not Completed List";
+        // const newHashName = "Good Romcoms Plan To Watch";
+
+        updateAnchorHash(htmlFilePath, websitePath, folderName);
+        
+        res.json({ success: true, message: 'index file updated successfully' });
+    }
+    catch(error){
+        console.log('error moving selected images:',error);
+        res.status(500).json({ success: false, message: 'error index file updation' });
+    }
+})
+
