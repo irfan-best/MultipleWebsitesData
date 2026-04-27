@@ -133,9 +133,13 @@ copyImgToFolderButton.onclick = function(){
 }
 
 var copyContainer = document.querySelector('.copy-container');
-// copyContainer.appendChild(moveButton);
-// copyContainer.appendChild(deleteButton);
-// copyContainer.appendChild(copyImgToFolderButton);
+copyContainer.appendChild(moveButton);
+copyContainer.appendChild(deleteButton);
+copyContainer.appendChild(copyImgToFolderButton);
+
+moveButton.classList.add('hidden-button');
+deleteButton.classList.add('hidden-button');
+copyImgToFolderButton.classList.add('hidden-button');
 
 var xButton = document.querySelector('.remove-button');
 xButton.onclick = function(){
@@ -199,6 +203,7 @@ submitButtonForWebsiteSelection.onclick = function(){
 var moveFolder = document.createElement('button');
 moveFolder.innerHTML = 'Move Folder';
 moveFolder.setAttribute('class','copy-button');
+moveFolder.classList.add('hidden-button');
 moveFolder.onclick = function(){
 
     tooglePicklistContainerVisibility();
@@ -216,7 +221,7 @@ moveFolder.onclick = function(){
 
     copyOrMoveMode = 'Move Folder';
 }
-// copyContainer.appendChild(moveFolder);
+copyContainer.appendChild(moveFolder);
 
 var copyFolder = document.createElement('button');
 copyFolder.innerHTML = 'Copy Folder';
@@ -237,13 +242,15 @@ copyFolder.onclick = function(){
 
     copyOrMoveMode = 'Copy Folder';
 }
-// copyContainer.appendChild(copyFolder);
+copyFolder.classList.add('hidden-button');
+copyContainer.appendChild(copyFolder);
 
 var deleteFolder = document.createElement('button');
 deleteFolder.innerHTML = 'Del Folder';
 deleteFolder.setAttribute('class','copy-button');
 deleteFolder.onclick = deleteFolderServerCaller;
-// copyContainer.appendChild(deleteFolder);
+deleteFolder.classList.add('hidden-button');
+copyContainer.appendChild(deleteFolder);
 
 
 var currentFolderName = document.createElement('input');
@@ -259,7 +266,8 @@ var currentFolderNameSubmitButton = document.createElement('button');
 currentFolderNameSubmitButton.setAttribute('class','copy-button');
 currentFolderNameSubmitButton.innerHTML = 'Set Fol Name';
 currentFolderNameSubmitButton.onclick = updateCurrentFolderNameCaller;
-// copyContainer.appendChild(currentFolderNameSubmitButton);
+currentFolderNameSubmitButton.classList.add('hidden-button');
+copyContainer.appendChild(currentFolderNameSubmitButton);
 
 // .folder-name-enter on focus, folderNameEditingMode = true, on blur folderNameEditingMode = false
 var folderNameInput = document.querySelector('.folder-name-enter');

@@ -255,6 +255,7 @@ function updateCurrentFolderNameCaller(){
 
     var newFolderPath = parentFolderPath + newFolderName + '\\';
 
+    var oldFolderName = getFolderNameFromUrl();
     // update hash part of website with newFolderName
     window.location.hash = newFolderName.replaceAll(' ', '%20');
 
@@ -266,6 +267,7 @@ function updateCurrentFolderNameCaller(){
     }
 
     var oldFolderPath = folderPath;
+    var websitePath = getCategoryNameFromUrl() + "/" + getWebsiteNameFromUrl() + "/";
 
     fetch('http://localhost:3001/move-folder', {
         method: 'POST',
@@ -274,7 +276,7 @@ function updateCurrentFolderNameCaller(){
         },
         body: JSON.stringify(
             {
-                oldFolderPath: oldFolderPath, newFolderPath: newFolderPath
+                oldFolderPath: oldFolderPath, newFolderPath: newFolderPath, renameFolder: true, url: websitePath, newFolderName: newFolderName, oldFolderName: oldFolderName
             })
         }
     )
@@ -286,9 +288,9 @@ function updateCurrentFolderNameCaller(){
         console.error('moveFolderServerCaller Error:', error);
     });
 
-    setTimeout(() => {
-        updateCurrentWebiste(); // to update the current website
-    }, 2000); // Delay to allow the deleteFile function to complete
+    // setTimeout(() => {
+    //     updateCurrentWebiste(); // to update the current website
+    // }, 2000); // Delay to allow the deleteFile function to complete
 }
 
 function moveFolderServerCaller(){
@@ -471,6 +473,37 @@ function updateIndexFileWithCurrentFolderNameCaller(){
         console.error('Error:', error);
     });
 }
+
+function updateFolderOrder(folderOrderData){
+    console.log('updateFolderOrder called with folderOrderData:',folderOrderData);
+
+    var categoryName = getCategoryNameFromUrl();
+    var websiteName = getWebsiteNameFromUrl();
+    var starsWebsiteCase = false;
+
+    console.log('updateFolderOrder categoryName:', categoryName);
+    console.log('updateFolderOrder websiteName:', websiteName);
+    if(starNamesList.includes(categoryName) && websiteName.toLowerCase().includes('tier')){
+        starsWebsiteCase = true;
+    }
+    var websitePath = getCategoryNameFromUrl() + "/" + getWebsiteNameFromUrl() + "/";
+    fetch('http://localhost:3001/update-folder-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+            {folderOrderData: folderOrderData, websitePath: websitePath, starsWebsiteCase: starsWebsiteCase }), // Send the form data as JSON
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('successful fetch');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
 //////////
 // above this rechecked
 function deleteServerCaller(){

@@ -63,15 +63,17 @@ document.addEventListener("keydown", function(event) {
             // select all images
             var imgItems = document.getElementsByClassName('img-item');
             for(var i=0;i<imgItems.length;i++){
-                if(!imgItems[i].classList.contains('selected-img')){
+                if(!imgItems[i].classList.contains('selected-img') && imgItems[i].style.display !== 'none'){
                     imgItems[i].click();
                 }
             }
+            return;
         }
-        return;
     }
 
     if(multipleElementsSelectionMode){
+        console.log('multipleElementsSelectionMode is true, running custom functionality for key:',event.key);
+        console.log('showPickListContainer:',showPickListContainer);
         if(event.key === 'Shift' && showPickListContainer){
             console.log('multipleElementsSelectionMode - Space key entered');
             getButton_BasedOn_InnerHTML('Submit').click();
@@ -174,6 +176,22 @@ document.addEventListener("keydown", function(event) {
             }
             return;
         }
+    }
+
+    if(folderMoveMode && event.key === 'Shift'){
+        // submit the current folders order
+        var blackHeaderAnchors = document.querySelectorAll('.black-header a');
+        var folderOrderData = [];
+        for(var i=1;i<blackHeaderAnchors.length;i++){
+            var tempText = blackHeaderAnchors[i].innerText; // 02(2)
+            // remove last '(' after part
+            tempText = tempText.substring(0,tempText.lastIndexOf('('));
+            folderOrderData.push(tempText);
+        }
+        console.log('Submitting folder order data:',folderOrderData);
+
+        updateFolderOrder(folderOrderData);
+        return;
     }
 
     if (!ifAnyOfWriteModeIsTrue() && (leftRightKeys.includes(event.key) || event.key === " ") ) {
@@ -306,6 +324,10 @@ document.addEventListener("keydown", function(event) {
         return;
     }
 
+    if (event.key === 'F'){
+        folderMoveMode = !folderMoveMode;
+    }
+
     if (event.key === "ArrowDown" || event.key === "ArrowUp"){
         arrowTopOrBottomClicked(event.key, event.shiftKey);
         return;
@@ -405,10 +427,63 @@ document.addEventListener("keydown", function(event) {
     }
 
     if(event.key === 'c'){
+
         var imgs = document.getElementsByClassName('img-tag');
         var imgPaths = [];
         for(var i=0;i<imgs.length;i++){
             imgPaths.push(imgs[i].src);
+        }
+
+        var websiteName = getWebsiteNameFromUrl();
+        if(websiteName === 'Ani List'){
+            var imgNameAndPath = [];
+            var imgNameToFolderNameMap = {};
+            var imgNameToImgExtensionMap = {};
+            var imgTags = document.getElementsByClassName('img-tag');
+            console.log("animeToWatchedDateMap",animeToWatchedDateMap);
+            
+            for(var i=0;i<imgTags.length;i++){
+                // if grand parent.display = 'none' continue;
+                if(imgTags[i].parentElement.parentElement.style.display === 'none'){
+                    continue;
+                }
+
+                var imgPathValue = imgTags[i].src;
+                // imgPathValue, get only text after last '/' and before last '.' - this is anime name
+                var animeName = imgPathValue.substring(imgPathValue.lastIndexOf('/')+1,imgPathValue.lastIndexOf('.')).replaceAll('%20',' ');
+                imgNameToFolderNameMap[animeName] = imgPathValue.substring(0,imgPathValue.lastIndexOf('/')).substring(imgPathValue.lastIndexOf('/',imgPathValue.lastIndexOf('/')-1)+1);
+                imgNameAndPath.push(animeName);
+                imgNameToImgExtensionMap[animeName] = imgPathValue.substring(imgPathValue.lastIndexOf('.')+1);
+            }
+
+            console.log('imgNameAndPath:',imgNameAndPath);
+            console.log('imgNameToFolderNameMap:',imgNameToFolderNameMap);
+
+            var sortedByDateImgData = [];
+            // animeListByWatchedDateList;
+            var imgContainer = document.getElementById("imgs-container");
+            imgContainer.innerHTML = "";
+
+            if(imgSortedByWatchedDate){
+                // reverse the animeListByWatchedDateList
+                animeListByWatchedDateList.reverse();
+            }
+            
+            for(var i=0;i<animeListByWatchedDateList.length;i++){
+                if(imgNameAndPath.includes(animeListByWatchedDateList[i])){
+                    console.log('file name:',animeListByWatchedDateList[i] + '.' + imgNameToImgExtensionMap[animeListByWatchedDateList[i]]);
+                    console.log('folder name:',imgNameToFolderNameMap[animeListByWatchedDateList[i]] );
+                    imgContainer.appendChild(
+                        imgItemCreator(
+                            animeListByWatchedDateList[i] + '.' + imgNameToImgExtensionMap[animeListByWatchedDateList[i]],
+                            imgNameToFolderNameMap[animeListByWatchedDateList[i]]  
+                        )
+                    );
+                }
+            }
+
+            imgSortedByWatchedDate = !imgSortedByWatchedDate;
+            return;
         }
 
         console.log('c key pressed:',imgPaths);

@@ -43,6 +43,10 @@ Mode specific keys:
                                         it has 3 cases check method in general method to understand more.
 
         A                               when imgRankingchangeMode or multipleElementsSelectionMode, then all imgs are clicked
+        Shift                           when folderMoveMode is enabled, submits current order of folder names
+
+        up arrow                        when folderMoveMode is enabled, moves current folder to left
+        down arrow                      when folderMoveMode is enabled, moves current folder to right
 
 Used Keys:
         
@@ -64,6 +68,7 @@ Used Keys:
         w                               navigate to top of the page
         W                               navigate to bottom of the page
         f                               toogle fullscreen
+        F                               folderMovingMode
         shift + arrow up/arrow down     scrolling by 100 - irrespective of modes
         arrow left/right                when we will never goto home tab
         r                               sortOrder = random

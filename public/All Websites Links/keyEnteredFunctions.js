@@ -141,6 +141,38 @@ function arrowTopOrBottomClicked(keyEntered, isShiftKey){
         console.log('arrowTopOrBottomClicked keyEntered:',keyEntered,"isShiftKey",isShiftKey);
     }
     
+    if(folderMoveMode){
+        console.log('folderMoveMode is on');
+
+        var getBlackHeaderAnchors = document.querySelectorAll('.black-header a');
+        var getCurrentAnchorIndex = -1;
+        for(var i=0;i<getBlackHeaderAnchors.length;i++){
+            if(getBlackHeaderAnchors[i].href.split('#')[1] === space_to_Percentile20(getFolderNameFromUrl())){
+                getCurrentAnchorIndex = i;
+                break;
+            }
+        }
+        console.log('current anchor index:',getCurrentAnchorIndex);
+
+        if(keyEntered === "ArrowUp"){
+            if(getCurrentAnchorIndex > 1){ 
+                // then make current anchor to previous anchor using insertBefore method
+                var previousAnchor = getBlackHeaderAnchors[getCurrentAnchorIndex - 1];
+
+                var parentElement = previousAnchor.parentElement.parentElement;
+                parentElement.insertBefore(getBlackHeaderAnchors[getCurrentAnchorIndex].parentElement,previousAnchor.parentElement);
+            }
+        }
+        else{
+            if(getCurrentAnchorIndex < getBlackHeaderAnchors.length - 1){
+                var nextAnchor = getBlackHeaderAnchors[getCurrentAnchorIndex + 1];
+                var parentElement = nextAnchor.parentElement.parentElement;
+                parentElement.insertBefore(nextAnchor.parentElement,getBlackHeaderAnchors[getCurrentAnchorIndex].parentElement);
+            }
+        }
+        return;
+    }
+
     var imgItems = document.getElementsByClassName('img-item');
 
     if(isShiftKey){

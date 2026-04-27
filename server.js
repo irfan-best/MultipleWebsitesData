@@ -32,6 +32,12 @@ function space_to_Percentile20(text){
     return updatedText;
 }
 
+function getMonthName(monthIndex){
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+    return months[monthIndex];
+}
+
 var BASE_URL = 'E:/All in One/Websites/Get Files for All Folders/public/All Websites Links/';
 // E:\All in One\Websites\Get Files for All Folders\public\All Websites Links
 const app = express();
@@ -435,7 +441,7 @@ async function deleteToRecycleBin(filename) {
 app.post('/move-folder',async (req,res) => {
 
     console.log('move-folder route:', req.body);
-    var {oldFolderPath,newFolderPath} = req.body;
+    var {oldFolderPath,newFolderPath,renameFolder,url,newFolderName,oldFolderName} = req.body;
 
     console.log('oldFolderPath:', oldFolderPath);
     console.log('newFolderPath:', newFolderPath);
@@ -462,6 +468,10 @@ app.post('/move-folder',async (req,res) => {
 
     try{
         await fs.rename(oldFolderPath, newFolderPath);
+
+        if(renameFolder)
+            await replaceNameInFolderOrderFile(url, newFolderName, oldFolderName);
+
         res.json({ success: true, message: 'moved folder successfully' });
     }
     catch(error){
@@ -469,6 +479,23 @@ app.post('/move-folder',async (req,res) => {
         res.status(500).json({ success: false, message: 'moving folder failed' });
     }
 })
+
+async function replaceNameInFolderOrderFile(url, newFolderName, oldFolderName){
+    console.log('replaceNameInFolderOrderFile called with url:', url);
+    var fileExplorerPath = removeStartFileText(nrmlURL) + folderInsidePublic + url;
+    const orderFilePath = path.join(fileExplorerPath, 'List Data/0 Folders Order.js');
+    // read orderFilePath and replace oldFolderName with newFolderName and then write it back
+    try{
+        var data = await fs.readFile(orderFilePath, 'utf-8');
+        var updatedData = data.replaceAll('"' + oldFolderName + '"', '"' + newFolderName + '"');
+        await fs.writeFile(orderFilePath, updatedData, 'utf-8');
+        console.log('Folder name updated in order file successfully');
+        console.log('updatedData:', updatedData);
+    }
+    catch(error){
+        console.log('Error updating folder name in order file:', error);
+    }
+}
 
 app.post('/copy-folder',async (req,res) => {
 
@@ -695,10 +722,58 @@ app.post('/copy-selected-images',async (req,res) => {
     }
 })
 
+// need to update data part getting added to file name
+app.post('/update-folder-order',async (req,res) => {
+    console.log('update-folder-order route',req.body);
+    
+    var {folderOrderData,websitePath,starsWebsiteCase} = req.body;
+    
+    try{
+        var fileExplorerPath = removeStartFileText(nrmlURL) + folderInsidePublic + websitePath;
+
+        const orderFilePath = path.join(fileExplorerPath, 'List Data/0 Folders Order.js');
+
+        const content = 'var foldersOrder = ' + JSON.stringify(folderOrderData, null, 2) + ';';
+
+        console.log('Updated folder order content:', content);
+        console.log('orderFilePath:', orderFilePath);
+        await fs.writeFile(orderFilePath, content);
+        console.log('Folders order updated with new folder names.');
+
+        if(starsWebsiteCase){
+            if(fileExplorerPath.toLowerCase().includes('- avg')){
+                var newFileExplorerPath = fileExplorerPath.replaceAll(' - Avg','');
+                var newOrderFilePath = path.join(newFileExplorerPath, 'List Data/0 Folders Order.js');
+                console.log('newFileExplorerPath for not avg case:', newFileExplorerPath);
+                console.log('newOrderFilePath for avg case:', newOrderFilePath);
+                await fs.writeFile(newOrderFilePath, content);
+                console.log('Also updated folder order for non avg case:', newOrderFilePath);
+            }
+            else{
+
+                var newFileExplorerPath = fileExplorerPath.slice(0,fileExplorerPath.length-1) + ' - Avg';
+                var newOrderFilePath = path.join(newFileExplorerPath, 'List Data/0 Folders Order.js');
+                console.log('newFileExplorerPath for avg case:', newFileExplorerPath);
+                console.log('newOrderFilePath for avg case:', newOrderFilePath);
+                await fs.writeFile(newOrderFilePath, content);
+                console.log('Also updated folder order for avg case:', newOrderFilePath);
+            }
+        }
+        
+        res.json({ success: true, message: 'folder order updated successfully' });
+    }
+    catch(error){
+        console.log('error moving selected images:',error);
+        res.status(500).json({ success: false, message: 'error: folder order updation' });
+    }
+})
+
+// recheck
 // url -> 1 Main/Ani List/
 // update url website (updates only 1 website)
 app.post('/allFolders', async (req, res) => {
     console.log('allFolders route:' + req.body.url);
+    var url = req.body.url;
 
     var fileExplorerPath = removeStartFileText(nrmlURL) + folderInsidePublic + req.body.url;
     const imagesFolderPath = fileExplorerPath + 'Images';
@@ -709,29 +784,158 @@ app.post('/allFolders', async (req, res) => {
     var folderNames = await getFolderNames(imagesFolderPath);
     // list of all folder names present in "Images" directory 
     
-    var fileContent = getIndexFileContent(folderNames); // index.html content
-    var files0Content = getFiles0Content(folderNames); // List Data/0 Files.js content
+    
+    var folderOrderList = await createFoldersOrderFiles(fileExplorerPath);
+    
+    var fileContent = getIndexFileContent(folderOrderList); // index.html content
+    var files0Content = getFiles0Content(folderOrderList); // List Data/0 Files.js content
     createFiles(fileExplorerPath, fileContent, files0Content);
 
     // console.log('successfully created index.html and 0 Files.js');
     const listDataPath = fileExplorerPath + 'List Data/';
 
     try {
-        // Iterate through folder names
-        for (let i = 0; i < folderNames.length; i++) {
-            const eachImageFolderPath = path.join(imagesFolderPath, folderNames[i]);
-            // console.log('eachImageFolderPath:', eachImageFolderPath);
+        const tempFilePath = path.join(listDataPath, "0 Imgs in Folder.js");
 
-            // Read directory contents
+        var getOldContent = '';
+        getOldContent = await fs.readFile(tempFilePath, 'utf-8');
+        // console.log('Old content of 0 Imgs in Folder.js:', getOldContent);
+
+        // 1. Find each full block: mainList[x] = [ ... ];
+        const blockRegex = /mainList\[\d+\]\s*=\s*\[([\s\S]*?)\];/g;
+        let match;
+
+        // var i = 0;
+        // while ((match = blockRegex.exec(getOldContent)) !== null) {
+        //     // match[1] contains everything inside the [ ]
+        //     const insideBrackets = match[1];
+
+        //     // 2. Extract filenames: look for text inside double quotes
+        //     // This removes the quotes, commas, and newlines
+        //     const animeList = insideBrackets
+        //         .match(/"([^"]+)"/g)         // Find all "string" matches
+        //         .map(s => s.replace(/"/g, '')); // Remove the quotes
+
+        //     // animeList = list of file names in one folder
+        // }
+
+        var fullContent = '';
+        
+        for(var i=0;i<folderOrderList.length;i++){
+            const eachImageFolderPath = path.join(imagesFolderPath, folderOrderList[i]);
             const files = await fs.readdir(eachImageFolderPath);
+
+
             // console.log('Files in eachImageFolderPath:', folderNames[i], files.slice(0, 5));
 
             // Save the file data to an ".js" file            
             const content = 'mainList['+ i +'] ' + ' = ' + JSON.stringify(files, null, 2);
-            const tempFilePath = path.join(listDataPath, folderNames[i] + '.js');
-            // console.log('tempFilePath:',tempFilePath);
-            // console.log('content:',content);
-            await fs.writeFile(tempFilePath, content);
+            fullContent += content + ";\n\n";
+
+        }
+
+        // // Iterate through folder names
+        // for (let i = 0; i < folderNames.length; i++) {
+        //     const eachImageFolderPath = path.join(imagesFolderPath, folderNames[i]);
+        //     // console.log('eachImageFolderPath:', eachImageFolderPath);
+
+        //     // Read directory contents
+        //     const files = await fs.readdir(eachImageFolderPath);
+        //     // console.log('Files in eachImageFolderPath:', folderNames[i], files.slice(0, 5));
+
+        //     // Save the file data to an ".js" file            
+        //     const content = 'mainList['+ i +'] ' + ' = ' + JSON.stringify(files, null, 2);
+        //     fullContent += content + ";\n\n";
+        // }
+
+        await fs.writeFile(tempFilePath, fullContent);
+
+
+        if(url === '1 Main/Ani List/'){
+            // Update 0 Watched Dates.js with new images not present in the file
+            const watchedDatesFilePath = 'E:/All in One/Websites/Get Files for All Folders/public/All Websites Links/0 Watched Dates.js';
+            
+            // Read existing watched dates file
+            let watchedDatesContent = await fs.readFile(watchedDatesFilePath, 'utf8');
+            console.log('Read 0 Watched Dates.js content successfully:', watchedDatesContent.slice(0, 200)); // Log first 200 characters
+            
+            // Extract the animeToWatchedDateMap object from the file
+            const mapMatch = watchedDatesContent.match(/var animeToWatchedDateMap = \{([\s\S]*?)\n\}/);
+            if (!mapMatch) {
+                console.log('Could not find animeToWatchedDateMap in file');
+            } else {
+                const mapContent = mapMatch[1];
+                // Parse existing anime names
+                const existingAnimeNames = [];
+                const keyValueRegex = /"([^"]+)"\s*:\s*"([^"]+)"/g;
+                let match;
+                while ((match = keyValueRegex.exec(mapContent)) !== null) {
+                    existingAnimeNames.push(match[1]);
+                }
+                
+                // Get all images from all folders in Ani List
+                const aniListBasePath = 'E:/All in One/Websites/Get Files for All Folders/public/All Websites Links/1 Main/Ani List/Images/';
+                const allFolders = await getFolderNames(aniListBasePath);
+
+                console.log('allFolders in Ani List:', allFolders);
+                
+                const notPresentOnes = [];
+                
+                // Iterate through each folder
+                for (const folderName of allFolders) {
+                    const folderPath = path.join(aniListBasePath, folderName);
+                    
+                    try {
+                        const files = await getFileFullNames(folderPath);
+                        console.log(`Checking folder: ${folderName}, files count: ${files.length}`);
+                        console.log('files:', files.slice(0, 5)); // Log first 5 files in the folder
+                        
+                        // Check each image file
+                        for (const fileName of files) {
+                            // Skip non-image files
+                            const ext = path.extname(fileName).toLowerCase();
+                            
+                            const imageName = path.basename(fileName, ext);
+                            
+                            // Check if image name is NOT in existing list
+                            if (!existingAnimeNames.includes(imageName)) {
+                                // Get image creation date
+                                const imagePath = path.join(folderPath, fileName);
+                                const stats = await fs.stat(imagePath);
+                                const createdDate = stats.birthtime;
+                                
+                                // Format date as "DD MMM YYYY, HH:mm:ss"
+                                const formattedDate = `${String(createdDate.getDate()).padStart(2, '0')} ${getMonthName(createdDate.getMonth())} ${createdDate.getFullYear()}, ${String(createdDate.getHours()).padStart(2, '0')}:${String(createdDate.getMinutes()).padStart(2, '0')}:${String(createdDate.getSeconds()).padStart(2, '0')}`;
+                                
+                                notPresentOnes.push({ name: imageName, date: formattedDate });
+                            }
+                        }
+                    } catch (err) {
+                        console.log(`Error processing folder ${folderName}:`, err.message);
+                    }
+                }
+                
+                console.log('Not present ones count:', notPresentOnes.length);
+                console.log('Not present ones:', notPresentOnes);
+                
+                // Append not present ones to the map
+                if (notPresentOnes.length > 0) {
+                    let newEntries = '';
+                    for (const item of notPresentOnes) {
+                        newEntries += `    "${item.name}" : "${item.date}",\n`;
+                    }
+                    
+                    // Insert new entries before the closing brace
+                    watchedDatesContent = watchedDatesContent.replace(
+                        /\n\}/,
+                        '\n' + newEntries + '}'
+                    );
+                    
+                    // Write back to file
+                    await fs.writeFile(watchedDatesFilePath, watchedDatesContent);
+                    console.log('Updated 0 Watched Dates.js with', notPresentOnes.length, 'new entries');
+                }
+            }
         }
 
         // Send a single response after processing all folders
@@ -739,7 +943,8 @@ app.post('/allFolders', async (req, res) => {
             message: 'Folders processed successfully.',
             data: 'website updated successfully',
         });
-    } catch (error) {
+    } 
+    catch (error) {
         console.error('Error updating website:', error);
         res.status(500).json({
             message: 'An error occurred while updating website.',
@@ -751,7 +956,7 @@ app.post('/allFolders', async (req, res) => {
 // example directoryPath = E:/All in One/Websites/Get Files for All Folders/public/All Websites Links/
 // returns list of folderNames in the given path's folder
 async function getFolderNames(directoryPath) {
-    console.log('getFolderNames called directoryPath:',directoryPath);
+    // console.log('getFolderNames called directoryPath:',directoryPath);
     try {
         const items = await fs.readdir(directoryPath, { withFileTypes: true });
 
@@ -784,11 +989,10 @@ async function getFileFullNames(directoryPath) {
 }
 
 function getIndexFileContent(folderNames) {
-    var linksText = ""; var scriptsText = ""; var linksText1 = "";
+    var linksText = ""; var linksText1 = "";
     for(var i=0;i<folderNames.length;i++){
         linksText   += `            <li><a onclick="changeList('${folderNames[i].replaceAll(/'/g, "\\'")}')" href="#${space_to_Percentile20(folderNames[i])}">${folderNames[i]}(<span id="data-${space_to_Percentile20(folderNames[i])}"></span>)</a></li>\n`;
         linksText1  += `            <li><a onclick="changeList('${folderNames[i].replaceAll(/'/g, "\\'")}')" href="#${space_to_Percentile20(folderNames[i])}">${folderNames[i]}(<span id="data1-${space_to_Percentile20(folderNames[i])}"></span>)</a></li>\n`;
-        scriptsText += `        <script src="List Data/${folderNames[i]}.js"></script>\n`;
     }
 
     var fileContent = `<!DOCTYPE html>
@@ -854,11 +1058,9 @@ function getIndexFileContent(folderNames) {
 
         <input type="text" class="search-box" />
 
+        <script src="../../0 Watched Dates.js"></script>
         <script src="List Data/0 Files.js"></script>
-`
-    +
-    scriptsText
-    +`
+        <script src="List Data/0 Imgs in Folder.js"></script>
         <script src="../../boolean and conditional variables.js"></script>
         <script src="../../c set and toogle methods.js"></script>
         <script src="../../general methods.js"></script>
@@ -888,6 +1090,76 @@ async function createFiles(fileExplorerPath, fileContent, files0Content) {
     await fs.writeFile(fileExplorerPath + 'List Data/0 Files.js', files0Content);
 }
 
+function parseFoldersOrderContent(content) {
+    const match = content.match(/var\s+foldersOrder\s*=\s*(\[[\s\S]*?\])\s*;/);
+    if (!match) return null;
+
+    const arrayText = match[1];
+    try {
+        return JSON.parse(arrayText);
+    } catch (err) {
+        try {
+            return Function(`"use strict"; return (${arrayText});`)();
+        } catch (err2) {
+            console.error('Error parsing folders order content:', err2);
+            return null;
+        }
+    }
+}
+
+async function createFoldersOrderFiles(fileExplorerPath) {
+    const orderFilePath = path.join(fileExplorerPath, 'List Data/0 Folders Order.js');
+
+    try {
+        await fs.access(orderFilePath);
+        const getFoldersOrderContent = await fs.readFile(orderFilePath, 'utf-8');
+        const foldersOrderList = parseFoldersOrderContent(getFoldersOrderContent);
+
+        if (!Array.isArray(foldersOrderList)) {
+            const folderNames = await getFolderNames(path.join(fileExplorerPath, 'Images'));
+            const content = 'var foldersOrder = ' + JSON.stringify(folderNames, null, 2) + ';';
+            console.log('Invalid folders order content. Recreating with current folder names.');
+            // await fs.writeFile(orderFilePath, content);
+        }
+        console.log('Existing folders order is valid. No update needed.:', foldersOrderList);
+
+        const folderNames = await getFolderNames(path.join(fileExplorerPath, 'Images'));
+        // if folderName is not present in foldersOrderList then add that folderName at end of foldersOrderList and update file
+        let updated = false;
+        for (const folderName of folderNames) {
+            if (!foldersOrderList.includes(folderName)) {
+                foldersOrderList.push(folderName);
+                updated = true;
+            }
+        }
+
+        // if any folder is present in foldersOrderList but not present in folderNames, then remove that folder from foldersOrderList and update file
+        for (let i = foldersOrderList.length - 1; i >= 0; i--) {
+            const folderName = foldersOrderList[i];
+            if (!folderNames.includes(folderName)) {
+                foldersOrderList.splice(i, 1);
+                updated = true;
+            }
+        }
+        
+        if (updated) {
+            const content = 'var foldersOrder = ' + JSON.stringify(foldersOrderList, null, 2) + ';';
+            await fs.writeFile(orderFilePath, content);
+            console.log('Folders order updated with new folder names.');
+        } else {
+            console.log('Folders order is already up to date. No changes made.');
+        }
+
+        return foldersOrderList;
+
+    } catch (err) {
+        const folderNames = await getFolderNames(path.join(fileExplorerPath, 'Images'));
+        const content = 'var foldersOrder = ' + JSON.stringify(folderNames, null, 2) + ';';
+        await fs.writeFile(orderFilePath, content);
+
+        return folderNames;
+    }
+}
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
 });
@@ -926,21 +1198,16 @@ app.post('/update-index-file',async (req,res) => {
     console.log('update-index-file',req.body);
     
     var {folderName,websitePath} = req.body;
-    console.log('folderName:', folderName);
-    console.log('websitePath:', websitePath);
+
     // remove last slash from websitePath
     if(websitePath.endsWith('/'))
         websitePath = websitePath.slice(0, -1);
 
     try{
-        // Usage:
         const htmlFilePath = path.join(__dirname, 'public','index.html');
         console.log('htmlFilePath:', htmlFilePath);
-        // const folderToFind = "1 Main/Not Completed List";
-        // const newHashName = "Good Romcoms Plan To Watch";
 
         updateAnchorHash(htmlFilePath, websitePath, folderName);
-        
         res.json({ success: true, message: 'index file updated successfully' });
     }
     catch(error){

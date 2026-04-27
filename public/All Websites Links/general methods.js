@@ -243,7 +243,7 @@ function imgItemCreator(imgNameWithExtension,foldername){
 
     if(videoFileExtensions.some(ext => imgNameWithExtension.endsWith(ext))){
         if(consoleLevel === 2){
-            console.log('File that got colored to yellow:',image.src);
+            console.log('File that got colored to yellow:',imgNameWithExtension);
         }
         imgName.classList.add('yellow-text');
     }
@@ -256,7 +256,7 @@ function imgItemCreator(imgNameWithExtension,foldername){
     imgItem.appendChild(imgBox);
 
     var imgFolderName = document.createElement("div");
-    imgFolderName.innerHTML = foldername;
+    imgFolderName.innerHTML = foldername.replaceAll('%20',' ');
     imgFolderName.setAttribute("class","img-folder-name");
     imgFolderName.setAttribute("style","display:none;");
     imgItem.appendChild(imgFolderName);
@@ -499,6 +499,7 @@ function getAllVisibleImgNames() {
         var imgItem = imgName[i].parentElement;
         if(imgItem.style.display === "none") continue; // skip if img is hidden
         var name = imgName[i].innerHTML;
+        name = name.replaceAll('&amp;','&');
         data += `${name}\n`;
     }
 

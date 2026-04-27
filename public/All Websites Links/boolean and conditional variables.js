@@ -1,4 +1,4 @@
-var consoleLevel = 2; // 0: no logs, 1: important logs, 2: all logs
+var consoleLevel = 0; // 0: no logs, 1: important logs, 2: all logs
 
 var nrmlURL = 'file:///E:/All in One/Websites/Get Files for All Folders/public/';
 var localHostURL = 'http://localhost:3001/';
@@ -92,6 +92,7 @@ var localHost_on = false;
 var includeFileExtensions = false; // this is for edit img name i guess
 
 var specialFunctionsOnImgClickEnabled = false;
+var imgSortedByWatchedDate = false; // false means asc order, true means desc order
 // ----------------------------------------------------------------------------------------------------------
 // ------------------------------------------- all Modes ----------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------
@@ -112,6 +113,8 @@ var fileNameChangeFocusMode = false; // when we enter focus on an edit box, then
 var imgRankingchangeMode = false;
 var showPickListContainer = false;
 var folderNameEditingMode = false;
+
+var folderMoveMode = false; // F to toogle the mode
 
 // ----------------------------------------------------------------------------------------------------------
 // ------------------------------------------- new ones -----------------------------------------------------

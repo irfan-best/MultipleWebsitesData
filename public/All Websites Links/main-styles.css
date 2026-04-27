@@ -112,6 +112,10 @@ ul{
   font-size: 12px;
 }
 
+.hidden-button{
+  display: none;
+}
+
 /* mode button styles */
 .switch {
   position: relative;
@@ -228,4 +232,16 @@ input:checked + .slider:before {
   font-weight: bold;
   text-decoration: underline;
   background-color: cyan;
+}
+
+#yearFilter{
+  width: 100px;
+  margin: 4px 0 0 6px;
+  height: 34px;
+}
+
+#monthFilter{
+  width: 120px;
+  margin: 4px 6px 0 6px;
+  height: 34px;
 }
