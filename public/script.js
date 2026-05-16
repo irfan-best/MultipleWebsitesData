@@ -212,3 +212,46 @@ var copyTerminalPath = document.getElementById('copy-terminal-path');
 copyTerminalPath.onclick = function(event){
     navigator.clipboard.writeText(event.target.innerHTML);
 } 
+
+// hide all main-box and anchors-within
+var mainBoxs = document.querySelectorAll('.main-box');
+mainBoxs.forEach(box => {
+    box.style.display = 'none';
+});
+
+var anchors = document.querySelectorAll('.main-box a');
+anchors.forEach(anchor => {
+    anchor.style.display = 'none';
+});
+
+var offElements = document.querySelectorAll('.off');
+offElements.forEach(element => {
+    element.style.display = 'none';
+});
+
+var onElements = document.querySelectorAll('.on');
+onElements.forEach(element => {
+    element.style.display = 'block';
+});
+
+// get hash from url and show the main-box with that id
+var hash = window.location.hash.substring(1);
+console.log('Hash:', hash);
+
+if(hash === 'abc123'){
+    // unhide all main-box and anchors-within
+    var mainBoxs = document.querySelectorAll('.main-box');
+    mainBoxs.forEach(box => {
+        box.style.display = 'block';
+    });
+
+    var anchors = document.querySelectorAll('.main-box a');
+    anchors.forEach(anchor => {
+        anchor.style.display = 'block';
+    });
+
+    var offElements = document.querySelectorAll('.off');
+    offElements.forEach(element => {
+        element.style.display = 'block';
+    });
+}

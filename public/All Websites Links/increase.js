@@ -74,8 +74,8 @@ document.addEventListener("keydown", function(event) {
     if(multipleElementsSelectionMode){
         console.log('multipleElementsSelectionMode is true, running custom functionality for key:',event.key);
         console.log('showPickListContainer:',showPickListContainer);
-        if(event.key === 'Shift' && showPickListContainer){
-            console.log('multipleElementsSelectionMode - Space key entered');
+        if(event.key === 'Enter' && showPickListContainer){
+            console.log('multipleElementsSelectionMode - Enter key entered');
             getButton_BasedOn_InnerHTML('Submit').click();
             return;
         }
@@ -192,6 +192,21 @@ document.addEventListener("keydown", function(event) {
 
         updateFolderOrder(folderOrderData);
         return;
+    }
+
+    if(isFullScreen){
+
+        if(event.key === ';'){
+            fullScreenPlusFitSizeMode = !fullScreenPlusFitSizeMode;
+            fitImagesToScreen();
+            return;
+        }
+
+        if(event.key === "u"){
+            // click "Updating Ranking" button
+            getButton_BasedOn_InnerHTML('Updating Ranking')?.click();
+            return;
+        }
     }
 
     if (!ifAnyOfWriteModeIsTrue() && (leftRightKeys.includes(event.key) || event.key === " ") ) {
@@ -464,7 +479,7 @@ document.addEventListener("keydown", function(event) {
             var imgContainer = document.getElementById("imgs-container");
             imgContainer.innerHTML = "";
 
-            if(imgSortedByWatchedDate){
+            if(sortInReverse){
                 // reverse the animeListByWatchedDateList
                 animeListByWatchedDateList.reverse();
             }
@@ -482,7 +497,7 @@ document.addEventListener("keydown", function(event) {
                 }
             }
 
-            imgSortedByWatchedDate = !imgSortedByWatchedDate;
+            sortInReverse = !sortInReverse;
             return;
         }
 
@@ -496,9 +511,14 @@ document.addEventListener("keydown", function(event) {
         })
         .then(response => response.json())
         .then(data => {
+
             // console.log('imgs created dates:',data);
             var imgContainer = document.getElementById("imgs-container");
             imgContainer.innerHTML = "";
+
+            if(sortInReverse){
+                data.newImgPaths.reverse();
+            }
 
             for(var i=0;i<data.newImgPaths.length;i++){
                 var imgPathValue = data.newImgPaths[i].imgPath;
@@ -514,10 +534,13 @@ document.addEventListener("keydown", function(event) {
                 imgNames[i].innerHTML = imgNames[i].innerHTML.replaceAll('%20',' ');
                 imgFolderNames[i].innerHTML = imgFolderNames[i].innerHTML.replaceAll('%20',' ');
             }
+
+            sortInReverse = !sortInReverse;
         })
         .catch(error => {
             console.error('Error:', error);
         });
+
         return;
     }
 

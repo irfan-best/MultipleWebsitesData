@@ -443,6 +443,7 @@ var animeToWatchedDateMap = {
     "Fire force" : "20 April 2026, 20:05:57",
     "Your Letter" : "22 April 2026, 16:25:55",
     "Those Snow White Notes" : "22 April 2026, 20:33:59",
+    "Love Live! Hasunosora Jogakuin School Idol Club Movie Bloom Garden Party" : "12 May 2026, 11:02:51",
 }
 
 // ...existing code...

@@ -249,13 +249,13 @@ function arrowTopOrBottomClicked(keyEntered, isShiftKey){
 
             var currRowFirstElement = (focusElement - focusElement % no_Of_Imgs_Per_Row)
             maxHeightOfRow = imgTags[currRowFirstElement].clientHeight > maxHeightOfRow ? imgTags[currRowFirstElement].clientHeight : maxHeightOfRow;
-
+            maxHeightOfRow = Number(maxHeightOfRow);
             if(currRowFirstElement < imgTags.length - 1){
                 maxHeightOfRow = imgTags[currRowFirstElement + 1].clientHeight > maxHeightOfRow ? imgTags[currRowFirstElement + 1].clientHeight : maxHeightOfRow;
             }
 
             console.log('special case',maxHeightOfRow);
-            if(maxHeightOfRow > 900){
+            if(maxHeightOfRow > 1125){
                 console.log('more than 900 case');
                 if(!specialScrollCase){
                     scroll_To_Top_OR_Bottom_Of_Img = !scroll_To_Top_OR_Bottom_Of_Img; // scroll to top of img
@@ -277,7 +277,7 @@ function arrowTopOrBottomClicked(keyEntered, isShiftKey){
             var maxHeightOfRow = imgTags[focusElement].clientHeight;
             console.log('special case 2',imgTags[focusElement].clientHeight);
 
-            if(maxHeightOfRow > 900){
+            if(maxHeightOfRow > 2010){
                 console.log('more than 900 case');
                 if(!specialScrollCase){
                     scroll_To_Top_OR_Bottom_Of_Img = !scroll_To_Top_OR_Bottom_Of_Img; // scroll to top of img

@@ -1,4 +1,4 @@
-var consoleLevel = 0; // 0: no logs, 1: important logs, 2: all logs
+var consoleLevel = 1; // 0: no logs, 1: important logs, 2: all logs
 
 var nrmlURL = 'file:///E:/All in One/Websites/Get Files for All Folders/public/';
 var localHostURL = 'http://localhost:3001/';
@@ -92,7 +92,7 @@ var localHost_on = false;
 var includeFileExtensions = false; // this is for edit img name i guess
 
 var specialFunctionsOnImgClickEnabled = false;
-var imgSortedByWatchedDate = false; // false means asc order, true means desc order
+var sortInReverse = false; // false means asc order, true means desc order
 // ----------------------------------------------------------------------------------------------------------
 // ------------------------------------------- all Modes ----------------------------------------------------
 // ----------------------------------------------------------------------------------------------------------
@@ -115,6 +115,11 @@ var showPickListContainer = false;
 var folderNameEditingMode = false;
 
 var folderMoveMode = false; // F to toogle the mode
+
+var fullScreenPlusFitSizeMode = false;
+// when we are in fullscreen and click ";", then we will toggle fullScreenPlusFitSizeMode, 
+// when fullScreenPlusFitSizeMode is true, then we will set img width and height to 100% of screen size, 
+// when false we will set it to normal full screen size (which is based on img aspect ratio)
 
 // ----------------------------------------------------------------------------------------------------------
 // ------------------------------------------- new ones -----------------------------------------------------

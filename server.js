@@ -787,9 +787,8 @@ app.post('/allFolders', async (req, res) => {
     
     var folderOrderList = await createFoldersOrderFiles(fileExplorerPath);
     
-    var fileContent = getIndexFileContent(folderOrderList); // index.html content
     var files0Content = getFiles0Content(folderOrderList); // List Data/0 Files.js content
-    createFiles(fileExplorerPath, fileContent, files0Content);
+    createFiles(fileExplorerPath, files0Content);
 
     // console.log('successfully created index.html and 0 Files.js');
     const listDataPath = fileExplorerPath + 'List Data/';
@@ -988,94 +987,6 @@ async function getFileFullNames(directoryPath) {
     }
 }
 
-function getIndexFileContent(folderNames) {
-    var linksText = ""; var linksText1 = "";
-    for(var i=0;i<folderNames.length;i++){
-        linksText   += `            <li><a onclick="changeList('${folderNames[i].replaceAll(/'/g, "\\'")}')" href="#${space_to_Percentile20(folderNames[i])}">${folderNames[i]}(<span id="data-${space_to_Percentile20(folderNames[i])}"></span>)</a></li>\n`;
-        linksText1  += `            <li><a onclick="changeList('${folderNames[i].replaceAll(/'/g, "\\'")}')" href="#${space_to_Percentile20(folderNames[i])}">${folderNames[i]}(<span id="data1-${space_to_Percentile20(folderNames[i])}"></span>)</a></li>\n`;
-    }
-
-    var fileContent = `<!DOCTYPE html>
-<html>
-    
-    <head>
-        <link rel="stylesheet" href="../../main-styles.css">
-        <link rel="stylesheet" href="../../serverRelatedButton.css">
-    </head>
-
-    <body>
-
-        <ul class='black-header'>
-            <li><a onclick="changeList('home')" href="#home">Home(<span id="data0"></span>)</a></li>
-`
-    +
-    linksText
-    +
-`       </ul>
-`
-    +
-            `
-        <ul class='black-header1'>
-            <li><a onclick="changeList('home')" href="#home">Home(<span id="data1"></span>)</a></li>
-`
-            +linksText1 
-    +
-`       </ul>
-            
-        <div class="copy-container">
-        <button id="no-of-selected-images" class='copy-button'>0 selected imgs</button>
-        <button id="no-of-folders" class='copy-button'>No.of Folders</button>
-            <button id="show-website-name" class='copy-button'>Website Name</button>
-            <img src="../../M Swith On.png"  class='m-switch-button' id="m-switch-on" style='display:none'/>
-            <img src="../../M Swith Off.png" class='m-switch-button' id="m-switch-off"  />
-        </div>
-
-        <div class="imgs-container" id="imgs-container">
-        </div>
-
-        <div class="picklist-container">
-            <div class="remove-button">X</div>
-            <label for="categorySelect">Select Website Category:</label>
-            <select id="categorySelect">
-                <option value="">-- Select Website Category --</option>
-            </select>
-
-            <label for="websiteSelect">Select Website:</label>
-            <select id="websiteSelect" disabled>
-                <option value="">-- Select Website --</option>
-            </select>
-
-            <label for="folderSelect">Select Folder:</label>
-            <select id="folderSelect" disabled>
-                <option value="">-- Select Folder --</option>
-            </select>
-
-            <label for="newFolder" class="new-folder-label">New Folder Name:</label>
-            <input class="new-folder" type="text">
-
-            <button class="submit-button submit-button-for-website-selection">Submit</button>
-        </div>
-
-        <input type="text" class="search-box" />
-
-        <script src="../../0 Watched Dates.js"></script>
-        <script src="List Data/0 Files.js"></script>
-        <script src="List Data/0 Imgs in Folder.js"></script>
-        <script src="../../boolean and conditional variables.js"></script>
-        <script src="../../c set and toogle methods.js"></script>
-        <script src="../../general methods.js"></script>
-        <script src="../../keyEnteredFunctions.js"></script>
-        <script src="../../imagesfunc.js"></script>
-        <script src="../../increase.js"></script>
-        <script src="../../serverCaller.js"></script>
-        <script src="../../serverRelatedButtons.js"></script>
-    </body>
-
-</html>`
-
-    return fileContent;
-}
-
 function getFiles0Content(folderNames) {
     return `
     var fileNames = `
@@ -1085,8 +996,7 @@ function getFiles0Content(folderNames) {
     `;\nvar mainList = [];`;
 }
 
-async function createFiles(fileExplorerPath, fileContent, files0Content) {    
-    await fs.writeFile(fileExplorerPath + 'index.html', fileContent);
+async function createFiles(fileExplorerPath, files0Content) {    
     await fs.writeFile(fileExplorerPath + 'List Data/0 Files.js', files0Content);
 }
 
@@ -1165,7 +1075,7 @@ app.listen(port, () => {
 });
 
 // this method is used to update hash in anchor tag of index.html file of website, when we change folder name of a folder which is present in that website, since hash is same as folder name, so we need to update hash as well, otherwise when we click on that anchor tag, it will not take us to that folder since hash is not updated
-async function updateAnchorHash(filePath, targetFolder, newHash) {
+async function updateAnchorHash1(filePath, targetFolder, newHash) {
     try {
         // 1. Read the HTML file
         let content = await fs.readFile(filePath, 'utf8');
@@ -1184,12 +1094,56 @@ async function updateAnchorHash(filePath, targetFolder, newHash) {
         // 4. Replace with the same base path but the new hash
         const updatedContent = content.replace(regex, `$1#${encodedHash}"`);
 
+        i
+
         // 5. Save the file back
         await fs.writeFile(filePath, updatedContent, 'utf8');
 
         console.log('File updated successfully!');
     } catch (err) {
         console.error('Error updating file:', err);
+    }
+}
+
+/**
+ * Updates or appends a hash to a specific link in an HTML file.
+ * 
+ * @param {string} filePath - Path to the .html file.
+ * @param {string} targetFolder - The folder name to match in the href (e.g., "Ani List").
+ * @param {string} newHash - The new hash value (e.g., "2026 2nd Quarter").
+ */
+async function updateAnchorHash(filePath, targetFolder, newHash) {
+    try {
+        // 1. Read the file content
+        let content = await fs.readFile(filePath, 'utf8');
+
+        // 2. Prepare the new hash part (ensure it starts with # and is URI encoded)
+        const hashPart = `#${encodeURIComponent(newHash)}`;
+
+        /**
+         * Regex Breakdown:
+         * href="([^"]*?\/targetFolder\/index\.html)(#[^"]*)?"
+         * 
+         * Group 1: Matches the base URL up to index.html
+         * Group 2: Matches an existing hash if present
+         */
+        // Escape targetFolder for use in Regex in case it has special characters
+        const escapedFolder = targetFolder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`href="([^"]*?\\/${escapedFolder}\\/index\\.html)(#[^"]*)?"`, 'g');
+
+        // 3. Replace the old link with the base URL + new hash
+        // $1 refers to the captured base URL (Group 1)
+        const updatedContent = content.replace(regex, `href="$1${hashPart}"`);
+
+        // 4. Write the file back only if changes were made
+        if (content !== updatedContent) {
+            await fs.writeFile(filePath, updatedContent, 'utf8');
+            console.log(`Successfully updated hash for "${targetFolder}" in ${filePath}`);
+        } else {
+            console.log(`No matching link found for "${targetFolder}".`);
+        }
+    } catch (error) {
+        console.error('Error updating the file:', error);
     }
 }
 

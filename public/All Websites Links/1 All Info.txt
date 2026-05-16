@@ -27,7 +27,7 @@ Mode specific keys:
                                         will get copied
 
         m                               when we are in multipleElementsSelectionMode, move button will get clicked
-        shift                           when we are in multipleElementsSelectionMode, submit btn will be clicked
+        enter                           when we are in multipleElementsSelectionMode, submit btn will be clicked
         number < no_Of_Imgs_Per_Row     when we are in multipleElementsSelectionMode, then on current, if 1 key 
                                         is entered then first element of row is clicked, if 2 key entered then
                                         2nd element of current row is clicked and so on...
@@ -47,6 +47,9 @@ Mode specific keys:
 
         up arrow                        when folderMoveMode is enabled, moves current folder to left
         down arrow                      when folderMoveMode is enabled, moves current folder to right
+
+        u                               when fullScreen will click "Updating Ranking" button
+        ;                               when fullScreen will make image height = 100%, width = auto
 
 Used Keys:
         
