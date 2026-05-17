@@ -336,7 +336,7 @@ function homeListGenerator(){
 
     fullList = [];
     for(var i=0;i<fileNames.length;i++)
-        fullList.push(...mainList[i]);
+        fullList.push(...mainList[fileNames[i]]); // new fix for img storage format change
 
     tempSet = new Set(fullList);
     fullList = [...tempSet];
@@ -352,7 +352,7 @@ function homeListGenerator(){
     imgContainer.innerHTML = "";
     fullList.forEach((value)=>{
         for(var i=0;i<fileNames.length;i++){
-            if(mainList[i].includes(value)){
+            if(mainList[fileNames[i]].includes(value)){
                 imgContainer.appendChild(imgItemCreator(value,fileNames[i]));
             }
         }
@@ -461,7 +461,7 @@ function changeList(folderName){
     if(folderName === 'home')   homeListGenerator();
     else{
         var index = getFolderIndex(folderName);
-        imgListGenerator(fileNames[index],mainList[index]);
+        imgListGenerator(fileNames[index],mainList[fileNames[index]]);
     }
 }
 
@@ -753,7 +753,7 @@ function call_HomeList_OR_imgList_Generator(){
             window.location.hash = '#' + firstFolderName.href.split('#')[1];
             index = 0;
         }
-        imgListGenerator(fileNames[index],mainList[index]);
+        imgListGenerator(fileNames[index],mainList[fileNames[index]]);
     }
 }
 
@@ -765,9 +765,9 @@ function setHomePage_AND_AllFolderImgCounts(){
 
     var allFilesCount = 0;
     for(var i=0;i<fileNames.length;i++){
-        allFilesCount += mainList[i].length;
-        document.getElementById("data-"+(space_to_Percentile20(fileNames[i]))).innerHTML = mainList[i].length;
-        document.getElementById("data1-"+(space_to_Percentile20(fileNames[i]))).innerHTML = mainList[i].length;
+        allFilesCount += mainList[fileNames[i]].length;
+        document.getElementById("data-"+(space_to_Percentile20(fileNames[i]))).innerHTML = mainList[fileNames[i]].length;
+        document.getElementById("data1-"+(space_to_Percentile20(fileNames[i]))).innerHTML = mainList[fileNames[i]].length;
     }
     document.getElementById("data0").innerHTML = allFilesCount; // home page no of imgs
     document.getElementById("data1").innerHTML = allFilesCount; // home page no of imgs

@@ -60,6 +60,7 @@ function isNumber(str) {
 
 // var folderNames = ['1 fav', '1.1 tier2', '2 watched', '4 dropped', '5 started'];
 
+// i think this is not used anywhere but confirm it.
 app.post('/submit', async (req, res) => {
     console.log('submit url');
 
@@ -80,7 +81,7 @@ app.post('/submit', async (req, res) => {
 
             // Save the file data to a .js file
             
-            const content = 'mainList['+ i +'] ' + ' = ' + JSON.stringify(files, null, 2);
+            const content = 'mainList["'+ folderNames[i] +'"] ' + ' = ' + JSON.stringify(files, null, 2);
             const tempFilePath = path.join(outputDir, folderNames[i] + '.js');
             await fs.writeFile(tempFilePath, content);
 
@@ -800,24 +801,6 @@ app.post('/allFolders', async (req, res) => {
         getOldContent = await fs.readFile(tempFilePath, 'utf-8');
         // console.log('Old content of 0 Imgs in Folder.js:', getOldContent);
 
-        // 1. Find each full block: mainList[x] = [ ... ];
-        const blockRegex = /mainList\[\d+\]\s*=\s*\[([\s\S]*?)\];/g;
-        let match;
-
-        // var i = 0;
-        // while ((match = blockRegex.exec(getOldContent)) !== null) {
-        //     // match[1] contains everything inside the [ ]
-        //     const insideBrackets = match[1];
-
-        //     // 2. Extract filenames: look for text inside double quotes
-        //     // This removes the quotes, commas, and newlines
-        //     const animeList = insideBrackets
-        //         .match(/"([^"]+)"/g)         // Find all "string" matches
-        //         .map(s => s.replace(/"/g, '')); // Remove the quotes
-
-        //     // animeList = list of file names in one folder
-        // }
-
         var fullContent = '';
         
         for(var i=0;i<folderOrderList.length;i++){
@@ -833,19 +816,6 @@ app.post('/allFolders', async (req, res) => {
 
         }
 
-        // // Iterate through folder names
-        // for (let i = 0; i < folderNames.length; i++) {
-        //     const eachImageFolderPath = path.join(imagesFolderPath, folderNames[i]);
-        //     // console.log('eachImageFolderPath:', eachImageFolderPath);
-
-        //     // Read directory contents
-        //     const files = await fs.readdir(eachImageFolderPath);
-        //     // console.log('Files in eachImageFolderPath:', folderNames[i], files.slice(0, 5));
-
-        //     // Save the file data to an ".js" file            
-        //     const content = 'mainList['+ i +'] ' + ' = ' + JSON.stringify(files, null, 2);
-        //     fullContent += content + ";\n\n";
-        // }
 
         await fs.writeFile(tempFilePath, fullContent);
 
